@@ -1,0 +1,119 @@
+/* Toast notification styles */
+#toast-container {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  z-index: 9999; /* Increased z-index to ensure visibility */
+}
+
+/* Toast container for confirm dialogs - positioned at the top center */
+#confirm-toast-container {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  z-index: 9999;
+}
+
+/* Toast animation classes */
+#toast-container > div,
+#confirm-toast-container > div {
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-md);
+}
+
+/* Toast color and position enhancements */
+#toast-container > div,
+#confirm-toast-container > div {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Add a glow effect to the toast based on its type */
+#toast-container > div:has(.text-green-500),
+#confirm-toast-container > div:has(.text-green-500) {
+  box-shadow: var(--shadow-md);
+}
+
+#toast-container > div:has(.text-red-500),
+#confirm-toast-container > div:has(.text-red-500) {
+  box-shadow: var(--shadow-md);
+}
+
+#toast-container > div:has(.text-orange-500),
+#confirm-toast-container > div:has(.text-orange-500) {
+  box-shadow: var(--shadow-md);
+}
+
+#toast-container > div:has(.text-blue-600),
+#confirm-toast-container > div:has(.text-blue-600) {
+  box-shadow: var(--shadow-md);
+}
+
+/* Confirmation toast specific styles */
+#toast-container > div .cancel-action:hover,
+#confirm-toast-container > div .cancel-action:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+#toast-container > div .confirm-action:hover,
+#confirm-toast-container > div .confirm-action:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+/* Make confirmation toast a bit wider */
+#toast-container > div:has(.confirm-action),
+#confirm-toast-container > div:has(.confirm-action) {
+  max-width: 300px;
+}
+
+/* Dark mode adjustments */
+@media (prefers-color-scheme: dark) {
+  .dark\:bg-gray-800 {
+    background-color: var(--sidebar-bg);
+  }
+  .dark\:bg-gray-900 {
+    background-color: var(--surface-secondary);
+  }
+  .dark\:text-gray-400 {
+    color: var(--text-secondary);
+  }
+  .dark\:text-gray-500 {
+    color: var(--text-secondary);
+  }
+  .dark\:hover\:text-white:hover {
+    color: var(--sidebar-text);
+  }
+  .dark\:bg-green-800 {
+    background-color: var(--method-get);
+  }  .dark\:text-green-200 {
+    color: var(--method-get);
+  }
+  .dark\:bg-red-800 {
+    background-color: var(--method-delete);
+  }
+  .dark\:text-red-200 {
+    color: var(--method-delete);
+  }
+  .dark\:bg-orange-700 {
+    background-color: var(--method-patch);
+  }
+  .dark\:text-orange-200 {
+    color: var(--method-patch);
+  }
+  .dark\:hover\:bg-gray-700:hover {
+    background-color: var(--surface-hover);
+  }
+  .dark\:bg-blue-900 {
+    background-color: var(--method-post);
+  }
+  .dark\:text-blue-300 {
+    color: var(--method-post);
+  }
+}

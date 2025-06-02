@@ -1,0 +1,94 @@
+/* Favorites feature styling */
+
+/* Heart icon behavior */
+.favorite-heart-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    position: relative; /* Add position relative to contain the svg transformation */
+}
+
+.favorite-heart-icon:hover {
+    color: #ef4444;
+}
+
+.favorite-heart-icon svg {
+    transition: transform 0.2s ease, fill 0.3s ease;
+    transform-origin: center; /* Ensure scaling happens from center */
+}
+
+.favorite-heart-icon:hover svg {
+    transform: scale(1.2);
+}
+
+.favorite-heart-icon:active svg {
+    transform: scale(0.9);
+}
+
+/* Favorites section styling */
+#favorites-section {
+    position: relative;
+    border-left: 4px solid #ef4444;
+    background-color: #fef2f2;
+    animation: fade-in 0.4s ease-in;
+}
+
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.favorites-sidebar-section {
+    border-left: 3px solid #ef4444;
+}
+
+/* Animation for adding/removing favorites */
+@keyframes heart-pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+}
+
+@keyframes heart-fill {
+    0% { fill-opacity: 0; }
+    100% { fill-opacity: 1; }
+}
+
+.favorite-heart-container .favorite-heart-icon svg path.text-red-500 {
+    animation: heart-pulse 0.4s ease-out;
+    transform-origin: center; /* Ensure scaling happens from center */
+}
+
+svg[fill="currentColor"] path {
+    animation: heart-fill 0.3s ease-in;
+    transform-origin: center; /* Ensure consistent center-based transformations */
+}
+
+/* Improved hover state for heart icons */
+.favorite-heart-icon:hover svg {
+    filter: drop-shadow(0 0 2px rgba(239, 68, 68, 0.5));
+    /* We already added transform: scale(1.2) above */
+}
+
+/* Favorites section in main content */
+#favorites-section .endpoint {
+    transition: background-color 0.2s ease;
+}
+
+#favorites-section .endpoint:hover {
+    background-color: rgba(239, 68, 68, 0.05);
+}
+
+/* Make favorites section stand out with subtle shadow */
+#favorites-section, .favorites-sidebar-section {
+    box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.1), 0 2px 4px -1px rgba(239, 68, 68, 0.06);
+}
+
+/* Empty favorites placeholder */
+.empty-favorites {
+    padding: 2rem;
+    text-align: center;
+    color: #6b7280;
+    font-style: italic;
+}

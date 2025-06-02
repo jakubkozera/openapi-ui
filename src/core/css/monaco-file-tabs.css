@@ -1,0 +1,183 @@
+/* VS Code-like file tabs for Monaco Editor */
+
+.file-tabs-container {
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-primary);
+  display: flex;
+  align-items: center;
+  min-height: 35px;
+  padding: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.file-tab {
+  background-color: var(--bg-tertiary);
+  border-right: 1px solid var(--border-primary);
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 8px 16px 8px 12px;  font-size: 13px;
+  white-space: nowrap;
+  position: relative;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  min-width: 120px;
+  max-width: 240px;
+}
+
+.file-tab:hover {
+  background-color: var(--interactive-bg-hover);
+}
+
+.file-tab.active {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--bg-primary);
+  margin-bottom: -1px;
+}
+
+.file-tab .file-icon {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.file-tab .file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-tab .close-button {
+  margin-left: 8px;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.2s ease, background-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.file-tab:hover .close-button {
+  opacity: 1;
+}
+
+.file-tab .close-button:hover {
+  background-color: var(--interactive-bg-hover);
+}
+
+.file-tab .close-button:before {
+  content: '×';
+  font-size: 14px;
+  line-height: 1;
+  color: var(--text-secondary);
+}
+
+/* File type icons using CSS */
+.file-tab .file-icon {
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.file-tab .file-icon.cs {
+  background-color: #239120;
+  border-radius: 2px;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-tab .file-icon.cs:after {
+  content: 'C#';
+}
+
+.file-tab .file-icon.js {
+  background-color: #f7df1e;
+  border-radius: 2px;
+  color: black;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-tab .file-icon.js:after {
+  content: 'JS';
+}
+
+.file-tab .file-icon.ts {
+  background-color: #3178c6;
+  border-radius: 2px;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-tab .file-icon.ts:after {
+  content: 'TS';
+}
+
+.file-tab .file-icon.default {
+  background-color: #6e6e6e;
+  border-radius: 2px;
+  color: white;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.file-tab .file-icon.default:after {
+  content: '{}';
+}
+
+/* Modified tab indicator for active state */
+.file-tab.active:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--interactive-primary);
+}
+
+/* Scrollbar styling for tab container */
+.file-tabs-container::-webkit-scrollbar {
+  height: 3px;
+}
+
+.file-tabs-container::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+.file-tabs-container::-webkit-scrollbar-thumb {
+  background: var(--border-secondary);
+  border-radius: 3px;
+}
+
+.file-tabs-container::-webkit-scrollbar-thumb:hover {
+  background: var(--border-accent);
+}
+
+/* Empty state when no files */
+.file-tabs-empty {
+  color: var(--text-tertiary);
+  font-style: italic;
+  padding: 8px 12px;
+  font-size: 13px;
+}

@@ -1,0 +1,76 @@
+/* Styles for the inner tab bar itself */
+.try-it-out-tabs {
+    display: none; /* Hide by default */
+    border-bottom: 1px solid var(--border-primary);
+}
+
+/* When the PARENT #try-it-out-tabs has the .visible class (added by JS) */
+#try-it-out-tabs.visible .try-it-out-tabs {
+    display: flex; /* Make the inner tab bar visible */
+}
+
+/* Initial state - only show Request tab */
+#try-it-out-tabs:not(.response-available) #response-tab {
+    display: none;
+}
+
+/* Tab button styles */
+.try-it-out-tab {
+    padding-bottom: 1rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s ease, border-color 0.3s ease, transform 0.2s ease;
+    flex: 1;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+}
+
+.try-it-out-tab:hover {
+    color: var(--sidebar-text-hover);
+}
+
+.try-it-out-tab.active {
+    color: var(--text-primary);
+    border-bottom-color: var(--interactive-bg-active); /* Changed to use theme variable */
+    transform: translateY(-2px);
+}
+
+.try-it-out-tab::after {
+    content: '';
+    position: absolute;
+    bottom: 0;    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: var(--interactive-primary);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+}
+
+.try-it-out-tab:hover::after {
+    transform: scaleX(0.3);
+    transform-origin: left;
+}
+
+.try-it-out-tab.active::after {
+    transform: scaleX(1);
+    transform-origin: left;
+}
+
+/* Content panels with fade transitions */
+#request-content,
+#response-content {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+#request-content.active,
+#response-content.active {
+    display: block;
+    opacity: 1;
+}

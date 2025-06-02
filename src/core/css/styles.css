@@ -1,0 +1,1382 @@
+/* Custom styles for the API Documentation interface */
+
+/* Global Inter font application */
+* {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+}
+
+/* Smooth scrolling for the entire page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Make code samples scrollable horizontally */
+pre {
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* Button styles for method-specific outline buttons */
+.outline-btn {
+  transition: all 0.2s;
+}
+
+/* Default state for outline button arrow */
+.outline-btn svg {
+  transition: transform 0.2s;
+  transform: rotate(0deg);
+}
+
+
+/* Add some custom styling to the response toggles */
+button:focus {
+  outline: none;
+}
+
+/* Hover effect for endpoints - method-specific colors will be applied via data-method selectors */
+.endpoint:hover {
+  background-color: var(--surface-hover);
+}
+
+/* Custom scrollbar for code blocks */
+pre::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+pre::-webkit-scrollbar-track {
+  background: var(--modal-overlay-bg);
+  border-radius: 4px;
+}
+
+pre::-webkit-scrollbar-thumb {
+  background: var(--text-secondary);
+  border-radius: 4px;
+}
+
+/* Main content positioning for scroll-to-top button */
+#api-main-content {
+  position: relative;
+}
+
+/* Scroll to top button */
+.scroll-to-top {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 50px;
+  height: 50px;
+  background-color: var(--interactive-primary);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
+  z-index: 1000;
+}
+
+/* Adjust scroll-to-top button position when right sidebar is visible on large screens */
+@media (min-width: 1024px) {
+  .scroll-to-top {
+    /* Position it within the main content area, accounting for 40% right sidebar width */
+    right: calc(40% + 50px);
+  }
+}
+
+.scroll-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.scroll-to-top:hover {
+  background-color: var(--interactive-primary);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.scroll-to-top:active {
+  transform: translateY(0);
+}
+
+.scroll-to-top svg {
+  transition: transform 0.2s ease;
+}
+
+.scroll-to-top:hover svg {
+  transform: translateY(-1px);
+}
+
+/* View toggle buttons */
+.active-view {
+  background-color: var(--surface-secondary);
+  color: var(--interactive-primary);
+  font-weight: 600;
+}
+
+/* Tree view styling */
+.path-segment {
+  padding: 3px 0;
+  margin-bottom: 2px;
+}
+
+/* Add transition for arrow rotation */
+.sidebar-arrow {
+  transition: transform 0.4s ease-in-out;
+}
+
+.sidebar-arrow.rotate-90 {
+  transform: rotate(90deg);
+}
+
+.methods-container {
+  margin-bottom: 6px;
+}
+
+.method-container {
+  display: block;
+  width: 100%;
+}
+
+.method-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end; /* Changed to flex-end for right alignment */
+  padding: 2px 6px;
+  /* border-radius: 4px; */
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  min-width: 45px; /* Fixed width for better alignment */
+  text-align: right; /* Changed to right alignment */
+}
+
+.tree-container {
+  padding-left: 4px; /* Reduced padding */
+  border-left: 1px dashed var(--sidebar-border);
+  margin-left: 6px;
+  margin-bottom: 10px;
+}
+
+/* Styling for path segments in tree view */
+.path-segment {
+  margin-bottom: 2px;
+}
+
+/* Add subtle hover effect for endpoints in tree view */
+.path-segment .endpoint, .list-view-item {
+  border-left: 3px solid transparent;
+}
+
+/* Method-specific hover effects for menu elements */
+.path-segment .endpoint:hover, .list-view-item:hover {
+  background-color: var(--surface-hover);
+  transition: none; /* Remove hover animation */
+}
+
+/* Endpoint hover border colors based on HTTP method */
+.endpoint[data-method="get"]:hover,
+.endpoint-link[data-method="get"]:hover {
+  border-left: 3px solid var(--method-get) !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.endpoint[data-method="post"]:hover,
+.endpoint-link[data-method="post"]:hover {
+  border-left: 3px solid var(--method-post) !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.endpoint[data-method="put"]:hover,
+.endpoint-link[data-method="put"]:hover {
+  border-left: 3px solid var(--method-put) !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.endpoint[data-method="patch"]:hover,
+.endpoint-link[data-method="patch"]:hover {
+  border-left: 3px solid var(--method-patch) !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.endpoint[data-method="delete"]:hover,
+.endpoint-link[data-method="delete"]:hover,
+.endpoint[data-method="del"]:hover,
+.endpoint-link[data-method="del"]:hover {
+  border-left: 3px solid var(--method-delete) !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+/* Default/fallback for other methods */
+.endpoint:hover:not([data-method="get"]):not([data-method="post"]):not([data-method="put"]):not([data-method="patch"]):not([data-method="delete"]):not([data-method="del"]),
+.endpoint-link:hover:not([data-method="get"]):not([data-method="post"]):not([data-method="put"]):not([data-method="patch"]):not([data-method="delete"]):not([data-method="del"]) {
+  border-left: 3px solid var(--text-secondary) !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+/* Active state border colors - same as hover colors */
+.endpoint.bg-blue-100[data-method="get"],
+.endpoint-link.bg-blue-100[data-method="get"] {
+  border-left: 3px solid var(--method-get) !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.endpoint.bg-blue-100[data-method="post"],
+.endpoint-link.bg-blue-100[data-method="post"] {
+  border-left: 3px solid var(--method-post) !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.endpoint.bg-blue-100[data-method="put"],
+.endpoint-link.bg-blue-100[data-method="put"] {
+  border-left: 3px solid var(--method-put) !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.endpoint.bg-blue-100[data-method="patch"],
+.endpoint-link.bg-blue-100[data-method="patch"] {
+  border-left: 3px solid var(--method-patch) !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.endpoint.bg-blue-100[data-method="delete"],
+.endpoint-link.bg-blue-100[data-method="delete"],
+.endpoint.bg-blue-100[data-method="del"],
+.endpoint-link.bg-blue-100[data-method="del"] {
+  border-left: 3px solid var(--method-delete) !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+/* Default/fallback for other methods in active state */
+.endpoint.bg-blue-100:not([data-method="get"]):not([data-method="post"]):not([data-method="put"]):not([data-method="patch"]):not([data-method="delete"]):not([data-method="del"]),
+.endpoint-link.bg-blue-100:not([data-method="get"]):not([data-method="post"]):not([data-method="put"]):not([data-method="patch"]):not([data-method="delete"]):not([data-method="del"]) {
+  border-left: 3px solid var(--text-secondary) !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+/* Make folder names stand out */
+.path-segment .font-medium {
+  padding: 4px 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* Sidebar animation with smooth transitions */
+.endpoints-container {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden; /* Add visibility for better transition */
+  transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out, visibility 0.5s;
+  will-change: max-height, opacity, visibility; /* Optimize for animation */
+}
+
+.endpoints-container.expanded {
+  opacity: 1;
+  visibility: visible; /* Ensure visibility when expanded */
+  /* max-height will be set dynamically via JavaScript */
+}
+
+/* Path parameter styling */
+.path-param-header {
+  background-color: var(--surface-secondary);
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.query-param-header {
+  background-color: var(--surface-secondary);
+  border-radius: 0.25rem;
+  padding: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Endpoint section transitions */
+.endpoints-section {
+    overflow: hidden;
+    transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out, margin 0.3s ease-in-out;
+    /* Default expanded state */
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    opacity: 1;
+    visibility: visible;
+}
+
+.endpoints-section[style*="max-height: 0"] {
+    margin-top: 0;
+    margin-bottom: 0;
+    opacity: 0;
+    visibility: hidden;
+}
+
+
+/* Fade-in animation for endpoint content when expanded */
+.endpoint-content.slide-in {
+    animation: fadeInContent 0.3s ease-in-out;
+}
+
+@keyframes fadeInContent {
+    0% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Highlight animation for section navigation */
+
+
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 1200px) {
+  /* Removed global flex-direction change to preserve layout */
+  
+  /* Removed generic width overrides to prevent right panel stacking */
+  
+  main {
+    width: 100%;
+  }
+
+  /* Left sidebar hidden off-canvas */
+  /* #left-sidebar {
+    transform: translateX(-100%);
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    z-index: 40;
+  } */
+  /* Show open-left button */
+  #open-left-sidebar {
+    display: block !important;
+  }
+  /* Collapse main content to full width */
+  main, #api-main-content {
+    width: 100%;
+  }
+}
+
+#right-sidebar {
+  overflow: hidden;
+}
+
+@media (max-width: 992px) {
+  /* Right sidebar positioning handled via Tailwind classes */
+  /* #right-sidebar {
+    transform: translateX(100%);
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100%;
+    z-index: 40;
+  } */
+  /* Show open-right button */
+  #open-right-sidebar {
+    display: block !important;
+  }
+}
+
+/* On small screens, push the right-panel vertical menu down to clear the toggle button */
+@media (max-width: 1024px) {
+  #right-sidebar .vertical-menu {
+    padding-top: 4.5rem;
+  }
+}
+
+/* Add responsive width for right sidebar on small screens when expanded */
+@media (max-width: 1024px) {
+  /* Apply when right sidebar is visible (not translated off-screen) */  #right-sidebar.translate-x-0 {
+    /* Use min to choose smaller between normal width and 90% of viewport */
+    width: min(34rem, 90%);
+    max-width: none; /* override inline max-width if necessary */
+  }
+}
+
+/* Animation for copied notification */
+@keyframes fadeInOut {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.copied-notification {
+  animation: fadeInOut 2s ease-in-out;
+}
+
+/* HTTP verb filter popup */
+#http-verb-filter {
+  transition: all 0.2s ease;
+  padding: 2px;
+  padding-right: 8px;
+}
+
+#http-verb-filter:hover {
+  transform: scale(1.1);
+  color: var(--interactive-primary);
+}
+
+#http-verb-filter.active {
+  color: var(--interactive-primary);
+  background-color: var(--input-focus-bg);
+  box-shadow: 0 0 0 2px var(--focus-ring);
+  transform: scale(1.05);
+}
+
+#filter-counter {
+  font-size: 10px;
+  min-width: 16px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+
+
+#http-verbs-popup {
+  position: absolute;  right: 20px;
+  margin-top: 2px;
+  z-index: 50;
+  box-shadow: var(--shadow-lg);
+  max-width: 320px;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--sidebar-border);
+}
+
+/* HTTP verb pills */
+.http-verb-pills-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 10px;
+  max-width: 300px;
+  background-color: var(--surface-secondary);
+  border-radius: 4px;
+}
+
+.http-verb-pill {
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid;
+  user-select: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background-color: transparent;
+}
+
+.http-verb-pill:hover {
+  transform: translateY(-1px);
+}
+
+.http-verb-pill.selected {
+  color: white !important;
+  font-weight: 700;
+}
+
+/* Selected state colors */
+.http-verb-pill.get.selected {
+  background-color: var(--method-get);
+}
+
+.http-verb-pill.post.selected {
+  background-color: var(--method-post);
+}
+
+.http-verb-pill.put.selected {
+  background-color: var(--method-put);
+}
+
+.http-verb-pill.patch.selected {
+  background-color: var(--method-patch);
+}
+
+.http-verb-pill.delete.selected {
+  background-color: var(--method-delete);
+}
+
+body[data-theme="dark"] .http-verb-pill.all.selected {
+  background-color: var(--bg-primary);
+
+}
+
+.http-verb-pill.all.selected {
+  background-color: var(--text-secondary);
+  color: white !important;
+  border-color: var(--text-secondary);
+}
+
+/* HTTP verb specific styles - matching the endpoint method outline buttons */
+.http-verb-pill.get {
+  color: var(--method-get);
+  border-color: var(--method-get);
+}
+
+.http-verb-pill.post {
+  color: var(--method-post);
+  border-color: var(--method-post);
+}
+
+.http-verb-pill.put {
+  color: var(--method-put);
+  border-color: var(--method-put);
+}
+
+.http-verb-pill.patch {
+  color: var(--method-patch);
+  border-color: var(--method-patch);
+}
+
+.http-verb-pill.delete {
+  color: var(--method-delete);
+  border-color: var(--method-delete);
+}
+
+.http-verb-pill.all {
+  color: var(--text-secondary);
+  border-color: var(--text-secondary);
+}
+
+/* Endpoint methods colorization */
+.endpoint .bg-blue-600 {
+  background-color: var(--method-post);
+}
+
+.endpoint .bg-green-600 {
+  background-color: var(--method-get);
+}
+
+.endpoint .bg-yellow-600 {
+  background-color: var(--method-put);
+}
+
+.endpoint .bg-red-600 {
+  background-color: var(--method-delete);
+}
+
+/* JSON property highlighting */
+.json-key {
+  color: var(--interactive-primary);
+}
+
+.json-string {
+  color: var(--method-patch);
+}
+
+.json-number {
+  color: var(--method-get);
+}
+
+.json-boolean {
+  color: var(--method-post);
+}
+
+.json-null {
+  color: var(--method-post);
+}
+
+/* Custom tooltip styling */
+#custom-tooltip {
+  transition: opacity 0.2s, transform 0.2s;
+  opacity: 0;
+  max-width: 400px;
+  white-space: nowrap;  overflow: hidden;
+  text-overflow: ellipsis;
+  transform: translateX(-10px);
+  box-shadow: var(--shadow-md);
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0.3px;
+  position: fixed; /* Changed to fixed for better positioning */
+  z-index: 10000;
+}
+
+/* Arrow pointing left (default) */
+#custom-tooltip::before {
+  content: "";
+  position: absolute;
+  left: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-right: 6px solid white; /* Match tooltip background color */
+}
+
+/* Arrow pointing down for tooltip above the element */
+#custom-tooltip.tooltip-above::before {
+  left: 12px;
+  bottom: -6px;
+  top: auto;
+  transform: none;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid white;
+  border-bottom: none;
+}
+
+/* Arrow pointing right for tooltip on left side */
+#custom-tooltip.tooltip-left::before {
+  left: auto;
+  right: -6px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-left: 6px solid white;
+  border-right: none;
+}
+
+#custom-tooltip.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Vertical menu styles */
+.vertical-menu {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 1.2rem;
+  background: var(--sidebar-bg);
+  border-radius: 0 0 0 0.75rem;
+  display: flex;  flex-direction: column;
+  gap: 2rem;
+  z-index: 10;
+  width: 80px;
+  border-left: 1px solid var(--sidebar-border);
+  box-shadow: var(--shadow-lg);
+}
+
+.vertical-menu-icon {
+  width: 44px;
+  height: 44px;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--sidebar-text);
+}
+
+.vertical-menu-icon:hover {
+  transform: translateX(-2px);
+  color: var(--sidebar-text-hover);
+}
+
+.vertical-menu-icon.active {
+  background: var(--interactive-bg-active);
+  color: var(--interactive-text-active);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.vertical-menu-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+/* Adjust content to prevent overlap with vertical menu */
+.right-panel-section {
+  display: none;
+  padding-right: 80px; /* Match the width of vertical menu */
+  min-height: 0;
+}
+
+.right-panel-section.active {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Monaco Editor container styles */
+#monaco-editor-container {
+    width: 100%;
+    height: 100%;
+    min-height: 400px;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(75, 85, 99, 0.3);
+}
+
+/* Remove blue background from right sidebar toggle button on small screens */
+@media (max-width: 1023px) {
+  /* Collapsed state: show background on toggle button */
+  #toggle-right-sidebar:not(.expanded) {
+    background-color: #3182ce !important;
+    color: white; /* white icon on blue background */
+  }
+  /* Expanded state: keep transparent */
+  #toggle-right-sidebar.expanded {
+    background-color: transparent !important;
+    color: #3182ce; /* keep icon in blue */
+  }
+}
+
+/* Mini hover animation for collapse/expand toggle buttons */
+#open-left-sidebar, #toggle-right-sidebar {
+  transition: transform 0.2s ease;
+}
+
+#open-left-sidebar:hover,
+#toggle-right-sidebar:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Transparent background when right sidebar is expanded */
+#toggle-right-sidebar.expanded {
+  background-color: transparent !important;
+}
+
+/* Thicker dynamic left border for endpoint blocks by HTTP method */
+.method-border-get, .method-border-post, .method-border-put, .method-border-patch, .method-border-delete, .method-border-del, .method-border-default {
+  position: relative;
+  background-clip: padding-box;
+}
+
+/* Reduce margin between border and main content */
+section[class*="method-border-"] {
+  padding-left: 1.5rem !important; /* was 2.5rem or more, now less */
+}
+
+/* Vertical mirrored method label, centered on the border */
+.vertical-method-label {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: scaleY(-1) rotate(180deg);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #fff;
+  left: -32px;
+  top: 0;
+  height: 100%;
+  min-width: 32px;
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  user-select: none;
+  z-index: 2;
+  position: absolute;
+  background: transparent;
+}
+
+.tag-header:hover {
+  background-color: rgba(75, 85, 99, 0.2); /* Darker hover effect */
+}
+
+/* Dynamic left border for endpoint blocks by HTTP method */
+.method-border-get    { border-left-color: #38a169 !important; }
+.method-border-post   { border-left-color: #3182ce !important; }
+.method-border-put    { border-left-color: #ecc94b !important; }
+.method-border-patch  { border-left-color: #f6e05e !important; }
+.method-border-delete { border-left-color: #e53e3e !important; }
+.method-border-del    { border-left-color: #e53e3e !important; }
+.method-border-default{ border-left-color: #a0aec0 !important; }
+
+/* HTTP method-specific colored shadows for endpoint sections */
+.method-shadow-get {
+    box-shadow: 0 10px 15px -3px rgba(56, 161, 105, 0.1), 0 4px 6px -2px rgba(56, 161, 105, 0.05);
+}
+
+.method-shadow-post {
+    box-shadow: 0 10px 15px -3px rgba(49, 130, 206, 0.1), 0 4px 6px -2px rgba(49, 130, 206, 0.05);
+}
+
+.method-shadow-put {
+    box-shadow: 0 10px 15px -3px rgba(236, 201, 75, 0.1), 0 4px 6px -2px rgba(236, 201, 75, 0.05);
+}
+
+.method-shadow-patch {
+    box-shadow: 0 10px 15px -3px rgba(246, 224, 94, 0.1), 0 4px 6px -2px rgba(246, 224, 94, 0.05);
+}
+
+.method-shadow-delete {
+    box-shadow: 0 10px 15px -3px rgba(229, 62, 62, 0.1), 0 4px 6px -2px rgba(229, 62, 62, 0.05);
+}
+
+.method-shadow-del {
+    box-shadow: 0 10px 15px -3px rgba(229, 62, 62, 0.1), 0 4px 6px -2px rgba(229, 62, 62, 0.05);
+}
+
+.method-shadow-default {
+    box-shadow: 0 10px 15px -3px rgba(160, 174, 192, 0.1), 0 4px 6px -2px rgba(160, 174, 192, 0.05);
+}
+
+/* Dark theme adjustments for method shadows */
+@media (prefers-color-scheme: dark) {
+    .method-shadow-get {
+        box-shadow: 0 10px 15px -3px rgba(56, 161, 105, 0.2), 0 4px 6px -2px rgba(56, 161, 105, 0.1);
+    }
+
+    .method-shadow-post {
+        box-shadow: 0 10px 15px -3px rgba(49, 130, 206, 0.2), 0 4px 6px -2px rgba(49, 130, 206, 0.1);
+    }
+
+    .method-shadow-put {
+        box-shadow: 0 10px 15px -3px rgba(236, 201, 75, 0.2), 0 4px 6px -2px rgba(236, 201, 75, 0.1);
+    }
+
+    .method-shadow-patch {
+        box-shadow: 0 10px 15px -3px rgba(246, 224, 94, 0.2), 0 4px 6px -2px rgba(246, 224, 94, 0.1);
+    }
+
+    .method-shadow-delete {
+        box-shadow: 0 10px 15px -3px rgba(229, 62, 62, 0.2), 0 4px 6px -2px rgba(229, 62, 62, 0.1);
+    }
+
+    .method-shadow-del {
+        box-shadow: 0 10px 15px -3px rgba(229, 62, 62, 0.2), 0 4px 6px -2px rgba(229, 62, 62, 0.1);
+    }
+
+    .method-shadow-default {
+        box-shadow: 0 10px 15px -3px rgba(160, 174, 192, 0.2), 0 4px 6px -2px rgba(160, 174, 192, 0.1);
+    }
+}
+
+/* Tag sections in main content */
+.tag-section {
+  margin-top: 2rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+}
+
+.tag-section h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* Outline button animations */
+.outline-btn svg {
+  transition: transform 0.3s ease;
+}
+
+.outline-btn.hover {
+  transition: all 0.2s ease;
+}
+
+/* Smooth height transition for endpoint content */
+.endpoint-content {
+  transition: all 0.3s ease-in-out;
+}
+
+.endpoint-content.hidden {
+  display: block;
+  opacity: 0;
+  height: 0;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+.endpoint-content:not(.hidden) {
+  opacity: 1;
+  height: auto;
+  margin-top: 1rem;
+}
+
+/* Endpoint count badge styles */
+.endpoint-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.125rem 0.5rem;
+    margin-left: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 9999px;
+    background-color: #E5E7EB;
+    color: #4B5563;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    white-space: nowrap;
+}
+
+.endpoint-count-title {
+    background-color: #EBF5FF;
+    color: #3182CE;
+}
+
+/* Sidebar endpoint count badge */
+#api-navigation .endpoint-count {
+    font-size: 0.7rem;
+    padding: 0.1rem 0.4rem;
+    background-color: #F3F4F6;
+    color: #6B7280;
+}
+
+/* Right panel parameter count badges - smaller and circular */
+#right-panel-path-parameters-section .endpoint-count,
+#right-panel-query-parameters-section .endpoint-count,
+#right-panel-headers-section .endpoint-count {
+    font-size: 0.625rem;
+    min-width: 1rem;
+    height: 1rem;
+    padding: 0.125rem 0.375rem;
+    margin-left: 0.375rem;
+    background-color: #E5E7EB;
+    color: #6B7280;
+    border-radius: 9999px;
+}
+
+/* Collection runner parameter count badges - smaller and circular */
+#collection-runner-section .endpoint-count {
+    font-size: 0.625rem;
+    min-width: 1.25rem;
+    height: 1.25rem;
+    padding: 0.125rem 0.375rem;
+    margin-left: 0.375rem;
+    background-color: #E5E7EB;
+    color: #6B7280;
+    border-radius: 9999px;
+}
+
+/* Password input toggle container */
+.password-input-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-container input {
+  padding-right: 2.5rem; /* Make space for the toggle button */
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: 0.25rem;
+  color: #9ca3af; /* text-gray-400 */
+  transition: color 0.2s ease;
+  z-index: 10;
+}
+
+.password-toggle-btn:hover {
+  color: #d1d5db; /* text-gray-300 */
+  background-color: rgba(75, 85, 99, 0.3); /* hover:bg-gray-600/30 */
+}
+
+.password-toggle-btn:focus {
+  outline: none;
+  color: #60a5fa; /* text-blue-400 */
+}
+
+.password-toggle-btn svg {
+  width: 1rem;
+  height: 1rem;
+  transition: opacity 0.2s ease;
+}
+
+/* Hide/show icons based on password visibility */
+.password-toggle-btn .eye-open {
+  display: block;
+}
+
+.password-toggle-btn .eye-closed {
+  display: none;
+}
+
+.password-toggle-btn.password-visible .eye-open {
+  display: none;
+}
+
+.password-toggle-btn.password-visible .eye-closed {
+  display: block;
+}
+
+/* Inter font for sidebar endpoints and method badges */
+.endpoint-link,
+.endpoint-link .method-badge,
+.endpoint-link span,
+#api-navigation .endpoint,
+#api-navigation .method-badge,
+.favorites-sidebar-section .endpoint,
+.favorites-sidebar-section .method-badge {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+}
+
+/* Ensure proper font weights for different elements */
+.endpoint-link .method-badge,
+#api-navigation .method-badge,
+.favorites-sidebar-section .method-badge {
+  font-weight: 600 !important;
+  letter-spacing: 0.025em;
+}
+
+.endpoint-link span:not(.method-badge),
+#api-navigation .endpoint span:not(.method-badge),
+.favorites-sidebar-section .endpoint span:not(.method-badge) {
+  font-weight: 400 !important;
+}
+
+/* Compact sidebar navigation styles */
+/* Reduce spacing between tag sections */
+#api-navigation > div.mt-2 {
+  margin-top: 0.25rem !important; /* Reduced from 0.5rem (mt-2) */
+}
+
+/* Make tag headers more compact */
+#api-navigation .flex.items-center.px-6.py-3 {
+  padding: 0.375rem 1rem !important; /* Reduced from py-3 px-6 (0.75rem 1.5rem) */
+}
+
+/* Reduce padding in endpoint containers */
+#api-navigation .endpoints-container {
+  padding: 0 !important; /* Reduced from py-1 pl-3 pr-4 */
+}
+
+/* Make individual endpoint links more compact */
+#api-navigation .endpoint-link {
+  padding: 0.25rem 0.5rem 0.25rem 0 !important; /* Reduced from py-2 pr-2 pl-0 */
+  margin-bottom: 0.25rem !important; /* Reduced from mb-2 (0.5rem) */
+}
+
+/* Reduce main navigation spacing */
+#api-navigation {
+  margin-top: 0.75rem !important; /* Reduced from mt-4 (1rem) */
+  padding-bottom: 0.75rem !important; /* Reduced from pb-4 (1rem) */
+}
+
+/* Make favorites section more compact too */
+.favorites-sidebar-section .endpoints-container {
+  padding: 0.25rem 0.75rem 0.25rem 0.5rem !important;
+}
+
+.favorites-sidebar-section .endpoint {
+  padding: 0.25rem 0.5rem 0.25rem 0 !important;
+  margin-bottom: 0.25rem !important;
+}
+
+/* Reduce spacing in endpoint count badges */
+#api-navigation .endpoint-count {
+  margin-left: 0.25rem !important; /* Reduced from ml-2 (0.5rem) */
+  padding: 0.125rem 0.375rem !important; /* Slightly reduced padding */
+}
+
+/* Reduce padding in the sidebar container itself for more space */
+#left-sidebar {
+  padding-top: 0.5rem !important; /* Add some top padding for breathing room */
+}
+
+/* Make HTTP verb filter button more compact */
+#http-verb-filter {
+  padding: 0.25rem !important;
+}
+
+/* Dark mode styles for sidebar navigation and main content */
+
+/* Sidebar navigation dark mode */
+#api-navigation .flex.items-center.px-6.py-3.text-gray-700.hover\\:bg-gray-100 {
+  color: #d1d5db !important; /* gray-300 */
+  background-color: transparent !important;
+}
+
+#api-navigation .flex.items-center.px-6.py-3.text-gray-700.hover\\:bg-gray-100:hover {
+  background-color: #374151 !important; /* gray-700 */
+}
+
+#api-navigation .flex.items-center.px-6.py-3.text-gray-700.hover\\:bg-gray-100.bg-gray-200 {
+  background-color: #4b5563 !important; /* gray-600 for expanded state */
+  color: #f3f4f6 !important; /* gray-100 */
+}
+
+/* Endpoint links dark mode */
+body[data-theme="dark"] .endpoint-link {
+  color: #d1d5db !important; /* gray-300 */
+  background-color: transparent !important;
+}
+
+body[data-theme="dark"] .endpoint-link:hover {
+  background-color: #374151 !important; /* gray-700 */
+}
+
+body[data-theme="dark"] .endpoint-link.bg-blue-100 {
+  background-color: #374151 !important; /* blue-800 for active state */
+  color: #dbeafe !important; /* blue-100 */
+}
+
+body[data-theme="dark"] .endpoint-link.text-blue-800 {
+  color: #dbeafe !important; /* blue-100 */
+}
+
+/* Endpoint count badges dark mode */
+body[data-theme="dark"] #api-navigation .endpoint-count {
+  background-color: #4b5563 !important; /* gray-600 */
+  color: #d1d5db !important; /* gray-300 */
+}
+
+body[data-theme="dark"] .endpoint-count-title {
+  background-color: #1e40af !important; /* blue-800 */
+  color: #dbeafe !important; /* blue-100 */
+}
+
+/* Main content dark mode */
+body[data-theme="dark"] #api-main-content {
+  background-color: #111827 !important; /* gray-900 */
+  color: #f3f4f6 !important; /* gray-100 */
+}
+
+/* Tag sections dark mode */
+body[data-theme="dark"] .tag-section h2 {
+  color: #f3f4f6 !important; /* gray-100 */
+}
+
+/* Endpoint hover effects dark mode */
+body[data-theme="dark"] .endpoint:hover {
+  background-color: rgba(55, 65, 81, 0.7) !important; /* gray-700 with opacity */
+}
+
+/* Method badges dark mode */
+body[data-theme="dark"] .method-badge {
+  background-color: #374151 !important; /* gray-700 */
+  color: #f3f4f6 !important; /* gray-100 */
+}
+
+/* Favorites section dark mode */
+body[data-theme="dark"] .favorites-sidebar-section .endpoint:hover {
+  background-color: rgba(55, 65, 81, 0.5) !important; /* gray-700 with opacity */
+}
+
+body[data-theme="dark"] .http-verb-pills-container {
+  background-color: #4b5563 !important; /* gray-600 */
+}
+
+
+
+/* Scroll to top button dark mode */
+.scroll-to-top {
+  background-color: #1e40af !important; /* blue-800 */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+.scroll-to-top:hover {
+  background-color: #1e3a8a !important; /* blue-900 */
+}
+
+/* View toggle buttons dark mode */
+.view-toggle {
+  background-color: #374151 !important; /* gray-700 */
+  color: #d1d5db !important; /* gray-300 */
+  border-color: #6b7280 !important; /* gray-500 */
+}
+
+.view-toggle:hover {
+  background-color: #4b5563 !important; /* gray-600 */
+}
+
+.active-view {
+  background-color: #1e40af !important; /* blue-800 */
+  color: #dbeafe !important; /* blue-100 */
+}
+
+
+
+.param-section-query {
+  background-color: #064e3b !important; /* green-900 */
+  border-left-color: #10b981 !important; /* green-500 */
+}
+
+.param-section-other {
+  background-color: #92400e !important; /* yellow-800 */
+  border-left-color: #f59e0b !important; /* yellow-500 */
+}
+
+/* Custom tooltip dark mode */
+#custom-tooltip {
+  background-color: #1f2937 !important; /* gray-800 */
+  color: #f3f4f6 !important; /* gray-100 */
+  border-color: #374151 !important; /* gray-700 */
+}
+
+/* Ensure text content is readable in dark mode */
+body[data-theme="dark"] .text-gray-900 {
+  color: #f3f4f6 !important; /* gray-100 */
+}
+
+body[data-theme="dark"] .text-gray-800 {
+  color: #f9fafb !important; /* gray-50 */
+}
+
+body[data-theme="dark"] .text-gray-700 {
+  color: #e5e7eb !important; /* gray-200 */
+}
+
+body[data-theme="dark"] .text-gray-600 {
+  color: #d1d5db !important; /* gray-300 */
+}
+
+body[data-theme="dark"] .text-gray-500 {
+  color: #9ca3af !important; /* gray-400 */
+}
+
+/* Background overrides for dark mode */
+body[data-theme="dark"] .bg-white {
+  background-color: #1f2937 !important; /* gray-800 */
+}
+
+body[data-theme="dark"] .bg-gray-50 {
+  background-color: #111827 !important; /* gray-900 */
+}
+
+body[data-theme="dark"] .bg-gray-100 {
+  background-color: #1f2937 !important; /* gray-800 */
+}
+
+body[data-theme="dark"] .bg-gray-200 {
+  background-color: #374151 !important; /* gray-700 */
+}
+
+/* Border overrides for dark mode */
+body[data-theme="dark"] .border-gray-200 {
+  border-color: #374151 !important; /* gray-700 */
+}
+
+body[data-theme="dark"] .border-gray-300 {
+  border-color: #4b5563 !important; /* gray-600 */
+}
+
+/* Code blocks and pre elements dark mode */
+body[data-theme="dark"] pre {
+  background-color: #111827 !important; /* gray-900 */
+  color: #f3f4f6 !important; /* gray-100 */
+}
+
+body[data-theme="dark"] #right-sidebar .vertical-menu {
+  background-color: #111827 !important; /* gray-800 */
+}
+
+#right-sidebar .vertical-menu .vertical-menu-icon.active {
+  background-color: #3b82f6 !important; /* gray-800 */
+}
+
+
+/* Dark mode response header color overrides - increased specificity */
+body[data-theme="dark"] .response-header.bg-green-100.text-green-800,
+body[data-theme="dark"] .response-header-empty.bg-green-100.text-green-800 {
+  background-color: rgba(20, 83, 45, 0.8) !important; /* Darker green background */
+  color: #86efac !important; /* Light green text */
+}
+
+body[data-theme="dark"] .response-header.bg-yellow-100.text-yellow-800,
+body[data-theme="dark"] .response-header-empty.bg-yellow-100.text-yellow-800 {
+  background-color: rgba(146, 64, 14, 0.8) !important; /* Darker amber background */
+  color: #fcd34d !important; /* Light yellow text */
+}
+
+body[data-theme="dark"] .response-header.bg-red-100.text-red-800,
+body[data-theme="dark"] .response-header-empty.bg-red-100.text-red-800 {
+  background-color: rgba(127, 29, 29, 0.8) !important; /* Darker red background */
+  color: #fca5a5 !important; /* Light red text */
+}
+
+/* Additional fallback selectors with higher specificity */
+body[data-theme="dark"] div.response-header.bg-green-100,
+body[data-theme="dark"] div.response-header-empty.bg-green-100 {
+  background-color: rgba(20, 83, 45, 0.8) !important;
+}
+
+body[data-theme="dark"] div.response-header.text-green-800,
+body[data-theme="dark"] div.response-header-empty.text-green-800 {
+  color: #86efac !important;
+}
+
+body[data-theme="dark"] div.response-header.bg-yellow-100,
+body[data-theme="dark"] div.response-header-empty.bg-yellow-100 {
+  background-color: rgba(146, 64, 14, 0.8) !important;
+}
+
+body[data-theme="dark"] div.response-header.text-yellow-800,
+body[data-theme="dark"] div.response-header-empty.text-yellow-800 {
+  color: #fcd34d !important;
+}
+
+body[data-theme="dark"] div.response-header.bg-red-100,
+body[data-theme="dark"] div.response-header-empty.bg-red-100 {
+  background-color: rgba(127, 29, 29, 0.8) !important;
+}
+
+body[data-theme="dark"] div.response-header.text-red-800,
+body[data-theme="dark"] div.response-header-empty.text-red-800 {
+  color: #fca5a5 !important;
+}
+
+/* Dark mode response-details-button color overrides - similar to response-header */
+body[data-theme="dark"] .response-details-button.bg-green-100.text-green-800 {
+  background-color: rgba(20, 83, 45, 0.8) !important; /* Darker green background */
+  color: #86efac !important; /* Light green text */
+}
+
+body[data-theme="dark"] .response-details-button.bg-yellow-100.text-yellow-800 {
+  background-color: rgba(146, 64, 14, 0.8) !important; /* Darker amber background */
+  color: #fcd34d !important; /* Light yellow text */
+}
+
+body[data-theme="dark"] .response-details-button.bg-red-100.text-red-800 {
+  background-color: rgba(127, 29, 29, 0.8) !important; /* Darker red background */
+  color: #fca5a5 !important; /* Light red text */
+}
+
+/* Additional fallback selectors with higher specificity for response-details-button */
+body[data-theme="dark"] #response-details-button.bg-green-100 {
+  background-color: rgba(20, 83, 45, 0.8) !important;
+}
+
+body[data-theme="dark"] #response-details-button.text-green-800 {
+  color: #86efac !important;
+}
+
+body[data-theme="dark"] #response-details-button.bg-yellow-100 {
+  background-color: rgba(146, 64, 14, 0.8) !important;
+}
+
+body[data-theme="dark"] #response-details-button.text-yellow-800 {
+  color: #fcd34d !important;
+}
+
+body[data-theme="dark"] #response-details-button.bg-red-100 {
+  background-color: rgba(127, 29, 29, 0.8) !important;
+}
+
+body[data-theme="dark"] #response-details-button.text-red-800 {
+  color: #fca5a5 !important;
+}

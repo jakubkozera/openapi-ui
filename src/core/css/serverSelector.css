@@ -1,0 +1,172 @@
+/* Server Selector Styles */
+
+#server-selector-container {
+  border-left: 4px solid #3b82f6; /* Blue accent border */
+}
+
+#server-selector-container .server-variables {
+  background-color: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+#server-selector-container .server-variables label {
+  min-width: 80px;
+  font-weight: 500;
+}
+
+#server-selector-container .server-variables input,
+#server-selector-container .server-variables select {
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+#server-selector-container .server-variables input:focus,
+#server-selector-container .server-variables select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+#server-selector {
+  min-width: 250px;
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+/* Theme-aware dropdown arrows for server selector */
+#server-selector {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.5rem center !important;
+  background-size: 1rem !important;
+  padding-right: 2.5rem !important;
+}
+
+/* Light mode dropdown arrow for server selector (dark icon) */
+body:not([data-theme="dark"]) #server-selector {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+}
+
+/* Dark mode dropdown arrow for server selector (light icon) */
+body[data-theme="dark"] #server-selector {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f3f4f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+}
+
+/* Dark mode styling for server selector */
+body[data-theme="dark"] #server-selector {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-secondary) !important;
+}
+
+body[data-theme="dark"] #server-selector:focus {
+  border-color: var(--interactive-primary) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Dark mode styling for server selector label */
+body[data-theme="dark"] #server-selector-container label {
+  color: var(--text-primary) !important;
+}
+
+/* Dark mode styling for server variables section */
+body[data-theme="dark"] #server-selector-container .server-variables {
+  background-color: var(--surface-secondary) !important;
+  border-color: var(--border-secondary) !important;
+}
+
+body[data-theme="dark"] #server-selector-container .server-variables label {
+  color: var(--text-primary) !important;
+}
+
+body[data-theme="dark"] #server-selector-container .server-variables input,
+body[data-theme="dark"] #server-selector-container .server-variables select {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-secondary) !important;
+}
+
+body[data-theme="dark"] #server-selector-container .server-variables input:focus,
+body[data-theme="dark"] #server-selector-container .server-variables select:focus {
+  border-color: var(--interactive-primary) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Dark mode styling for server container header */
+body[data-theme="dark"] #server-selector-container h3 {
+  color: var(--text-primary) !important;
+}
+
+body[data-theme="dark"] #server-selector-container .text-gray-600 {
+  color: var(--text-secondary) !important;
+}
+
+body[data-theme="dark"] #server-selector-container .text-gray-800 {
+  color: var(--text-primary) !important;
+}
+
+/* Dark mode styling for current server URL display */
+body[data-theme="dark"] #current-server-url {
+  color: var(--text-secondary) !important;
+}
+
+/* Dark mode styling for server selector container */
+body[data-theme="dark"] #server-selector-container {
+  background-color: var(--surface-secondary) !important;
+  border-color: var(--interactive-primary) !important;
+}
+
+/* Override any light-mode specific text colors in server selector */
+body[data-theme="dark"] #server-selector-container .text-gray-700 {
+  color: var(--text-primary) !important;
+}
+
+/* Dark mode styling for server selector options */
+body[data-theme="dark"] #server-selector option {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+}
+
+@media (max-width: 768px) {
+  #server-selector-container {
+    margin-left: -1rem;
+    margin-right: -1rem;
+    border-radius: 0;
+    border-left: none;
+    border-top: 4px solid #3b82f6;
+  }
+  
+  #server-selector-container .flex {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  #server-selector-container .flex label {
+    margin-bottom: 0.5rem;
+  }
+  
+  #server-selector {
+    min-width: auto;
+    width: 100%;
+  }
+}
+
+/* Server variables select elements */
+#server-selector-container .server-variables select {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.5rem center !important;
+  background-size: 1rem !important;
+  padding-right: 2.5rem !important;
+}
+
+/* Light mode dropdown arrow for server variables (dark icon) */
+body:not([data-theme="dark"]) #server-selector-container .server-variables select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+}
+
+/* Dark mode dropdown arrow for server variables (light icon) */
+body[data-theme="dark"] #server-selector-container .server-variables select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f3f4f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+}

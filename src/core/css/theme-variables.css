@@ -1,0 +1,992 @@
+/* Theme Variables CSS
+ * This file defines CSS custom properties that can be dynamically updated by the ThemeManager
+ * All themes should use these variables instead of hard-coded colors for consistency
+ */
+
+:root {
+  /* Default theme variables (will be overridden by ThemeManager) */
+  
+  /* Background colors */
+  --bg-primary: #1f2937;
+  --bg-secondary: #111827;
+  --bg-tertiary: #374151;
+  --bg-accent: #4b5563;
+  
+  /* Text colors */
+  --text-primary: #f9fafb;
+  --text-secondary: #e5e7eb;
+  --text-tertiary: #d1d5db;
+  --text-quaternary: #9ca3af;
+  
+  /* Border colors */
+  --border-primary: #374151;
+  --border-secondary: #4b5563;
+  --border-accent: #6b7280;
+  
+  /* Interactive colors */
+  --interactive-bg: #374151;
+  --interactive-bg-hover: #4b5563;
+  --interactive-bg-active: #1e40af;
+  --interactive-text-active: #dbeafe;
+  
+  /* Sidebar specific */
+  --sidebar-bg: #1f2937;
+  --sidebar-border: #374151;
+  --sidebar-text: #d1d5db;
+  --sidebar-text-hover: #f3f4f6;
+  --sidebar-bg-hover: #374151;
+  --sidebar-bg-expanded: #4b5563;
+  
+  /* Main content */
+  --main-bg: #111827;
+  --main-text: #f3f4f6;
+  --main-text-secondary: #9ca3af;
+    /* Components */
+  --tooltip-bg: #1f2937;
+  --tooltip-text: #f3f4f6;
+  --tooltip-border: #374151;
+  
+  /* Shadows and overlays */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.3);
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --modal-overlay-bg: rgba(0, 0, 0, 0.5);
+  
+  /* Surface colors */
+  --surface-primary: #1f2937;
+  --surface-secondary: #374151;
+  --surface-hover: #111827;
+  --content-bg: #2d3748;
+  
+  /* Interactive elements */
+  --interactive-primary: #3b82f6;
+  --focus-ring: rgba(59, 130, 246, 0.2);
+  --focus-ring-color: rgba(59, 130, 246, 0.3);
+  
+  /* Input elements */
+  --input-focus-bg: rgba(59, 130, 246, 0.05);
+  --cell-hover-bg: rgba(55, 65, 81, 0.3);
+  
+  /* Spinner */
+  --spinner-bg: rgba(59, 130, 246, 0.25);
+  
+  /* Button states */
+  --button-danger-hover-bg: rgba(239, 68, 68, 0.1);
+  
+  /* Method badge colors (consistent across themes) */
+  --method-get: #22c55e;
+  --method-post: #3b82f6;
+  --method-put: #eab308;
+  --method-patch: #f59e0b;
+  --method-delete: #ef4444;
+}
+
+/* Theme-aware component styles */
+
+/* Sidebar navigation using theme variables */
+.theme-sidebar {
+  background-color: var(--sidebar-bg);
+  border-color: var(--sidebar-border);
+  color: var(--sidebar-text);
+}
+
+.theme-sidebar-item {
+  color: var(--sidebar-text);
+  background-color: transparent;
+  transition: all 0.2s ease;
+}
+
+.theme-sidebar-item:hover {
+  background-color: var(--sidebar-bg-hover);
+  color: var(--sidebar-text-hover);
+}
+
+.theme-sidebar-item.expanded {
+  background-color: var(--sidebar-bg-expanded);
+}
+
+/* Main content using theme variables */
+.theme-main-content {
+  background-color: var(--main-bg);
+  color: var(--main-text);
+}
+
+.theme-main-text-secondary {
+  color: var(--main-text-secondary);
+}
+
+/* Interactive elements */
+.theme-interactive {
+  background-color: var(--interactive-bg);
+  color: var(--text-primary);
+  border-color: var(--border-primary);
+  transition: all 0.2s ease;
+}
+
+.theme-interactive:hover {
+  background-color: var(--interactive-bg-hover);
+}
+
+.theme-interactive.active {
+  background-color: var(--interactive-bg-active);
+  color: var(--interactive-text-active);
+}
+
+/* Endpoint links */
+.theme-endpoint-link {
+  color: var(--sidebar-text);
+  background-color: transparent;
+  transition: all 0.2s ease;
+}
+
+.theme-endpoint-link:hover {
+  background-color: var(--sidebar-bg-hover);
+  color: var(--sidebar-text-hover);
+}
+
+.theme-endpoint-link.active {
+  background-color: var(--interactive-bg-active);
+  color: var(--interactive-text-active);
+}
+
+/* Badges and counts */
+.theme-badge {
+  background-color: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  border-color: var(--border-secondary);
+}
+
+/* Custom tooltip */
+.theme-tooltip {
+  background-color: var(--tooltip-bg);
+  color: var(--tooltip-text);
+  border-color: var(--tooltip-border);
+}
+
+/* Method badges with consistent colors */
+.theme-method-badge {
+  font-weight: 600;
+  color: white;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+}
+
+.theme-method-badge.get {
+  background-color: var(--method-get);
+}
+
+.theme-method-badge.post {
+  background-color: var(--method-post);
+}
+
+.theme-method-badge.put {
+  background-color: var(--method-put);
+}
+
+.theme-method-badge.patch {
+  background-color: var(--method-patch);
+}
+
+.theme-method-badge.delete {
+  background-color: var(--method-delete);
+}
+
+/* Search input */
+.theme-search-input {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-secondary);
+}
+
+.theme-search-input::placeholder {
+  color: var(--text-quaternary);
+}
+
+.theme-search-input:focus {
+  border-color: var(--interactive-bg-active);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* HTTP verb filter popup */
+.theme-verb-popup {
+  background-color: var(--sidebar-bg);
+  border-color: var(--border-secondary);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* HTTP verb pills */
+.theme-verb-pill {
+  background-color: var(--bg-tertiary);
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-secondary);
+  transition: all 0.2s ease;
+}
+
+.theme-verb-pill:hover {
+  background-color: var(--interactive-bg-hover);
+  transform: translateY(-1px);
+}
+
+.theme-verb-pill.selected {
+  color: white !important;
+  font-weight: 700;
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  color: var(--text-quaternary);
+  transition: all 0.2s ease;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+}
+
+.theme-toggle:hover {
+  color: var(--text-secondary);
+  background-color: var(--interactive-bg);
+}
+
+/* Loading states */
+.theme-loading-text {
+  color: var(--text-quaternary);
+}
+
+/* Borders and separators */
+.theme-border {
+  border-color: var(--border-primary);
+}
+
+.theme-border-secondary {
+  border-color: var(--border-secondary);
+}
+
+/* Form elements */
+.theme-form-input {
+  background-color: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-secondary);
+  transition: all 0.2s ease;
+}
+
+.theme-form-input:focus {
+  border-color: var(--interactive-bg-active);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Global select element styling with theme-aware dropdown arrows */
+select {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.5rem center !important;
+  background-size: 1rem !important;
+  padding-right: 2.5rem !important;
+}
+
+/* Light mode dropdown arrow for all select elements (dark icon) */
+body:not([data-theme="dark"]) select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+}
+
+/* Dark mode dropdown arrow for all select elements (light icon) */
+body[data-theme="dark"] select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f3f4f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+}
+
+/* Ensure select options have proper theming */
+select option {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  padding: 0.5rem !important;
+}
+
+/* Specific styling for right panel select elements */
+#right-panel-request-body-content-type-select,
+#snippetLanguagePanel,
+#apiClientLanguageSelect,
+#snippetLanguageModal {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-secondary) !important;
+  border-radius: 0.25rem !important;
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.875rem !important;
+  transition: all 0.15s ease !important;
+}
+
+#right-panel-request-body-content-type-select:focus,
+#snippetLanguagePanel:focus,
+#apiClientLanguageSelect:focus,
+#snippetLanguageModal:focus,
+#generateTypeScript:focus {
+  outline: none !important;
+  border-color: var(--interactive-primary) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+#right-panel-request-body-content-type-select:hover,
+#snippetLanguagePanel:hover,
+#apiClientLanguageSelect:hover,
+#snippetLanguageModal:hover,
+#generateTypeScript:hover {
+  border-color: var(--border-accent) !important;
+}
+
+/* Utility classes for common theme applications */
+.theme-bg-primary { background-color: var(--bg-primary); }
+.theme-bg-secondary { background-color: var(--bg-secondary); }
+.theme-bg-tertiary { background-color: var(--bg-tertiary); }
+
+.theme-text-primary { color: var(--text-primary); }
+.theme-text-secondary { color: var(--text-secondary); }
+.theme-text-tertiary { color: var(--text-tertiary); }
+.theme-text-quaternary { color: var(--text-quaternary); }
+
+.theme-border-primary { border-color: var(--border-primary); }
+.theme-border-secondary { border-color: var(--border-secondary); }
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .theme-toggle {
+    padding: 0.375rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* Smooth transitions for theme changes */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Disable transitions during theme change to prevent flashing */
+.theme-changing * {
+  transition: none !important;
+}
+
+/* Theme transition effects */
+.theme-refresh {
+  transition: all 0.1s ease;
+}
+
+/* Ensure all themed elements have smooth transitions - but preserve specific transitions like transform */
+*:not(#left-sidebar):not(#right-sidebar) {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Override any existing transitions that might interfere */
+#left-sidebar,
+#right-sidebar,
+#api-main-content,
+body {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* Ensure sidebar slide animations work properly */
+#left-sidebar {
+  transition: transform 0.3s ease-in-out, background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+#right-sidebar {
+  transition: transform 0.3s ease-in-out, background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+}
+
+/* Theme override styles for existing HTML elements */
+
+/* Override existing sidebar styles with theme variables */
+#left-sidebar {
+  background-color: var(--sidebar-bg) !important;
+  border-color: var(--sidebar-border) !important;
+}
+
+#left-sidebar .text-gray-200,
+#left-sidebar .text-gray-300,
+#left-sidebar .text-gray-400 {
+  color: var(--sidebar-text) !important;
+}
+
+#left-sidebar .border-gray-700 {
+  border-color: var(--sidebar-border) !important;
+}
+
+/* Override main content styles */
+#api-main-content {
+  background-color: var(--main-bg) !important;
+  color: var(--main-text) !important;
+}
+
+#api-main-content .text-gray-200 {
+  color: var(--main-text) !important;
+}
+
+#api-main-content .text-gray-400 {
+  color: var(--main-text-secondary) !important;
+}
+
+/* Override body background */
+body {
+  background-color: var(--bg-primary) !important;
+}
+
+/* Override search input */
+#sidebar-search {
+  background-color: var(--interactive-bg) !important;
+  border-color: var(--border-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+#sidebar-search::placeholder {
+  color: var(--text-tertiary) !important;
+}
+
+/* Override right sidebar */
+#right-sidebar {
+  background-color: var(--sidebar-bg) !important;
+  border-color: var(--sidebar-border) !important;
+  color: var(--sidebar-text) !important;
+}
+
+ 
+
+/* Override navigation items */
+.nav-item,
+.sidebar-item {
+  color: var(--sidebar-text) !important;
+  transition: all 0.2s ease;
+}
+
+.nav-item:hover,
+.sidebar-item:hover {
+  background-color: var(--sidebar-bg-hover) !important;
+  color: var(--sidebar-text-hover) !important;
+}
+
+/* Override all text colors based on context */
+.text-gray-100, .text-gray-200, .text-gray-300 {
+  color: var(--text-primary) !important;
+}
+
+.text-gray-400, .text-gray-500 {
+  color: var(--text-secondary) !important;
+}
+
+.text-gray-600 {
+  color: var(--text-tertiary) !important;
+}
+
+/* Override background colors */
+.bg-gray-800, .bg-gray-900 {
+  background-color: var(--bg-secondary) !important;
+}
+
+.bg-gray-700 {
+  background-color: var(--bg-tertiary) !important;
+}
+
+.bg-gray-600 {
+  background-color: var(--bg-accent) !important;
+}
+
+/* Override border colors */
+.border-gray-600, .border-gray-700 {
+  border-color: var(--border-primary) !important;
+}
+
+.border-gray-500 {
+  border-color: var(--border-secondary) !important;
+}
+
+/* High specificity overrides to ensure theme variables take precedence */
+
+/* Body and root element theming */
+html,
+html body {
+  background-color: var(--bg-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Sidebar overrides with high specificity */
+aside#left-sidebar,
+aside#left-sidebar.fixed.w-72 {
+  background-color: var(--main-bg) !important;
+  border-color: var(--sidebar-border) !important;
+  color: var(--sidebar-text) !important;
+}
+
+/* Main content overrides */
+main#api-main-content,
+main#api-main-content.flex-1 {
+  background-color: var(--main-bg) !important;
+  color: var(--main-text) !important;
+}
+
+/* Right sidebar overrides */
+aside#right-sidebar,
+aside#right-sidebar.fixed.w-96 {
+  border-color: var(--sidebar-border) !important;
+  color: var(--sidebar-text) !important;
+}
+
+/* Text content overrides with high specificity */
+#left-sidebar .text-gray-200,
+#left-sidebar .text-gray-300,
+#left-sidebar .text-gray-400,
+#left-sidebar span.text-gray-200,
+#left-sidebar span.text-lg.font-semibold.text-gray-200 {
+  color: var(--sidebar-text) !important;
+}
+
+/* Input field overrides */
+#sidebar-search,
+input#sidebar-search {
+  background-color: var(--interactive-bg) !important;
+  border-color: var(--border-primary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Logo text override */
+.text-lg.font-semibold.text-gray-200 {
+  color: var(--sidebar-text) !important;
+}
+
+/* Border overrides */
+.border-b.border-gray-700,
+.border-r.border-gray-700,
+.border-t.border-gray-700 {
+  border-color: var(--sidebar-border) !important;
+}
+
+/* Ensure all child elements inherit theme colors */
+#left-sidebar *,
+#right-sidebar *,
+#api-main-content * {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Fix specific styling issues */
+
+/* 1. Fix hover visibility in left sidebar menu - make it darker */
+#left-sidebar .nav-item:hover,
+#left-sidebar .sidebar-item:hover,
+#left-sidebar .endpoint-link:hover,
+#left-sidebar .endpoint:hover {
+  background-color: var(--sidebar-bg-hover) !important;
+  color: var(--sidebar-text-hover) !important;
+}
+
+/* 2. Fix scrollbar brightness for dark theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-secondary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-accent);
+}
+
+/* Specific scrollbar styling for sidebar */
+#left-sidebar::-webkit-scrollbar-thumb {
+  background: var(--sidebar-border);
+}
+
+#left-sidebar::-webkit-scrollbar-track {
+  background: var(--sidebar-bg);
+}
+
+/* 4. Fix HTTP method badges - restore colors with transparent background */
+.method-badge {
+  background: transparent !important;
+  color: white !important;
+  font-weight: 700 !important;
+  border-radius: 4px !important;
+  padding: 2px 6px !important;
+  font-size: 0.7rem !important;
+  letter-spacing: 0.5px !important;
+  min-width: 45px !important;
+}
+
+/* HTTP Method specific colors - using theme variables */
+.method-badge[data-method="get"],
+.method-badge.get,
+[data-method="get"] .method-badge {
+  color: var(--method-get) !important;
+}
+
+.method-badge[data-method="post"],
+.method-badge.post,
+[data-method="post"] .method-badge {
+  color: var(--method-post) !important;
+}
+
+.method-badge[data-method="put"],
+.method-badge.put,
+[data-method="put"] .method-badge {
+  color: var(--method-put) !important;
+}
+
+.method-badge[data-method="patch"],
+.method-badge.patch,
+[data-method="patch"] .method-badge {
+  color: var(--method-patch) !important;
+}
+
+.method-badge[data-method="delete"],
+.method-badge[data-method="del"],
+.method-badge.delete,
+.method-badge.del,
+[data-method="delete"] .method-badge,
+[data-method="del"] .method-badge {
+  color: var(--method-delete) !important;
+}
+
+/* Ensure method badges are visible in all contexts */
+.endpoint .method-badge,
+.endpoint-link .method-badge,
+#api-navigation .method-badge,
+.favorites-sidebar-section .method-badge {
+  background: transparent !important;
+}
+
+/* Override any conflicting styles */
+.text-white .method-badge,
+.bg-gray-800 .method-badge,
+.bg-gray-700 .method-badge {
+  background: transparent !important;
+}
+
+/* Additional fixes for navigation contrast */
+#left-sidebar .text-gray-400:hover {
+  color: var(--sidebar-text-hover) !important;
+}
+
+#left-sidebar .border-gray-700:hover {
+  border-color: var(--sidebar-border) !important;
+}
+
+/* Additional method badge overrides for better visibility */
+
+/* Force method badge colors in all contexts */
+span.method-badge,
+div.method-badge,
+.method-badge span {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Method colors with high specificity */
+#left-sidebar [data-method="get"] .method-badge,
+#left-sidebar .method-badge[data-method="get"],
+.endpoint[data-method="get"] .method-badge,
+.endpoint-link[data-method="get"] .method-badge {
+  color: #22c55e !important; /* Green for GET */
+}
+
+#left-sidebar [data-method="post"] .method-badge,
+#left-sidebar .method-badge[data-method="post"],
+.endpoint[data-method="post"] .method-badge,
+.endpoint-link[data-method="post"] .method-badge {
+  color: #3b82f6 !important; /* Blue for POST */
+}
+
+#left-sidebar [data-method="put"] .method-badge,
+#left-sidebar .method-badge[data-method="put"],
+.endpoint[data-method="put"] .method-badge,
+.endpoint-link[data-method="put"] .method-badge {
+  color: #eab308 !important; /* Yellow for PUT */
+}
+
+#left-sidebar [data-method="patch"] .method-badge,
+#left-sidebar .method-badge[data-method="patch"],
+.endpoint[data-method="patch"] .method-badge,
+.endpoint-link[data-method="patch"] .method-badge {
+  color: #f59e0b !important; /* Orange for PATCH */
+}
+
+#left-sidebar [data-method="delete"] .method-badge,
+#left-sidebar [data-method="del"] .method-badge,
+#left-sidebar .method-badge[data-method="delete"],
+#left-sidebar .method-badge[data-method="del"],
+.endpoint[data-method="delete"] .method-badge,
+.endpoint[data-method="del"] .method-badge,
+.endpoint-link[data-method="delete"] .method-badge,
+.endpoint-link[data-method="del"] .method-badge {
+  color: #ef4444 !important; /* Red for DELETE */
+}
+
+/* Fix scrollbar for all elements in dark mode */
+#left-sidebar,
+#right-sidebar,
+#api-main-content,
+.overflow-auto,
+.overflow-y-auto {
+  scrollbar-color: var(--border-secondary) var(--bg-tertiary);
+  scrollbar-width: thin;
+}
+
+/* Fix text contrast in hover states */
+#left-sidebar .endpoint:hover span:not(.method-badge),
+#left-sidebar .endpoint-link:hover span:not(.method-badge) {
+  color: var(--sidebar-text-hover) !important;
+}
+
+
+
+/* ==========================================
+ * CRITICAL: Fix bright hover effects in dark mode
+ * ========================================== */
+
+/* 5. Fix bright hover effects on section names in left sidebar menu */
+#left-sidebar .path-segment .endpoint:hover,
+#left-sidebar .list-view-item:hover,
+#left-sidebar .endpoint:hover,
+#left-sidebar .endpoint-link:hover {
+  background-color: var(--sidebar-bg-hover) !important;
+  color: var(--sidebar-text-hover) !important;
+}
+
+/* 6. Fix bright hover effects on endpoint sections in main content area */
+#api-main-content .endpoint:hover,
+#api-main-content .endpoint-link:hover,
+.endpoint:hover,
+.endpoint-link:hover {
+  background-color: var(--interactive-bg-hover) !important;
+}
+
+/* Override the specific bright hover color from styles.css */
+.path-segment .endpoint:hover,
+.list-view-item:hover {
+  background-color: var(--sidebar-bg-hover) !important;
+}
+
+/* Override endpoint hover with dark theme colors */
+.endpoint:hover {
+  background-color: var(--interactive-bg-hover) !important;
+}
+
+/* Ensure text remains visible during hover */
+.endpoint:hover,
+.endpoint-link:hover {
+  color: var(--text-primary) !important;
+}
+
+.endpoint:hover .method-badge,
+.endpoint-link:hover .method-badge {
+  /* Keep method badges visible during hover */
+  opacity: 1 !important;
+}
+
+/* Force override of rgba(237, 242, 247, 0.7) with theme colors */
+#left-sidebar .endpoint:hover,
+#left-sidebar .endpoint-link:hover,
+#left-sidebar .path-segment .endpoint:hover,
+#left-sidebar .list-view-item:hover {
+  background-color: var(--sidebar-bg-hover) !important;
+  background: var(--sidebar-bg-hover) !important;
+}
+
+#api-main-content .endpoint:hover,
+.endpoint:hover:not(#left-sidebar .endpoint),
+.endpoint-link:hover:not(#left-sidebar .endpoint-link) {
+  background-color: var(--interactive-bg-hover) !important;
+  background: var(--interactive-bg-hover) !important;
+}
+
+/* Additional safety overrides with higher specificity */
+body[data-theme="dark"] #left-sidebar .endpoint:hover,
+body[data-theme="dark"] #left-sidebar .endpoint-link:hover,
+body[data-theme="dark"] #left-sidebar .path-segment .endpoint:hover,
+body[data-theme="dark"] #left-sidebar .list-view-item:hover {
+  background-color: var(--sidebar-bg-hover) !important;
+  background: var(--sidebar-bg-hover) !important;
+}
+
+body[data-theme="dark"] #api-main-content .endpoint:hover,
+body[data-theme="dark"] .endpoint:hover:not(#left-sidebar .endpoint),
+body[data-theme="dark"] .endpoint-link:hover:not(#left-sidebar .endpoint-link) {
+  background-color: var(--interactive-bg-hover) !important;
+  background: var(--interactive-bg-hover) !important;
+}
+
+/* Right sidebar comprehensive theming */
+aside#right-sidebar,
+aside#right-sidebar.fixed.w-96 {
+  border-color: var(--sidebar-border) !important;
+  color: var(--sidebar-text) !important;
+  border-left: 1px solid;
+}
+
+
+
+
+#right-sidebar input:focus,
+#right-sidebar textarea:focus,
+#right-sidebar select:focus {
+  border-color: var(--interactive-bg-active) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+
+
+#right-sidebar .vertical-menu-icon {
+  color: var(--sidebar-text) !important;
+}
+
+#right-sidebar .vertical-menu-icon:hover {
+  background: #225cff !important;
+
+  color: white !important;
+}
+
+#right-sidebar .vertical-menu-icon.active {
+  color: var(--interactive-text-active) !important;
+}
+
+/* Right sidebar content sections */
+#right-sidebar .right-panel-section {
+  background-color: transparent !important;
+  color: var(--sidebar-text) !important;
+}
+
+/* Right sidebar tabs */
+#right-sidebar .try-it-out-tab,
+#right-sidebar .collection-tab,
+#right-sidebar .code-snippet-tab {
+  color: var(--text-secondary) !important;
+  border-color: var(--border-secondary) !important;
+}
+
+#right-sidebar .try-it-out-tab:hover,
+#right-sidebar .collection-tab:hover,
+#right-sidebar .code-snippet-tab:hover {
+  color: var(--sidebar-text-hover) !important;
+}
+
+#right-sidebar .try-it-out-tab.active,
+#right-sidebar .collection-tab.active,
+#right-sidebar .code-snippet-tab.active {
+  color: var(--text-primary) !important;
+  border-color: var(--interactive-bg-active) !important;
+}
+
+/* Right sidebar modals and overlays */
+#right-sidebar .collection-modal,
+#right-sidebar .modal {
+  background-color: var(--sidebar-bg) !important;
+  color: var(--sidebar-text) !important;
+  border-color: var(--sidebar-border) !important;
+}
+
+/* Right sidebar parameter sections */
+#right-sidebar .param-section,
+#right-sidebar .form-group {
+  background-color: transparent !important;
+  color: var(--sidebar-text) !important;
+}
+
+#right-sidebar .form-label {
+  color: var(--text-primary) !important;
+}
+
+#right-sidebar .form-input {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-secondary) !important;
+}
+
+/* Ensure placeholders are visible */
+#try-it-out-section input::placeholder,
+#try-it-out-section textarea::placeholder {
+  color: var(--text-quaternary) !important;
+}
+
+/* Specific styling for different input types in try-it-out */
+#try-it-out-section input[type="text"],
+#try-it-out-section input[type="number"],
+#try-it-out-section input[type="email"],
+#try-it-out-section input[type="password"],
+#try-it-out-section input[type="url"],
+#try-it-out-section input[type="search"],
+#try-it-out-section input[type="file"],
+#try-it-out-section select {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-secondary) !important;
+  border-radius: 0.25rem !important;
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.875rem !important;
+  transition: all 0.15s ease !important;
+}
+
+/* Focus states for inputs and selects */
+#try-it-out-section input[type="text"]:focus,
+#try-it-out-section input[type="number"]:focus,
+#try-it-out-section input[type="email"]:focus,
+#try-it-out-section input[type="password"]:focus,
+#try-it-out-section input[type="url"]:focus,
+#try-it-out-section input[type="search"]:focus,
+#try-it-out-section select:focus {
+  outline: none !important;
+  border-color: var(--interactive-primary) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Hover states for inputs and selects */
+#try-it-out-section input[type="text"]:hover,
+#try-it-out-section input[type="number"]:hover,
+#try-it-out-section input[type="email"]:hover,
+#try-it-out-section input[type="password"]:hover,
+#try-it-out-section input[type="url"]:hover,
+#try-it-out-section input[type="search"]:hover,
+#try-it-out-section select:hover {
+  border-color: var(--border-accent) !important;
+}
+
+/* Disabled state */
+#try-it-out-section input:disabled,
+#try-it-out-section textarea:disabled,
+#try-it-out-section select:disabled {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-tertiary) !important;
+  opacity: 0.6;
+}
+
+/* Select dropdown options styling */
+#try-it-out-section select option {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  padding: 0.5rem !important;
+}
+
+/* Fix select element appearance in webkit browsers */
+#try-it-out-section select {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.5rem center !important;
+  background-size: 1rem !important;
+  padding-right: 2.5rem !important;
+}
+
+/* Light mode dropdown arrow (dark icon) */
+body:not([data-theme="dark"]) #try-it-out-section select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+}
+
+/* Dark mode dropdown arrow (light icon) */
+body[data-theme="dark"] #try-it-out-section select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f3f4f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+}

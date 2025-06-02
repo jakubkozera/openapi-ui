@@ -1,0 +1,107 @@
+/* Parameter section styles */
+
+.param-section-query {
+  border-left: 3px solid var(--method-get);
+  background-color: var(--surface-secondary);
+}
+
+.param-section-other {
+  border-left: 3px solid var(--method-patch);
+  background-color: var(--surface-secondary);
+}
+
+.param-section-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.param-section-header svg {
+  margin-right: 0.5rem;
+}
+
+.param-type-badge {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+.param-type-path {
+  background-color: var(--method-post);
+  color: var(--text-primary);
+}
+
+.param-type-query {
+  background-color: var(--method-get);
+  color: var(--text-primary);
+}
+
+.param-type-other {
+  background-color: var(--method-patch);
+  color: var(--text-primary);
+}
+
+/* Ensure select elements in parameter sections match input styling */
+.param-section select,
+#right-panel-path-parameters-section select,
+#right-panel-query-parameters-section select,
+#right-panel-headers-section select {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-secondary) !important;
+  border-radius: 0.25rem !important;
+  padding: 0.25rem 0.5rem !important;
+  font-size: 0.875rem !important;
+  transition: all 0.15s ease !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.5rem center !important;
+  background-size: 1rem !important;
+  padding-right: 2.5rem !important;
+}
+
+/* Light mode dropdown arrow for parameter sections (dark icon) */
+body:not([data-theme="dark"]) .param-section select,
+body:not([data-theme="dark"]) #right-panel-path-parameters-section select,
+body:not([data-theme="dark"]) #right-panel-query-parameters-section select,
+body:not([data-theme="dark"]) #right-panel-headers-section select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23374151' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+}
+
+/* Dark mode dropdown arrow for parameter sections (light icon) */
+body[data-theme="dark"] .param-section select,
+body[data-theme="dark"] #right-panel-path-parameters-section select,
+body[data-theme="dark"] #right-panel-query-parameters-section select,
+body[data-theme="dark"] #right-panel-headers-section select {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23f3f4f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+}
+
+.param-section select:focus,
+#right-panel-path-parameters-section select:focus,
+#right-panel-query-parameters-section select:focus,
+#right-panel-headers-section select:focus {
+  outline: none !important;
+  border-color: var(--interactive-primary) !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+.param-section select:hover,
+#right-panel-path-parameters-section select:hover,
+#right-panel-query-parameters-section select:hover,
+#right-panel-headers-section select:hover {
+  border-color: var(--border-accent) !important;
+}
+
+.param-section select option,
+#right-panel-path-parameters-section select option,
+#right-panel-query-parameters-section select option,
+#right-panel-headers-section select option {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  padding: 0.5rem !important;
+}

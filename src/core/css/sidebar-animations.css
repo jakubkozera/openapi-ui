@@ -1,0 +1,150 @@
+/* Enhanced Sidebar Slide Animations */
+
+/* Base animations for sidebars */
+#left-sidebar,
+#right-sidebar {
+  will-change: transform;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+}
+
+/* Left sidebar animations */
+#left-sidebar {
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+
+/* Right sidebar animations */
+#right-sidebar {
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) !important;
+}
+
+/* Enhanced slide-in effects with subtle bounce */
+@media (max-width: 1280px) {
+  /* Left sidebar slide animations on mobile */
+  #left-sidebar {
+    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+  }
+  
+  /* Right sidebar slide animations on mobile */
+  #right-sidebar {
+    transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+  }
+}
+
+/* Add a subtle shadow animation when sidebars slide in */
+#left-sidebar.translate-x-0 {
+  box-shadow: 4px 0 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease !important;
+}
+
+#right-sidebar.translate-x-0 {
+  box-shadow: -4px 0 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease !important;
+}
+
+/* Backdrop overlay with fade effect - only visible on screens < 1024px */
+@media (max-width: 1023px) {
+  .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 30;
+  }
+
+  .sidebar-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+/* Hide backdrop on larger screens */
+@media (min-width: 1024px) {
+  .sidebar-backdrop {
+    display: none !important;
+  }
+}
+
+/* Ensure sidebars are above backdrop */
+#left-sidebar,
+#right-sidebar {
+  z-index: 40;
+}
+
+/* Enhanced toggle button animations */
+#open-left-sidebar,
+#toggle-right-sidebar {
+  transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), background-color 0.2s ease;
+}
+
+#open-left-sidebar:hover,
+#toggle-right-sidebar:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+#open-left-sidebar:active,
+#toggle-right-sidebar:active {
+  transform: scale(0.95);
+}
+
+/* Icon rotation animations */
+#toggle-right-sidebar svg {
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+#toggle-right-sidebar.expanded svg {
+  transform: rotate(180deg);
+}
+
+/* Content shift animations when sidebars open/close */
+@media (max-width: 1279px) {
+  /* Ensure smooth content transitions on mobile */
+  #api-main-content {
+    transition: filter 0.3s ease;
+  }
+  
+  /* Blur main content when mobile sidebar is open */
+  body.sidebar-open #api-main-content {
+    filter: blur(2px);
+    transition: filter 0.3s ease;
+  }
+}
+
+/* Smooth fade transitions for sidebar content */
+#left-sidebar > *,
+#right-sidebar > * {
+  transition: opacity 0.2s ease;
+}
+
+/* Add subtle slide-up animation for sidebar content when opening */
+@keyframes slideUpFade {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#left-sidebar.translate-x-0 > *,
+#right-sidebar.translate-x-0 > * {
+  animation: slideUpFade 0.4s ease-out 0.1s both;
+}
+
+/* Stagger the animation for child elements */
+#left-sidebar.translate-x-0 > *:nth-child(1) { animation-delay: 0.1s; }
+#left-sidebar.translate-x-0 > *:nth-child(2) { animation-delay: 0.15s; }
+#left-sidebar.translate-x-0 > *:nth-child(3) { animation-delay: 0.2s; }
+#left-sidebar.translate-x-0 > *:nth-child(4) { animation-delay: 0.25s; }
+
+#right-sidebar.translate-x-0 > *:nth-child(1) { animation-delay: 0.1s; }
+#right-sidebar.translate-x-0 > *:nth-child(2) { animation-delay: 0.15s; }
+#right-sidebar.translate-x-0 > *:nth-child(3) { animation-delay: 0.2s; }

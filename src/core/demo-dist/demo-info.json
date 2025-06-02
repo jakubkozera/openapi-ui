@@ -1,0 +1,32 @@
+{
+  "name": "OpenAPI UI Demo",
+  "version": "1.0.0",
+  "description": "Demo version of OpenAPI UI with predefined specifications and custom JSON loading capability",
+  "features": [
+    "Predefined API specifications",
+    "Custom JSON input support",
+    "Real-time spec switching",
+    "All standard OpenAPI UI features"
+  ],
+  "sampleSpecs": [
+    {
+      "file": "files.json",
+      "title": "File Management API",
+      "version": "1.0.0",
+      "description": "An API for uploading and downloading files with validation rules."
+    },
+    {
+      "file": "sample-api.json",
+      "title": "Demonstration API",
+      "version": "1.0.0",
+      "description": "A comprehensive API specification to demonstrate various OpenAPI 3.0.0 features for UI rendering testing."
+    },
+    {
+      "file": "test-security-swagger.json",
+      "title": "Comprehensive Security Test API",
+      "version": "2.0.0",
+      "description": "A comprehensive test API demonstrating all supported OpenAPI security schemes"
+    }
+  ],
+  "buildDate": "2025-06-02T14:52:18.438Z"
+}

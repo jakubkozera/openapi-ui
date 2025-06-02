@@ -1,0 +1,667 @@
+/* Collection Runner CSS - Integrated Right Panel Design */
+
+/* Make sure hidden elements are actually hidden */
+.collection-tab-content.hidden {
+  display: none !important;
+}
+
+/* Collection tab styles that match try-it-out tabs */
+.collection-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-primary);
+  margin-bottom: 1rem;
+}
+
+.collection-tab {
+  padding-bottom: 1rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+  flex: 1;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+}
+
+.collection-tab:hover {
+  color: var(--sidebar-text-hover);
+}
+
+.collection-tab.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--interactive-bg-active);
+  transform: translateY(-2px);
+}
+
+.collection-tab::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--interactive-bg-active);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.4s ease;
+}
+
+.collection-tab:hover::after {
+  transform: scaleX(0.3);
+  transform-origin: left;
+}
+
+.collection-tab.active::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.collection-drawer-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.collection-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.collection-drawer-footer {
+  padding: 1rem;
+  border-top: 1px solid var(--border-primary);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.request-item {
+  border: 1px solid var(--border-secondary);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  position: relative;
+  background-color: var(--content-bg);
+  transition: box-shadow 0.2s, transform 0.1s, background-color 0.2s;
+  cursor: grab;
+}
+
+.request-item:hover {
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+.request-item.dragging {
+  opacity: 0.8;
+  cursor: grabbing;
+  box-shadow: 0 5px 10px var(--shadow-color);
+  transform: scale(1.02);
+  z-index: 100;
+  background-color: var(--surface-secondary);
+  border: 1px dashed var(--interactive-primary);
+}
+
+.request-item-drop-zone {
+  height: 0;
+  transition: height 0.2s;
+  position: relative;
+  background: transparent;
+}
+
+.request-item-drop-zone::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: transparent;
+  transition: background-color 0.2s, height 0.2s;
+}
+
+.request-item-drop-zone.drag-over {
+  height: 10px;
+}
+
+.request-item-drop-zone.drag-over::before {
+  background-color: var(--interactive-primary);
+  height: 4px;
+  top: 3px;
+}
+
+/* When dragging is active in the container, show all drop zones */
+.collection-list-container.dragging .request-item-drop-zone {
+  height: 8px;
+}
+
+.request-item.drag-over {
+  border: 1px dashed var(--interactive-primary);
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.request-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.request-item-method {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.25rem;
+  font-weight: 600;
+  font-size: 0.8rem;
+  margin-right: 0.5rem;
+  color: white;
+}
+
+.method-get {
+  background-color: var(--method-get);
+}
+
+.method-post {
+  background-color: var(--method-post);
+}
+
+.method-put {
+  background-color: var(--method-put);
+}
+
+.method-delete {
+  background-color: var(--method-delete);
+}
+
+.method-patch {
+  background-color: var(--method-patch);
+}
+
+.request-item-path {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.request-handle {
+  cursor: grab;
+  margin-right: 0.5rem;
+  color: var(--text-secondary);
+  padding: 4px;
+}
+
+.request-handle:hover {
+  color: var(--text-primary);
+}
+
+.request-item.dragging .request-handle {
+  cursor: grabbing;
+}
+
+.request-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.collection-results {
+  margin-top: 1rem;
+  border-top: 1px solid var(--border-primary);
+  padding-top: 1rem;
+}
+
+.result-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  border: 1px solid var(--border-primary);
+  margin-bottom: 0.5rem;
+}
+
+.result-status {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 0.75rem;
+  font-weight: bold;
+  color: white;
+}
+
+.status-success {
+  background-color: var(--method-get);
+}
+
+.status-error {
+  background-color: var(--method-delete);
+}
+
+.result-details {
+  flex: 1;
+}
+
+.result-name {
+  font-weight: 600;
+}
+
+.result-path {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.result-duration {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.progress-container {
+  width: 100%;
+  height: 0.5rem;
+  background-color: var(--surface-secondary);
+  border-radius: 0.25rem;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.progress-bar {
+  height: 100%;
+  background-color: var(--interactive-primary);
+  transition: width 0.3s ease;
+}
+
+
+/* Collection results container with scrolling */
+#collection-results {
+  max-height: calc(100vh - 250px); /* Account for header, tabs, and buttons */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.collection-list-container {
+  border: 2px dashed var(--border-primary);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-top: 1rem;
+  max-height: calc(100vh - 300px); /* Account for header, tabs, and buttons */
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.collection-list-item {
+  padding: 0.75rem;
+  border-bottom: 1px solid var(--border-primary);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.collection-list-item:last-child {
+  border-bottom: none;
+}
+
+.collection-item-name {
+  font-weight: 600;
+}
+
+.collection-item-details {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.collection-item-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Animation for running indicator */
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+.running-indicator {
+  animation: pulse 2s infinite;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.running-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background-color: var(--method-delete);
+}
+
+/* Modal styles */
+.collection-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--modal-overlay-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.collection-modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.collection-modal {
+  width: 30rem;
+  max-width: 90vw;
+  background-color: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--sidebar-border);
+}
+
+.collection-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--sidebar-border);
+}
+
+.collection-modal-title {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--sidebar-text);
+}
+
+.collection-modal-close {
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 1.5rem;
+  line-height: 1;
+  transition: color 0.2s ease;
+}
+
+.collection-modal-close:hover {
+  color: var(--sidebar-text);
+}
+
+.collection-modal-body {
+  margin-bottom: 1.5rem;
+  color: var(--sidebar-text);
+}
+
+.collection-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--sidebar-border);
+}
+
+/* Form field styles */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: var(--sidebar-text);
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--sidebar-border);
+  border-radius: 0.25rem;
+  font-size: 0.9rem;
+  background-color: var(--surface-secondary);
+  color: var(--sidebar-text);
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--interactive-primary);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.spinner {
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 0.2rem solid var(--spinner-bg);
+  border-right-color: var(--interactive-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Style empty state better */
+.empty-collection-message,
+.empty-collections-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  border: 2px dashed var(--border-primary);
+  border-radius: 0.5rem;
+  color: var(--text-secondary);
+}
+
+.empty-collection-message::before,
+.empty-collections-message::before {
+  content: "";
+  display: block;
+  width: 3rem;
+  height: 3rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 24 24' fill='none' stroke='%23d1d5db' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2'%3E%3C/path%3E%3Crect x='8' y='2' width='8' height='4' rx='1' ry='1'%3E%3C/rect%3E%3Cpath d='M9 14h6'%3E%3C/path%3E%3Cpath d='M9 10h6'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  margin-bottom: 1rem;
+}
+
+/* Tooltip styles for the collection runner */
+.cr-tooltip {
+  position: relative;
+}
+
+.cr-tooltip:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.25rem 0.5rem;
+  background-color: var(--tooltip-bg);
+  color: var(--tooltip-text);
+  font-size: 0.75rem;
+  border-radius: 0.25rem;
+  white-space: nowrap;
+  margin-bottom: 0.25rem;
+  z-index: 100;
+}
+
+/* Add animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.result-item {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Add fade transition for tab content */
+.collection-tab-content {
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.collection-tab-content.hidden {
+  display: none !important;
+  opacity: 0;
+}
+
+/* Output Parameters Table Styling - Match Variables Table */
+
+/* Override the default table styling for output parameters */
+#output-parameters-modal .bg-gray-700.rounded-md.border.border-gray-600 {
+  border: 1px solid var(--sidebar-border);
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--sidebar-bg);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Style the table wrapper to behave like variables table */
+#output-parameters-modal table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: var(--sidebar-bg);
+}
+
+/* Header styling to match variables table header */
+#output-parameters-modal thead tr {
+  display: grid;
+  grid-template-columns: 1fr 1fr 40px;
+  background: var(--surface-secondary);
+  border-bottom: 2px solid var(--sidebar-border);
+}
+
+#output-parameters-modal thead th {
+  padding: 8px 12px;
+  background: var(--surface-secondary);
+  font-weight: 600;
+  color: var(--sidebar-text);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-right: 1px solid var(--sidebar-border);
+  display: flex;
+  align-items: center;
+  border-bottom: none;
+}
+
+#output-parameters-modal thead th:last-child {
+  border-right: none;
+  justify-content: center;
+}
+
+/* Row styling to match variables table items */
+#output-parameters-modal tbody tr.output-parameter-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 40px;
+  background: var(--sidebar-bg);
+  transition: background-color 0.15s ease;
+  border-bottom: 1px solid var(--sidebar-border);
+}
+
+#output-parameters-modal tbody tr.output-parameter-row:last-child {
+  border-bottom: none;
+}
+
+#output-parameters-modal tbody tr.output-parameter-row:hover {
+  background: var(--surface-hover);
+}
+
+/* Cell styling to match variables table cells */
+#output-parameters-modal tbody tr.output-parameter-row td {
+  padding: 0;
+  background: inherit;
+  display: flex;
+  align-items: stretch;
+  min-height: 36px;
+  border-right: 1px solid var(--sidebar-border);
+  position: relative;
+  border-bottom: none;
+}
+
+#output-parameters-modal tbody tr.output-parameter-row td:last-child {
+  border-right: none;
+  justify-content: center;
+  align-items: center;
+}
+
+#output-parameters-modal tbody tr.output-parameter-row td:hover {
+  background: var(--cell-hover-bg);
+}
+
+/* Input styling to match variables table inputs */
+#output-parameters-modal .parameter-name,
+#output-parameters-modal .parameter-jsonpath {
+  font-weight: 500;
+  color: var(--sidebar-text);
+  font-size: 13px;
+  width: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background: transparent;
+  border: none;
+  padding: 8px 12px;
+  outline: none;
+  box-sizing: border-box;
+  min-height: 36px;
+}
+
+#output-parameters-modal .parameter-name:focus,
+#output-parameters-modal .parameter-jsonpath:focus {
+  background: var(--input-focus-bg);
+  box-shadow: inset 0 0 0 1px var(--focus-ring-color);
+}
+
+#output-parameters-modal .parameter-name {
+  font-weight: 500;
+}
+
+#output-parameters-modal .parameter-jsonpath {
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  word-break: break-all;
+}
+
+/* Remove button styling to match variables table */
+#output-parameters-modal .remove-output-parameter {
+  border-radius: 4px;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+}
+
+#output-parameters-modal .remove-output-parameter:hover {
+  color: var(--method-delete);
+  background: var(--button-danger-hover-bg);
+  transform: scale(1.1);
+}

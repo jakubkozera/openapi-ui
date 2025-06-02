@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - Demo Mode</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <link rel="stylesheet" href="bundle.css">
+</head>
+
+<body class="bg-gray-900 flex min-h-screen"
+    style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;">
+    <!-- Toggle buttons for small screens -->
+    <button id="open-left-sidebar" class="p-2 bg-blue-500 text-white rounded-md fixed top-4 left-4 z-50 xl:hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+            class="size-6">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9">
+            </path>
+        </svg>
+
+    </button>
+    <!-- Toggle button for right sidebar -->
+    <button id="toggle-right-sidebar" class="p-2 bg-blue-500 text-white rounded-md fixed top-4 right-4 z-50 lg:hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" stroke="currentColor">
+            <!-- Use the same icon as "Try it out": play arrow -->
+            <path id="toggle-right-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+    </button> <!-- Sidebar -->
+    <aside id="left-sidebar"
+        class="fixed w-72 bg-gray-800 border-r border-gray-700 flex flex-col top-0 left-0 h-screen transform -translate-x-full xl:relative xl:sticky xl:top-0 xl:left-auto xl:translate-x-0 transition-transform duration-300 ease-in-out z-40">
+        <div class="p-6 flex justify-center border-b border-gray-700">
+            <!-- Placeholder for a dynamic logo if needed -->
+            <div class="flex items-center">
+                <img src="/img/openapi-ui.png" alt="OpenAPI UI Logo" class="h-12">
+                <span class="ml-2 text-lg font-semibold text-gray-200">OpenAPI UI</span>
+            </div>
+        </div>
+        <div class="px-4 mt-4">
+            <div class="relative"> <span class="absolute inset-y-0 left-0 pl-3 flex items-center">
+                    <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </span> <input type="text" id="sidebar-search" placeholder="Search operations..."
+                    class="pl-10 pr-10 py-2 w-full rounded-md text-sm border border-gray-600 bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <span class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" id="http-verb-filter">
+                    <svg class="h-5 w-5 text-gray-400 hover:text-blue-500" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                    </svg>
+                    <span id="filter-counter"
+                        class="absolute hidden h-4 w-4 text-xs flex items-center justify-center bg-blue-500 text-white font-bold rounded-full"
+                        style="top: 2px; right: 2px;">0</span>
+                </span>
+            </div>
+            <div id="http-verbs-popup"
+                class="hidden absolute z-10 mt-1 origin-top-right rounded-md bg-gray-800 shadow-lg ring-1 ring-gray-600 focus:outline-none"
+                style="right: 20px;">
+                <div class="http-verb-pills-container" role="none">
+                    <!-- HTTP verb pills will be added here dynamically -->
+                </div>
+                <div class="flex justify-between mt-3 px-3 py-2 border-t border-gray-600">
+                    <button id="clear-verb-filters"
+                        class="text-xs border border-gray-500 text-gray-300 px-3 py-1 rounded transition-colors">Clear</button>
+                    <button id="apply-verb-filters"
+                        class="text-xs bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-1 rounded shadow-sm transition-colors">Apply</button>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="px-4 mt-4 flex items-center justify-center">
+            <span class="text-sm text-gray-600 mr-2">View:</span>
+            <div class="inline-flex rounded-md shadow-sm" role="group">
+                <button id="view-list"
+                    class="view-toggle px-3 py-1 text-sm font-medium bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 focus:outline-none">
+                    List
+                </button>
+                <button id="view-tree"
+                    class="view-toggle px-3 py-1 text-sm font-medium bg-white border border-gray-300 border-l-0 rounded-r-lg hover:bg-gray-100 focus:outline-none">
+                    Tree
+                </button>
+            </div>
+        </div> -->
+
+        <nav id="api-navigation" class="mt-4 flex-1 overflow-y-auto pb-4">
+            <!-- Dynamic navigation will be inserted here by JavaScript -->
+            <div class="px-6 py-3 text-gray-400">Loading API structure...</div>
+        </nav>
+        <div class="p-4 border-t border-gray-700">
+            <!-- Theme toggle will be inserted here by ThemeManager -->
+        </div>
+    </aside><!-- Main Content -->
+    <main id="api-main-content" class="flex-1 overflow-auto p-8 h-screen bg-gray-900">
+        <!-- Dynamic content will be inserted here -->
+        <div class="py-10">
+            <svg class="h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                aria-hidden="true">
+                <path vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 13h6m-3-3v6m-9 1V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            </svg>
+            <h2 class="mt-2 text-lg font-medium text-gray-200">Select an operation</h2>
+            <p class="mt-1 text-sm text-gray-400">
+                Choose an API operation from the sidebar to see its details.
+            </p>
+        </div>
+    </main>
+
+    <!-- Right Panel -->
+    <aside id="right-sidebar"
+        class="fixed w-96 overflow-auto flex flex-col top-0 right-0 h-screen transform translate-x-full transition-transform duration-300 ease-in-out z-40 lg:relative lg:sticky lg:top-0 lg:right-auto lg:translate-x-0 lg:w-2/5"
+        style="max-width: 700px;">
+        <!-- Vertical Menu -->
+        <div class="vertical-menu shadow-lg">
+            <!-- existing Vertical Menu Icons (now only section toggles) -->
+            <div class="vertical-menu-icon active" data-section="try-it-out" title="Try it out">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+            </div>
+            <div class="vertical-menu-icon" data-section="auth" title="Authentication">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+            <div class="vertical-menu-icon" data-section="variables" title="Variables">
+                <svg data-slot="icon" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M4.745 3A23.933 23.933 0 0 0 3 12c0 3.183.62 6.22 1.745 9M19.5 3c.967 2.78 1.5 5.817 1.5 9s-.533 6.22-1.5 9M8.25 8.885l1.444-.89a.75.75 0 0 1 1.105.402l2.402 7.206a.75.75 0 0 0 1.104.401l1.445-.889m-8.25.75.213.09a1.687 1.687 0 0 0 2.062-.617l4.45-6.676a1.688 1.688 0 0 1 2.062-.618l.213.09">
+                    </path>
+                </svg>
+            </div>
+            <div class="vertical-menu-icon" data-section="collection-runner" title="Collection Runner">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor" class="size-6">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+                </svg>
+
+            </div>
+
+            <div class="vertical-menu-icon" data-section="code-snippet" title="Code Snippets">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                </svg>
+            </div>
+        </div> <!-- Try it out Section -->
+        <section id="try-it-out-section" class="right-panel-section active relative">
+            <!-- Loading overlay -->
+            <div id="try-it-out-loader" class="loading-overlay hidden">
+                <span class="loader"></span>
+            </div>
+
+            <!-- Tabs navigation -->
+            <div id="try-it-out-tabs" class="pt-6 pl-6 hidden">
+                <div class="try-it-out-tabs">
+                    <div id="request-tab" class="try-it-out-tab active" onclick="switchTab('request')">Request</div>
+                    <div id="response-tab" class="try-it-out-tab" onclick="switchTab('response')">Response</div>
+                </div>
+            </div> <!-- Request content -->
+            <div id="request-content" class="try-it-out-content">
+                <div class="p-6 border-b border-gray-700">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center text-sm w-full">
+                            <button id="executeRequestBtn"
+                                class="flex items-center font-bold rounded text-sm mr-2 text-white transition ">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 5l14 7-14 7V5z" />
+                                </svg>
+                                <span id="right-panel-method"
+                                    class="w-[15%] text-right bg-gray-600 text-white text-lg rounded">METHOD</span>
+
+                            </button>
+                            <span id="right-panel-path"
+                                class="w-[85%] text-lg text-left text-gray-400 truncate ml-2">/path/to/endpoint</span>
+                        </div>
+                    </div>
+                </div> <!-- Path Parameters Section -->
+                <div id="right-panel-path-parameters-section" class="px-6 py-4 border-b border-gray-700 hidden">
+                    <h3 class="flex items-center text-md font-semibold text-gray-300 mb-2">Path Parameters</h3>
+                    <div id="right-panel-path-parameters-container">
+                        <!-- Dynamic path parameter inputs will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Query Parameters Section -->
+                <div id="right-panel-query-parameters-section" class="px-6 py-4 border-b border-gray-700 hidden">
+                    <h3 class="flex items-center text-md font-semibold text-gray-300 mb-2">Query Parameters</h3>
+                    <div id="right-panel-query-parameters-container">
+                        <!-- Dynamic query parameter inputs will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Dynamic Headers Section -->
+                <div id="right-panel-headers-section" class="px-6 py-4 border-b border-gray-700 hidden">
+                    <h3 class="flex items-center text-md font-semibold text-gray-300 mb-2">Headers</h3>
+                    <div id="right-panel-headers-container">
+                        <!-- Dynamic header inputs will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Dynamic Request Body Section -->
+                <div id="right-panel-request-body-section" class="px-6 py-4 border-b border-gray-700 hidden">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="flex items-center text-md font-semibold text-gray-300">Request Body</h3>
+                        <span id="right-panel-request-body-required" class="text-xs text-red-400 hidden">required</span>
+                    </div>
+                    <select id="right-panel-request-body-content-type-select"
+                        class="w-full bg-gray-700 border border-gray-600 text-white text-xs rounded px-2 py-1 mb-2 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent">
+                        <!-- Content types will be populated here -->
+                    </select>
+                    <div id="right-panel-request-body-editor"
+                        class="w-full h-96 bg-gray-900 border border-gray-600 rounded-md"></div>
+                </div> <!-- Execute button moved to top -->
+
+                <div id="request-payload-section" class="flex-grow overflow-y-auto hidden">
+                    <div class="px-6 py-3 border-b border-gray-700">
+                        <div class="text-sm text-gray-300">Payload (<span
+                                id="request-content-type">application/json</span>)
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <pre class="text-sm whitespace-pre-wrap break-all" id="requestSample" style="color: #9CDCFE;">{
+  "message": "Select an operation to see request sample."
+}</pre>
+                    </div>
+                </div> <!-- Example Response section removed as per request --> <!-- Response content -->
+            </div>
+            <div id="response-content" class="try-it-out-content hidden">
+                <div class="p-6">
+                    <div class="mb-4"> <button id="response-details-button"
+                            class="flex items-center w-full bg-green-100 text-green-800 py-2 px-3 rounded-md">
+                            <svg id="response-details-arrow"
+                                class="h-5 w-5 mr-2 transform transition-transform duration-200" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                            <div class="flex items-center justify-between w-full">
+                                <span id="actual-response-status-code-display" class="text-sm font-medium">STATUS</span>
+                                <span id="response-execution-time" class="text-sm">0ms</span>
+                            </div>
+                        </button>
+                        <div id="response-details-content" class="hidden mt-2 p-4 bg-gray-700 rounded-lg">
+                            <div class="mb-4">
+                                <div id="response-headers" class="text-sm text-gray-400 space-y-1">
+                                    <!-- Headers will be populated dynamically -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="height: calc(100vh - 250px);">
+                        <div id="actualResponseSample"
+                            class="w-full h-full bg-gray-900 border border-gray-600 rounded-md">
+                        </div>
+                    </div>
+                    <div class="border-t border-gray-700 mt-4">
+                        <button
+                            class="w-full bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded transition-colors flex items-center justify-center"
+                            id="copyActualResponseBtn">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                            Copy to Clipboard
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section> <!-- Authentication Section -->
+        <section id="auth-section" class="right-panel-section">
+            <div class="p-6 border-b border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-semibold text-lg">Authentication</h2>
+                </div>
+                <!-- Security scheme content will be dynamically inserted here -->
+            </div>
+        </section> <!-- Variables Section -->
+        <section id="variables-section" class="right-panel-section">
+            <div class="p-6 border-b border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-semibold text-lg">Variables</h2>
+                    <button id="add-variable-btn"
+                        class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Add Variable
+                    </button>
+                </div>
+
+                <div class="text-xs text-gray-400 mb-4">
+                    Variables can be used in path parameters, query parameters, headers, and request body using the
+                    format: <code class="bg-gray-600 px-1 rounded">{{variableName}}</code>
+                </div>
+
+                <div id="variables-container" class="space-y-3">
+                    <!-- Variables will be dynamically inserted here -->
+                    <div id="variables-empty-state" class="text-gray-500 text-center py-6">
+                        No variables defined yet. Click "Add Variable" to create one.
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-4 border-t border-gray-700">
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm text-gray-400">
+                            <span id="variables-count">0</span> variables defined
+                        </span>
+                        <div class="flex gap-2">
+                            <button id="clear-variables-btn"
+                                class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md text-sm font-medium transition-colors"
+                                style="display: none;">
+                                Clear All
+                            </button>
+                            <button id="save-variables-btn"
+                                class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors"
+                                style="display: none;">
+                                Save
+                            </button>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section> <!-- Collection Runner Section -->
+        <section id="collection-runner-section" class="right-panel-section">
+            <div class="p-6 border-b border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-semibold text-lg">Collection Runner</h2> <button id="add-current-to-collection"
+                        class="px-1 py-1 border border-white text-white rounded-md transition-colors flex items-center justify-center"
+                        data-tooltip="Add selected endpoint to collection">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="collection-tabs">
+                    <div class="collection-tab active" data-tab="collection-tab">Collection</div>
+                    <div class="collection-tab" data-tab="results-tab">Results</div>
+                    <div class="collection-tab" data-tab="saved-tab">Saved</div>
+                </div>
+
+                <div id="collection-tab" class="collection-tab-content">
+                    <div class="form-group mb-4">
+                        <label class="block text-sm text-gray-400 mb-1">Delay between requests (ms)</label>
+                        <input type="number" id="delay-input"
+                            class="w-full px-3 py-2 bg-gray-700 text-white rounded border border-gray-600" value="0"
+                            min="0" step="100">
+                    </div>
+
+                    <div id="collection-requests" class="mt-4">
+                        <!-- Request items will be added here -->
+                        <div class="text-gray-500 text-center py-6 empty-collection-message">
+                            No requests in collection yet
+                        </div>
+                    </div>
+                    <div class="flex justify-end mt-4 space-x-2"> <span id="request-count"
+                            class="text-sm text-gray-500 mr-auto self-center">0 requests</span>
+                        <button id="clear-collection-btn"
+                            class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md text-sm font-medium transition-colors">
+                            Clear
+                        </button>
+                        <button id="save-as-new-collection-btn"
+                            class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md text-sm font-medium transition-colors">
+                            Save as new
+                        </button>
+                        <button id="save-collection-btn"
+                            class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md text-sm font-medium transition-colors"
+                            style="display: none">
+                            Save
+                        </button>
+                        <button id="run-collection-btn"
+                            class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors">
+                            Run Collection
+                        </button>
+                    </div>
+                </div>
+
+                <div id="results-tab" class="collection-tab-content hidden">
+                    <div class="progress-container mb-4">
+                        <div id="collection-progress" class="progress-bar" style="width: 0%;"></div>
+                    </div>
+
+                    <div id="progress-info" class="text-sm text-gray-400 mb-4">
+                        Ready to run collection
+                    </div>
+
+                    <div id="collection-results" class="mt-4">
+                        <!-- Results will be displayed here -->
+                    </div>
+                </div>
+
+                <div id="saved-tab" class="collection-tab-content hidden">
+                    <p class="text-sm text-gray-400 mb-4">Select a saved collection to load:</p>
+
+                    <div id="saved-collections">
+                        <!-- Saved collections will be listed here -->
+                        <div class="text-gray-500 text-center py-6 empty-collections-message">
+                            No saved collections found
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section> <!-- Code Snippet Section -->
+        <section id="code-snippet-section" class="right-panel-section">
+            <div class="p-6 border-b border-gray-700">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-semibold text-lg">Code Generation</h2>
+                </div>
+                <div class="code-snippet-tabs">
+                    <div class="code-snippet-tab active" data-tab="snippets-tab">Snippets</div>
+                    <div class="code-snippet-tab" data-tab="api-clients-tab">API Clients</div>
+                </div>
+
+                <div id="snippets-tab" class="code-snippet-tab-content">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center space-x-4">
+                            <label class="text-sm text-gray-400" for="snippetLanguagePanel">Language:</label>
+                            <select id="snippetLanguagePanel"
+                                class="bg-gray-700 border border-gray-600 text-white text-sm rounded px-3 py-1.5 min-w-[200px] focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </select>
+                        </div>
+                        <button id="copySnippetBtn"
+                            class="px-3 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md text-sm font-medium transition-colors flex items-center justify-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                            </svg>
+                            Copy
+                        </button>
+                    </div>
+                    <div class="flex items-center text-sm w-full mb-4">
+                        <span id="snippet-method"
+                            class="w-[15%] text-right bg-gray-600 text-white px-2 py-0.5 text-xs rounded">METHOD</span>
+                        <span id="snippet-path"
+                            class="w-[85%] text-left text-gray-400 truncate">/path/to/endpoint</span>
+                    </div>
+                    <div class="flex-1" style="height: calc(100vh - 250px);">
+                        <div id="monaco-editor-container" class="w-full h-full rounded-lg bg-gray-900 overflow-hidden">
+                        </div>
+                    </div>
+                </div>
+                <div id="api-clients-tab" class="code-snippet-tab-content hidden">
+                    <div class="flex items-center justify-between space-x-2 mb-4">
+                        <div class="flex items-center justify-between space-x-2">
+                            <label class="text-sm text-gray-400 mr-1" for="apiClientLanguageSelect">Language:</label>
+                            <select id="apiClientLanguageSelect"
+                                class="bg-gray-700 border border-gray-600 text-white text-sm rounded px-3 py-1.5 min-w-[150px] focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="csharp">C#</option>
+                                <option value="javascript">JS/TS</option>
+                            </select>
+                            <button id="apiClientOptionsBtn"
+                                class="p-1.5 text-gray-400 hover:text-white transition-colors hidden"
+                                title="Language Options">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <button id="generateApiClientBtn"
+                            class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium transition-colors flex items-center justify-center ml-auto">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Generate
+                        </button>
+                    </div>
+                    <div class="flex-1" style="height: calc(100vh - 220px);">
+                        <!-- File tabs container -->
+                        <div id="api-client-file-tabs" class="file-tabs-container flex justify-between items-center">
+                            <div class="file-tabs-empty">Generate API client to see files</div>
+                            <!-- New copy button will be dynamically added here or styled to be on the far right -->
+                        </div>
+                        <!-- Monaco editor container -->
+                        <div id="api-client-monaco-editor" class="w-full h-full bg-gray-900 overflow-hidden"
+                            style="height: calc(100% - 35px);">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </aside> <!-- Code Snippet Modal -->
+    <div id="codeSnippetModal"
+        class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-xl w-4/5 max-w-3xl max-h-5/6 flex flex-col">
+            <!-- Modal Header with integrated language selector -->
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <h2 class="text-xl font-semibold text-gray-800 dark:text-white">Code Snippet</h2>
+                    <select id="snippetLanguageModal"
+                        class="pl-3 pr-8 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white  dark:text-white">
+                        <!-- Options will be populated dynamically -->
+                    </select>
+                </div>
+                <button id="closeCodeSnippetModal"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div><!-- Code Content - Monaco Editor -->
+            <div class="px-6 py-4 flex-1 overflow-hidden">
+                <div id="monacoEditorContainer" class="h-64 md:h-96 w-full"
+                    style="border: 1px solid #30363d; border-radius: 6px;"></div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-3 border-t border-gray-200 dark:border-gray-700 flex justify-end">
+                <button id="copyCodeSnippet"
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    Copy to Clipboard
+                </button>
+            </div>
+        </div>
+    </div> <!-- Custom tooltip element that appears next to menu items -->
+    <!-- Custom tooltip element that appears next to menu items -->
+    <div id="custom-tooltip"
+        class="hidden fixed bg-white text-gray-700 border border-blue-200 text-xs rounded py-1 px-3 shadow-md z-50 pointer-events-none">
+    </div>
+
+    <!-- Application Scripts -->
+    <!-- Core/config first -->
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+
+    <!-- Event handlers and main app logic last -->
+    
+    
+    
+    
+    
+    
+    
+     <!-- API Client Options Modal -->
+    <div id="apiClientOptionsModal"
+        class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-5xl mx-4 max-h-[90vh] overflow-y-auto">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                <h2 class="text-xl font-semibold ">C# Generation Options</h2>
+                <button id="closeOptionsModal"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div> <!-- Modal Content -->
+            <div class="p-6"> <!-- C# Options -->
+                <div id="csharpOptions" class="language-options">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Left Column -->
+                        <div class="space-y-4">
+                            <!-- Property Settings -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                                <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path
+                                            d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                                    </svg>
+                                    Property Settings
+                                </h3>
+                                <div class="ml-6 space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="usePascalCase"
+                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 mr-3">
+                                        <span class="text-sm text-gray-700 ">Use Pascal Case</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="useFields"
+                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 mr-3">
+                                        <span class="text-sm text-gray-700 ">Use Fields</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="useNullableTypes"
+                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 mr-3">
+                                        <span class="text-sm text-gray-700 ">Use Nullable Types</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Attributes/Decorators -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                                <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    Attributes/Decorators
+                                </h3>
+                                <div class="ml-6 space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="addJsonPropertyAttributes"
+                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 mr-3">
+                                        <span class="text-sm text-gray-700 ">Add JsonProperty
+                                            Attributes</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="useJsonPropertyName"
+                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 mr-3">
+                                        <span class="text-sm text-gray-700 ">Use JsonPropertyName
+                                            (.NET Core)</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Class Settings -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                                <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    Class Settings
+                                </h3>
+                                <div class="ml-6 space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="generateImmutableClasses"
+                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 mr-3">
+                                        <span class="text-sm text-gray-700 ">Generate Immutable
+                                            Classes</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="useRecordTypes"
+                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 mr-3">
+                                        <span class="text-sm text-gray-700 ">Use Record Types</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="space-y-4">
+                            <!-- List Settings -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                                <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    List Settings
+                                </h3>
+                                <div class="ml-6 space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="useReadonlyLists"
+                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 mr-3">
+                                        <span class="text-sm text-gray-700 ">Use Readonly Lists</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Namespace Settings -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                                <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    Namespace Settings
+                                </h3>
+                                <div class="ml-6 space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="useFileScopedNamespaces"
+                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 mr-3">
+                                        <span class="text-sm text-gray-700 ">Use File Scoped
+                                            Namespaces (C# 10+)</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Constructor Settings -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                                <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    Constructor Settings
+                                </h3>
+                                <div class="ml-6 space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="usePrimaryConstructors"
+                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 mr-3">
+                                        <span class="text-sm text-gray-700 ">Use Primary Constructors
+                                            (C# 12+)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div><!-- JavaScript Options -->
+                <div id="javascriptOptions" class="language-options hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Left Column -->
+                        <div class="space-y-4">
+                            <!-- Language Type -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                                <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path
+                                            d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3z" />
+                                    </svg>
+                                    Language Type
+                                </h3>
+                                <div class="ml-6 space-y-2"> <label class="flex items-center">
+                                        <span class="text-sm text-gray-700  mr-3">Generate:</span>
+                                        <select id="generateTypeScript"
+                                            class="bg-white  border border-gray-300 dark:border-gray-600 text-gray-900 text-sm rounded px-3 py-1.5 min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="false">JavaScript</option>
+                                            <option value="true">TypeScript</option>
+                                        </select>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Module System -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                                <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path
+                                            d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+                                    </svg>
+                                    Module System
+                                </h3>
+                                <div class="ml-6 space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="useESModules"
+                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 mr-3">
+                                        <span class="text-sm text-gray-700 ">Use ES Modules
+                                            (import/export)</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Async Handling -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                                <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-purple-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    Async Handling
+                                </h3>
+                                <div class="ml-6 space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="useAsyncAwait"
+                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 mr-3">
+                                        <span class="text-sm text-gray-700 ">Use async/await
+                                            syntax</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- HTTP Client -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                                <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    HTTP Client
+                                </h3>
+                                <div class="ml-6 space-y-2"> <label class="flex items-center">
+                                        <span class="text-sm text-gray-700  mr-3">Library:</span>
+                                        <select id="httpClient"
+                                            class="bg-white  border border-gray-300 dark:border-gray-600 text-gray-900 text-sm rounded px-3 py-1.5 min-w-[140px] focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="fetch">Fetch API</option>
+                                            <option value="axios">Axios</option>
+                                        </select>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Column -->
+                        <div class="space-y-4">
+                            <!-- Code Style -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                                <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-indigo-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    Code Style
+                                </h3>
+                                <div class="ml-6 space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="generateClassesForModels"
+                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 mr-3">
+                                        <span class="text-sm text-gray-700 ">Generate classes for
+                                            models</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Error Handling -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                                <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    Error Handling
+                                </h3>
+                                <div class="ml-6 space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="throwErrors"
+                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 mr-3">
+                                        <span class="text-sm text-gray-700 ">Throw errors on HTTP
+                                            failures</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Documentation -->
+                            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200 dark:border-gray-700">
+                                <h3 class="text-base font-semibold text-gray-800 mb-3 flex items-center">
+                                    <svg class="w-4 h-4 mr-2 text-teal-600" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd"
+                                            d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                    Documentation
+                                </h3>
+                                <div class="ml-6 space-y-2">
+                                    <label class="flex items-center">
+                                        <input type="checkbox" id="includeJSDoc"
+                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 focus:ring-2 mr-3">
+                                        <span class="text-sm text-gray-700 ">Include JSDoc
+                                            comments</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
+                <button id="resetOptionsBtn" class="px-4 py-2 text-sm font-medium text-gray-700 focus:outline-none">
+                    Reset to Defaults
+                </button>
+                <button id="saveOptionsBtn"
+                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    Save Options
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="bundle.js"></script>
+</body>
+
+</html>

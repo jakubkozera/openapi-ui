@@ -1,0 +1,640 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Demonstration API",
+    "version": "1.0.0",
+    "description": "A comprehensive API specification to demonstrate various OpenAPI 3.0.0 features for UI rendering testing."
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com/v1",
+      "description": "Main production server"
+    },
+    {
+      "url": "https://dev.api.example.com/v1",
+      "description": "Development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Users",
+      "description": "Operations related to user management"
+    },
+    {
+      "name": "Products",
+      "description": "Operations related to product catalog"
+    },
+    {
+      "name": "Orders",
+      "description": "Operations related to customer orders"
+    }
+  ],
+  "paths": {
+    "/users": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get a list of users",
+        "description": "Retrieves a list of all users, with optional filtering and pagination.",
+        "operationId": "getUsers",
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter users by their status (e.g., active, inactive)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["active", "inactive", "pending"]
+            },
+            "example": "active"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of users to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "minimum": 1,
+              "maximum": 100
+            },
+            "example": 10
+          },
+          {
+            "name": "X-Request-ID",
+            "in": "header",
+            "description": "Unique identifier for the request",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "A list of users",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/User"
+                  }
+                },
+                "examples": {
+                  "successResponse": {
+                    "summary": "Successful response with users",
+                    "value": [
+                      {
+                        "id": "usr-123",
+                        "username": "john.doe",
+                        "email": "john.doe@example.com",
+                        "status": "active",
+                        "createdAt": "2023-01-15T10:00:00Z"
+                      },
+                      {
+                        "id": "usr-456",
+                        "username": "jane.smith",
+                        "email": "jane.smith@example.com",
+                        "status": "inactive",
+                        "createdAt": "2023-02-20T11:30:00Z"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "examples": {
+                  "invalidLimit": {
+                    "summary": "Example of invalid limit",
+                    "value": {
+                      "code": 400,
+                      "message": "Invalid 'limit' value. Must be between 1 and 100."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Users"],
+        "summary": "Create a new user",
+        "description": "Adds a new user to the system.",
+        "operationId": "createUser",
+        "requestBody": {
+          "description": "User object to be created",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewUser"
+              },
+              "examples": {
+                "newUserExample": {
+                  "summary": "Example of a new user request",
+                  "value": {
+                    "username": "new.user",
+                    "email": "new.user@example.com",
+                    "password": "SecurePassword123!"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                },
+                "examples": {
+                  "createdUser": {
+                    "summary": "Example of created user response",
+                    "value": {
+                      "id": "usr-789",
+                      "username": "new.user",
+                      "email": "new.user@example.com",
+                      "status": "pending",
+                      "createdAt": "2024-05-31T09:00:00Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid user data provided",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "User with this email already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{userId}": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get user by ID",
+        "description": "Retrieves a single user by their unique ID.",
+        "operationId": "getUserById",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of the user to retrieve",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^usr-[a-zA-Z0-9]{3}$"
+            },
+            "example": "usr-123"
+          },
+          {
+            "name": "Authorization",
+            "in": "header",
+            "description": "Bearer token for authentication",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Users"],
+        "summary": "Update an existing user",
+        "description": "Updates the details of an existing user by ID.",
+        "operationId": "updateUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of the user to update",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "User object with updated fields",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UserUpdate"
+              },
+              "examples": {
+                "updateUserExample": {
+                  "summary": "Example of user update request",
+                  "value": {
+                    "email": "john.doe.new@example.com",
+                    "status": "inactive"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid update data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Delete a user",
+        "description": "Deletes a user from the system by their ID.",
+        "operationId": "deleteUser",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of the user to delete",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "User deleted successfully (No Content)"
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products": {
+      "post": {
+        "tags": ["Products"],
+        "summary": "Add a new product",
+        "description": "Adds a new product to the catalog, demonstrating form-urlencoded request body.",
+        "operationId": "addProduct",
+        "requestBody": {
+          "description": "Product details to add",
+          "required": true,
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Name of the product"
+                  },
+                  "price": {
+                    "type": "number",
+                    "format": "float",
+                    "description": "Price of the product"
+                  },
+                  "category": {
+                    "type": "string",
+                    "description": "Category of the product"
+                  },
+                  "inStock": {
+                    "type": "boolean",
+                    "description": "Is the product currently in stock?"
+                  }
+                },
+                "required": ["name", "price"]
+              },
+              "examples": {
+                "productFormData": {
+                  "summary": "Example product form data",
+                  "value": "name=Laptop&price=1200.50&category=Electronics&inStock=true"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "price": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid product data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{orderId}/status": {
+      "patch": {
+        "tags": ["Orders"],
+        "summary": "Update order status",
+        "description": "Updates the status of a specific order.",
+        "operationId": "updateOrderStatus",
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "description": "ID of the order to update",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "Session-Token",
+            "in": "cookie",
+            "description": "Session token for authentication",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "New status for the order",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": ["pending", "shipped", "delivered", "cancelled"]
+                  }
+                },
+                "required": ["status"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Order status updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "orderId": {
+                      "type": "string"
+                    },
+                    "newStatus": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Order not found"
+          },
+          "400": {
+            "description": "Invalid status provided"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for the user",
+            "example": "usr-123"
+          },
+          "username": {
+            "type": "string",
+            "description": "User's chosen username",
+            "example": "john.doe"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User's email address",
+            "example": "john.doe@example.com"
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status of the user account",
+            "enum": ["active", "inactive", "pending"],
+            "example": "active"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp when the user account was created",
+            "example": "2023-01-15T10:00:00Z"
+          }
+        },
+        "required": ["id", "username", "email", "status", "createdAt"]
+      },
+      "NewUser": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "User's desired username",
+            "example": "new.user"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User's email address",
+            "example": "new.user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "description": "User's password",
+            "minLength": 8
+          }
+        },
+        "required": ["username", "email", "password"]
+      },
+      "UserUpdate": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "New username (optional)",
+            "example": "john.d"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "New email address (optional)",
+            "example": "john.d@example.com"
+          },
+          "status": {
+            "type": "string",
+            "description": "New status for the user (optional)",
+            "enum": ["active", "inactive", "pending"],
+            "example": "inactive"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Error code",
+            "example": 400
+          },
+          "message": {
+            "type": "string",
+            "description": "A human-readable error message",
+            "example": "Invalid input provided."
+          }
+        },
+        "required": ["code", "message"]
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT authentication using a bearer token"
+      },
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "API key authentication"
+      }
+    }
+  },
+  "security": [
+    {
+      "BearerAuth": []
+    },
+    {
+      "ApiKeyAuth": []
+    }
+  ]
+}

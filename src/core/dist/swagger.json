@@ -1,0 +1,401 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Comprehensive Security Test API",
+    "description": "A comprehensive test API demonstrating all supported OpenAPI security schemes",
+    "version": "2.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5500/v2",
+      "description": "Production server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BasicAuth": {
+        "type": "http",
+        "scheme": "basic",
+        "description": "Basic HTTP authentication using username and password"
+      },
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Bearer token authentication with JWT format"
+      },
+      "ApiKeyHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "API key passed in the X-API-Key header"
+      },
+      "ApiKeyQuery": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "api_key",
+        "description": "API key passed as a query parameter"
+      },
+      "ApiKeyCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "session_token",
+        "description": "API key passed as a cookie"
+      },
+      "DigestAuth": {
+        "type": "http",
+        "scheme": "digest",
+        "description": "HTTP Digest authentication"
+      },
+      "NTLMAuth": {
+        "type": "http",
+        "scheme": "ntlm",
+        "description": "HTTP NTLM authentication"
+      },
+      "NegotiateAuth": {
+        "type": "http",
+        "scheme": "negotiate",
+        "description": "HTTP Negotiate authentication (Kerberos)"
+      },
+      "CustomAuth": {
+        "type": "http",
+        "scheme": "custom-scheme",
+        "description": "Custom HTTP authentication scheme"
+      },
+      "OAuth2": {
+        "type": "oauth2",
+        "description": "OAuth2 with multiple flows",
+        "flows": {
+          "implicit": {
+            "authorizationUrl": "https://auth.example.com/oauth2/authorize",
+            "scopes": {
+              "read": "Read access to resources",
+              "write": "Write access to resources",
+              "admin": "Admin access to all resources"
+            }
+          },
+          "authorizationCode": {
+            "authorizationUrl": "https://auth.example.com/oauth2/authorize",
+            "tokenUrl": "https://auth.example.com/oauth2/token",
+            "scopes": {
+              "read": "Read access to resources",
+              "write": "Write access to resources",
+              "admin": "Admin access to all resources"
+            }
+          },
+          "password": {
+            "tokenUrl": "https://auth.example.com/oauth2/token",
+            "scopes": {
+              "read": "Read access to resources",
+              "write": "Write access to resources"
+            }
+          },
+          "clientCredentials": {
+            "tokenUrl": "https://auth.example.com/oauth2/token",
+            "scopes": {
+              "service": "Service-to-service access"
+            }
+          }
+        }
+      },
+      "OpenIdConnect": {
+        "type": "openIdConnect",
+        "openIdConnectUrl": "https://auth.example.com/.well-known/openid_configuration",
+        "description": "OpenID Connect authentication"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string", "example": "user_123" },
+          "name": { "type": "string", "example": "John Doe" },
+          "email": { "type": "string", "example": "john@example.com" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "code": { "type": "string", "example": "UNAUTHORIZED" },
+          "message": { "type": "string", "example": "Authentication required" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/basic-auth": {
+      "get": {
+        "summary": "Endpoint requiring Basic Authentication",
+        "security": [{ "BasicAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bearer-auth": {
+      "get": {
+        "summary": "Endpoint requiring Bearer Token Authentication",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/apikey-header": {
+      "get": {
+        "summary": "Endpoint requiring API Key in Header",
+        "security": [{ "ApiKeyHeader": [] }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/apikey-query": {
+      "get": {
+        "summary": "Endpoint requiring API Key in Query Parameter",
+        "security": [{ "ApiKeyQuery": [] }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/apikey-cookie": {
+      "get": {
+        "summary": "Endpoint requiring API Key in Cookie",
+        "security": [{ "ApiKeyCookie": [] }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/digest-auth": {
+      "get": {
+        "summary": "Endpoint requiring Digest Authentication",
+        "security": [{ "DigestAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/oauth2": {
+      "get": {
+        "summary": "Endpoint requiring OAuth2 Authentication",
+        "security": [{ "OAuth2": ["read", "write"] }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/openid-connect": {
+      "get": {
+        "summary": "Endpoint requiring OpenID Connect Authentication",
+        "security": [{ "OpenIdConnect": [] }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/or-auth": {
+      "get": {
+        "summary": "Endpoint accepting multiple auth options (OR logic)",
+        "description": "This endpoint accepts Bearer token OR API key OR Basic auth",
+        "security": [
+          { "BearerAuth": [] },
+          { "ApiKeyHeader": [] },
+          { "BasicAuth": [] }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/and-auth": {
+      "get": {
+        "summary": "Endpoint requiring combined auth (AND logic)",
+        "description": "This endpoint requires BOTH Bearer token AND API key",
+        "security": [{ "BearerAuth": [], "ApiKeyHeader": [] }],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mixed-auth": {
+      "get": {
+        "summary": "Endpoint with mixed auth logic",
+        "description": "This endpoint accepts: OAuth2 alone OR (Basic auth AND API key together)",
+        "security": [
+          { "OAuth2": ["read"] },
+          { "BasicAuth": [], "ApiKeyHeader": [] }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
