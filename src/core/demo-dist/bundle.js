@@ -19,6 +19,12 @@ let viewMode = "list";
 
 function setSwaggerData(data) {
   swaggerData = data;
+
+  // Update the browser tab title with the API name
+  if (data && data.info && data.info.title) {
+    const originalTitle = "OpenAPI UI";
+    document.title = `${data.info.title} - ${originalTitle}`;
+  }
 }
 
 function setCurrentPath(path) {
@@ -13252,7 +13258,7 @@ function updateCodeSnippetSection(path, method) {
 
 // Initialize the application when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
-  loadSwaggerSpec("swagger.json");
+  loadSwaggerSpec(window.swaggerPath);
 
   // Set up sidebar search functionality
   const sidebarSearch = document.getElementById("sidebar-search");
@@ -18273,8 +18279,9 @@ class DemoMode {
     // Create demo mode button - positioned absolutely at top left
     const demoButton = document.createElement("button");
     demoButton.id = "demo-mode-btn";
+    demoButton.style.top = "75px";
     demoButton.className =
-      "fixed top-6 left-6 z-40 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-110 flex items-center gap-2";
+      "fixed left-6 z-40 px-4 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg transition-all duration-300 hover:scale-110 flex items-center gap-2";
     demoButton.innerHTML = `
       <span class="text-sm font-medium">Demo</span>
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">

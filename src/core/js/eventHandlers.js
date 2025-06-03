@@ -146,7 +146,7 @@ function updateCodeSnippetSection(path, method) {
 
 // Initialize the application when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
-  loadSwaggerSpec("swagger.json");
+  loadSwaggerSpec(window.swaggerPath);
 
   // Set up sidebar search functionality
   const sidebarSearch = document.getElementById("sidebar-search");

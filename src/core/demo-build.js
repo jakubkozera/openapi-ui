@@ -119,6 +119,17 @@ function copyImages() {
   console.log(`✅ Images copied: ${files.length} files to demo-dist/img/`);
 }
 
+function copyLogo() {
+  const logoFile = "openapi-ui.png";
+
+  if (fs.existsSync(logoFile)) {
+    fs.copyFileSync(logoFile, path.join("demo-dist", logoFile));
+    console.log("✅ Logo copied: demo-dist/openapi-ui.png");
+  } else {
+    console.log("⚠️ openapi-ui.png not found, skipping logo copy");
+  }
+}
+
 function copySampleSpecs() {
   const sourceDir = "sample-specs";
   const targetDir = "demo-dist/sample-specs";
@@ -242,6 +253,7 @@ createDistFolder();
 buildCSS();
 buildJS();
 copyImages();
+copyLogo();
 copySampleSpecs();
 updateIndexHTML();
 createDemoInfo();

@@ -18,6 +18,12 @@ let viewMode = "list";
 
 function setSwaggerData(data) {
   swaggerData = data;
+
+  // Update the browser tab title with the API name
+  if (data && data.info && data.info.title) {
+    const originalTitle = "OpenAPI UI";
+    document.title = `${data.info.title} - ${originalTitle}`;
+  }
 }
 
 function setCurrentPath(path) {

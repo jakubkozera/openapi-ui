@@ -113,6 +113,17 @@ function copyImages() {
   console.log(`✅ Images copied: ${files.length} files to dist/img/`);
 }
 
+function copyLogo() {
+  const logoFile = "openapi-ui.png";
+
+  if (fs.existsSync(logoFile)) {
+    fs.copyFileSync(logoFile, path.join("dist", logoFile));
+    console.log("✅ Logo copied: dist/openapi-ui.png");
+  } else {
+    console.log("⚠️ openapi-ui.png not found, skipping logo copy");
+  }
+}
+
 function createDistFolder() {
   if (!fs.existsSync("dist")) {
     fs.mkdirSync("dist");
@@ -137,9 +148,28 @@ function updateIndexHTML() {
     "</body>",
     '    <script src="bundle.js"></script>\n</body>'
   );
-
   fs.writeFileSync("dist/index.html", html);
   console.log("✅ Updated HTML created: dist/index.html");
+}
+
+function replaceSwaggerPath() {
+  const indexPath = "dist/index.html";
+
+  if (!fs.existsSync(indexPath)) {
+    console.log("⚠️ index.html not found, skipping swagger path replacement");
+    return;
+  }
+
+  let indexContent = fs.readFileSync(indexPath, "utf8");
+
+  // Replace all occurrences of "swagger.json" with "#swagger_path#"
+  const updatedContent = indexContent.replace(
+    /swagger\.json/g,
+    "#swagger_path#"
+  );
+
+  fs.writeFileSync(indexPath, updatedContent);
+  console.log("✅ Replaced swagger.json with #swagger_path# in index.html");
 }
 
 // Wykonaj build
@@ -147,6 +177,8 @@ createDistFolder();
 buildCSS();
 buildJS();
 copyImages();
+copyLogo();
 updateIndexHTML();
+replaceSwaggerPath();
 
 console.log("\n🎉 Build completed! Files in dist/ folder are ready to use.");
