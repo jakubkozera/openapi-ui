@@ -93,7 +93,43 @@ function buildSchemaPopoverContent(schema, typeName, level = 0) {
           (acc, part) => acc && acc[part],
           window.swaggerData
         );
+      } // Build validation rules for this property
+      const validationRules = [];
+      if (resolvedPropSchema?.minLength !== undefined)
+        validationRules.push(`min length: ${resolvedPropSchema.minLength}`);
+      if (resolvedPropSchema?.maxLength !== undefined)
+        validationRules.push(`max length: ${resolvedPropSchema.maxLength}`);
+      if (resolvedPropSchema?.minimum !== undefined)
+        validationRules.push(`minimum: ${resolvedPropSchema.minimum}`);
+      if (resolvedPropSchema?.maximum !== undefined)
+        validationRules.push(`maximum: ${resolvedPropSchema.maximum}`);
+      if (resolvedPropSchema?.pattern)
+        validationRules.push(
+          `pattern: <code class="text-xs bg-gray-200 px-1 rounded font-mono">${resolvedPropSchema.pattern}</code>`
+        );
+      if (resolvedPropSchema?.enum) {
+        validationRules.push(
+          `allowed values: ${resolvedPropSchema.enum.join(", ")}`
+        );
       }
+      if (resolvedPropSchema?.default !== undefined) {
+        validationRules.push(
+          `default: ${JSON.stringify(resolvedPropSchema.default)}`
+        );
+      }
+
+      // Handle array items
+      if (resolvedPropSchema?.type === "array" && resolvedPropSchema.items) {
+        if (resolvedPropSchema.items.type) {
+          validationRules.push(`array of: ${resolvedPropSchema.items.type}`);
+        }
+        if (resolvedPropSchema.items.enum) {
+          validationRules.push(
+            `item values: ${resolvedPropSchema.items.enum.join(", ")}`
+          );
+        }
+      }
+
       content += `
         <div class="schema-property">
           <div class="schema-property-header">
@@ -109,6 +145,18 @@ function buildSchemaPopoverContent(schema, typeName, level = 0) {
           ${
             resolvedPropSchema?.description
               ? `<div class="schema-property-description">${resolvedPropSchema.description}</div>`
+              : ""
+          }
+          ${
+            validationRules.length > 0
+              ? `<div class="schema-property-validation">
+                  <div class="validation-header">Validation:</div>
+                  <ul class="validation-list">
+                    ${validationRules
+                      .map((rule) => `<li>${rule}</li>`)
+                      .join("")}
+                  </ul>
+                </div>`
               : ""
           }
         </div>
