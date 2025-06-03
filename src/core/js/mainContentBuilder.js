@@ -5,7 +5,17 @@ function formatTypeDisplay(schema) {
   if (!schema || !schema.type) return "unknown";
 
   if (schema.type === "array" && schema.items) {
-    const itemType = schema.items.type || "unknown";
+    let itemType = "unknown";
+
+    if (schema.items.type) {
+      // Direct type
+      itemType = schema.items.type;
+    } else if (schema.items.$ref) {
+      // Reference to custom schema - extract the type name from the $ref
+      const refParts = schema.items.$ref.split("/");
+      itemType = refParts[refParts.length - 1]; // Get the last part after the last '/'
+    }
+
     return `${itemType}[]`;
   }
 
