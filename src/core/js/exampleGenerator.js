@@ -54,15 +54,12 @@ function generateValidExampleFromSchema(
           example[propName] = value;
         }
       }
-    }
-
-    // Add some optional fields for completeness (but not all to keep examples manageable)
+    } // Add all optional fields for completeness
     const optionalProps = Object.keys(resolvedSchema.properties).filter(
       (prop) => !required.includes(prop)
     );
 
-    for (let i = 0; i < Math.min(optionalProps.length, 2); i++) {
-      const propName = optionalProps[i];
+    for (const propName of optionalProps) {
       if (indent < 5) {
         const value = generateValidExampleFromSchema(
           resolvedSchema.properties[propName],

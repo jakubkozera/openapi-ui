@@ -44,7 +44,6 @@ function getBaseUrl() {
   return baseUrl;
 }
 
-
 /* js/themeManager.js */
 // Theme Management System
 // Supports multiple themes with easy extensibility
@@ -510,7 +509,6 @@ function initThemeManager() {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ThemeManager, initThemeManager };
 }
-
 
 /* js/utils.js */
 // Utility functions used across the application
@@ -1080,7 +1078,6 @@ window.utils = {
   },
 };
 
-
 /* js/tooltip.js */
 // Custom tooltip handlers
 
@@ -1169,7 +1166,6 @@ function handleTooltipMouseLeave(e) {
 }
 
 // All functions are now globally available
-
 
 /* js/monacoSetup.js */
 // Monaco Editor setup and initialization
@@ -1341,7 +1337,6 @@ window.monacoSetup = {
   setupMonacoThemeListener,
   getMonacoThemeForCurrentTheme,
 };
-
 
 /* js/codeSnippets.js */
 // Code Snippets Generator for API Documentation
@@ -1621,7 +1616,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initCodeSnippetFunctionality();
 });
 
-
 /* js/codeSnippetTabs.js */
 // Code Snippet Tabs functionality
 
@@ -1722,7 +1716,6 @@ if (document.readyState === "loading") {
 } else {
   initCodeSnippetTabs();
 }
-
 
 /* js/codeApiGenerators/csharpApiClientGenerator.js */
 // C# API Client Generator for openapi-ui
@@ -2332,7 +2325,6 @@ window.createCSharpApiGenerator = function (options = {}) {
   }
   return generator;
 };
-
 
 /* js/codeApiGenerators/javascriptApiClientGenerator.js */
 // JavaScript API Client Generator for openapi-ui
@@ -3099,7 +3091,6 @@ window.createJavaScriptApiGenerator = function (options = {}) {
   return generator;
 };
 
-
 /* js/apiClientOptions.js */
 // API Client Options Manager
 class ApiClientOptionsManager {
@@ -3442,7 +3433,6 @@ window.getApiClientOptions = function (language) {
   }
   return {};
 };
-
 
 /* js/apiClientGeneration.js */
 // API Client Generation functionality
@@ -3873,7 +3863,6 @@ if (document.readyState === "loading") {
   tryInitApiClient();
 }
 
-
 /* js/serverSelector.js */
 // Server selector functionality for OpenAPI servers property
 
@@ -4207,7 +4196,6 @@ window.serverSelector = {
     resolvedServerUrls[currentServerIndex]?.url || window.location.origin,
 };
 
-
 /* js/apiLoader.js */
 // Functions to load and parse Swagger data
 // All dependencies are now loaded globally
@@ -4315,7 +4303,6 @@ async function loadSwaggerSpec(swaggerJsonUrl) {
 
 // Function is now globally available
 
-
 /* js/exampleGenerator.js */
 // Schema example generation functions
 
@@ -4373,15 +4360,12 @@ function generateValidExampleFromSchema(
           example[propName] = value;
         }
       }
-    }
-
-    // Add some optional fields for completeness (but not all to keep examples manageable)
+    } // Add all optional fields for completeness
     const optionalProps = Object.keys(resolvedSchema.properties).filter(
       (prop) => !required.includes(prop)
     );
 
-    for (let i = 0; i < Math.min(optionalProps.length, 2); i++) {
-      const propName = optionalProps[i];
+    for (const propName of optionalProps) {
       if (indent < 5) {
         const value = generateValidExampleFromSchema(
           resolvedSchema.properties[propName],
@@ -4749,7 +4733,6 @@ function validateValue(value, schema, components, path = "") {
 }
 
 // Functions are now globally available
-
 
 /* js/httpVerbFilter.js */
 // HTTP Verb Filter functionality
@@ -5283,7 +5266,6 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-
 /* js/sidebarHandler.js */
 // Function to filter sidebar navigation based on search term
 function filterSidebar(searchTerm) {
@@ -5527,7 +5509,6 @@ function buildSidebar() {
 
 // Functions are now globally available
 
-
 /* js/sidebarToggle.js */
 // Module to handle opening/closing sidebars on small screens with enhanced animations
 function initSidebarToggle() {
@@ -5638,7 +5619,6 @@ if (document.readyState === "loading") {
   initSidebarToggle();
 }
 
-
 /* js/sidebarExpand.js */
 // Enhanced sidebar functionality - ensures endpoints sections collapse and expand properly
 document.addEventListener("DOMContentLoaded", function () {
@@ -5700,7 +5680,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
-
 
 /* js/mainContentBuilder.js */
 // Functions to build main content area
@@ -6927,7 +6906,6 @@ window.formatTypeDisplay = formatTypeDisplay;
 window.toggleEndpointsSection = toggleEndpointsSection;
 window.recalculateEndpointContainerHeight = recalculateEndpointContainerHeight;
 
-
 /* js/rightPanel.js */
 // Right panel and API interaction functionality
 
@@ -7778,7 +7756,6 @@ function setupResponseEditor(container) {
   }, 100);
 }
 
-
 /* js/viewModes.js */
 // Functions for handling different view modes (list/tree)
 
@@ -8159,7 +8136,6 @@ function buildTreeView(operations, container) {
 }
 
 // Functions are now globally available
-
 
 /* js/auth.js */
 // Authentication module for security schemes
@@ -10105,7 +10081,6 @@ window.auth = {
   autoSelectRequiredScheme,
 };
 
-
 /* js/favorites.js */
 // Favorites functionality for API endpoints
 /**
@@ -10643,7 +10618,6 @@ window.favorites = {
   createFavoriteHeartIcon,
   updateFavoritesUI,
 };
-
 
 /* js/variables.js */
 // Variables management functionality
@@ -12183,7 +12157,6 @@ window.monacoVariableHighlighting = {
   },
 };
 
-
 /* js/rightPanelHandlers.js */
 // Right panel event handlers
 
@@ -12526,7 +12499,6 @@ if (document.readyState === "loading") {
   window.initVerticalMenu();
 }
 
-
 /* js/responseDetailsHandler.js */
 // Response details handler
 
@@ -12597,7 +12569,6 @@ window.responseDetails = {
   updateResponseDetails,
   initResponseDetailsHandlers,
 };
-
 
 /* js/executeButtonHandler.js */
 // Initialize the execute request button
@@ -12927,7 +12898,6 @@ function initExecuteRequestButton() {
 // Export the function
 window.initExecuteRequestButton = initExecuteRequestButton;
 
-
 /* js/responseDisplayHandler.js */
 // Function to display actual API response
 function displayActualResponse(
@@ -13107,7 +13077,6 @@ function setupResponseEditor(container) {
 // Make functions available globally
 window.displayActualResponse = displayActualResponse;
 window.setupResponseEditor = setupResponseEditor;
-
 
 /* js/eventHandlers.js */
 // DOM event handlers and initialization
@@ -13817,7 +13786,6 @@ function updateExecuteButtonColor(method) {
 window.updateExecuteButtonColor = updateExecuteButtonColor;
 window.navigateToEndpointFromHash = navigateToEndpointFromHash;
 
-
 /* js/collectionRunner.js */
 // Collection Runner module
 // Provides functionality similar to Postman's Collection Runner
@@ -14443,7 +14411,6 @@ window.CollectionRunner = class CollectionRunner {
 // Create a singleton instance
 window.collectionRunner =
   window.collectionRunner || new window.CollectionRunner();
-
 
 /* js/collectionRunnerUI.js */
 // Collection Runner UI Implementation for the right panel  // Define a global CollectionRunnerUI class
@@ -18106,7 +18073,6 @@ window.CollectionRunnerUI = class CollectionRunnerUI {
   }
 };
 
-
 /* js/scrollToTop.js */
 /**
  * Scroll to top functionality for the main content area
@@ -18188,7 +18154,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-
 /* js/app.js */
 // Main application file
 // All modules are now loaded separately in index.html
@@ -18253,5 +18218,3 @@ document.addEventListener("swaggerDataLoaded", () => {
     window.favorites.updateFavoritesUI();
   }
 });
-
-
