@@ -198,7 +198,7 @@
 }
 
 /* Input fields with variables - Only for request parameter inputs, not variables table */
-.has-variables:not(.variable-input) {
+#try-it-out-section .has-variables:not(.variable-input) {
   border-color: var(--interactive-primary) !important;
   background: var(--input-focus-bg) !important;
   position: relative;
@@ -223,7 +223,7 @@
 }
 
 /* Variable indicator icon - Only for request parameter inputs */
-.has-variables:not(.variable-input)::after {
+#try-it-out-section .has-variables::after {
   content: "{{" attr(data-defined-count) "/" attr(data-variable-count) "}}";
   position: absolute;
   right: 8px;
@@ -241,12 +241,12 @@
 }
 
 /* Different colors based on variable status - Only for request parameter inputs */
-.has-variables:not(.variable-input)[data-has-undefined="true"]::after {
+#try-it-out-section .has-variables:not(.variable-input)[data-has-undefined="true"]::after {
   background: var(--method-delete);
   content: "{{⚠}}";
 }
 
-.has-variables:not(.variable-input)[data-has-undefined="false"]::after {
+#try-it-out-section .has-variables:not(.variable-input)[data-has-undefined="false"]::after {
   background: var(--method-get);
   content: "{{✓}}";
 }
@@ -256,27 +256,27 @@
 }
 
 /* Different input styling based on variable status - Only for request parameter inputs */
-.has-variables:not(.variable-input)[data-has-undefined="true"] {
+#try-it-out-section .has-variables:not(.variable-input)[data-has-undefined="true"] {
   border-color: var(--method-delete) !important;
   background: var(--surface-secondary) !important;
   color: var(--method-delete) !important;
   box-shadow: 0 0 0 3px var(--focus-ring) !important;
 }
 
-.has-variables:not(.variable-input)[data-has-undefined="true"]:focus {
+#try-it-out-section .has-variables:not(.variable-input)[data-has-undefined="true"]:focus {
   border-color: var(--method-delete) !important;
   background: var(--input-focus-bg) !important;
   box-shadow: 0 0 0 3px var(--focus-ring) !important;
 }
 
-.has-variables:not(.variable-input)[data-has-undefined="false"] {
+#try-it-out-section .has-variables:not(.variable-input)[data-has-undefined="false"] {
   border-color: var(--method-get) !important;
   background: var(--surface-secondary) !important;
   color: var(--method-get) !important;
   box-shadow: 0 0 0 3px var(--focus-ring) !important;
 }
 
-.has-variables:not(.variable-input)[data-has-undefined="false"]:focus {
+#try-it-out-section .has-variables:not(.variable-input)[data-has-undefined="false"]:focus {
   border-color: var(--method-get) !important;
   background: var(--input-focus-bg) !important;
   box-shadow: 0 0 0 3px var(--focus-ring) !important;
