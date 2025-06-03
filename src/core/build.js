@@ -18,6 +18,7 @@ const cssFiles = [
   "css/variables.css",
   "css/sidebar-animations.css",
   "css/theme-variables.css",
+  "css/schema-popover.css",
 ];
 
 // Lista plików JS w odpowiedniej kolejności (z index.html)
@@ -40,6 +41,7 @@ const jsFiles = [
   "js/sidebarHandler.js",
   "js/sidebarToggle.js",
   "js/sidebarExpand.js",
+  "js/schemaPopover.js",
   "js/mainContentBuilder.js",
   "js/rightPanel.js",
   "js/viewModes.js",

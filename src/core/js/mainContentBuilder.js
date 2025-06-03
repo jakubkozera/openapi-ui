@@ -2,6 +2,12 @@
 
 // Helper function to format type names, especially for arrays
 function formatTypeDisplay(schema) {
+  // Use the enhanced version if available, fallback to basic version
+  if (window.formatTypeDisplayWithPopovers) {
+    return window.formatTypeDisplayWithPopovers(schema);
+  }
+
+  // Fallback implementation for when popovers aren't loaded
   if (!schema || !schema.type) return "unknown";
 
   if (schema.type === "array" && schema.items) {
@@ -17,6 +23,13 @@ function formatTypeDisplay(schema) {
     }
 
     return `${itemType}[]`;
+  }
+
+  // Handle direct schema references
+  if (schema.$ref) {
+    const refParts = schema.$ref.split("/");
+    const typeName = refParts[refParts.length - 1];
+    return typeName;
   }
 
   return schema.type;
