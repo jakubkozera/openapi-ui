@@ -11,47 +11,6 @@
     position: relative !important; /* Ensure relative positioning for hover widget containment */
 }
 
-/* Fix Monaco hover widget positioning to stay within editor bounds */
-.monaco-editor .hover-widget,
-.monaco-editor [widgetid="editor.contrib.resizableContentHoverWidget"] {
-    position: absolute !important;
-    max-width: calc(100% - 20px) !important;
-    max-height: calc(100vh - 100px) !important;
-    z-index: 1000 !important;
-    overflow: hidden !important;
-}
-
-/* Ensure hover widget content is scrollable if needed */
-.monaco-editor .hover-widget .hover-contents,
-.monaco-editor [widgetid="editor.contrib.resizableContentHoverWidget"] .hover-contents {
-    max-height: 200px !important;
-    overflow-y: auto !important;
-    word-wrap: break-word !important;
-}
-
-/* Style the hover widget to match our theme */
-.monaco-editor .hover-widget,
-.monaco-editor [widgetid="editor.contrib.resizableContentHoverWidget"] {
-    background: #2d2d30 !important;
-    border: 1px solid #464647 !important;
-    border-radius: 6px !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-}
-
-/* Additional specific overrides for Monaco hover positioning */
-.monaco-editor .view-overlays .hover-widget {
-    position: absolute !important;
-    transform: none !important;
-}
-
-/* Force all Monaco content widgets to use absolute positioning within editor */
-.monaco-editor [monaco-visible-content-widget="true"] {
-    position: absolute !important;
-    left: auto !important;
-    right: 10px !important;
-    max-width: calc(100% - 20px) !important;
-}
-
 /* Ensure right panel Monaco editors have proper containment */
 #right-panel .monaco-editor {
     overflow: visible !important;
@@ -59,10 +18,4 @@
 }
 
 /* Specific fix for the resizable content hover widget */
-.monaco-editor [widgetid="editor.contrib.resizableContentHoverWidget"][style*="position: fixed"] {
-    position: absolute !important;
-    left: auto !important;
-    right: 10px !important;
-    top: 10px !important;
-    max-width: calc(100% - 20px) !important;
-}
+ 
