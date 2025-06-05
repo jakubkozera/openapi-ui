@@ -85,6 +85,27 @@ jobs:
       - name: Create NuGet package
         run: dotnet pack src/c-sharp/JakubKozera.OpenApiUi/JakubKozera.OpenApiUi.csproj --configuration Release --no-build --output ${{ env.NuGetDirectory }} --include-symbols -p:ContinuousIntegrationBuild=true
 
+      - name: List generated packages
+        run: |
+          Write-Host "Generated packages:"
+          Get-ChildItem -Path ${{ env.NuGetDirectory }} | ForEach-Object {
+            Write-Host "  $($_.Name) - $($_.Length) bytes"
+          }
+
+      - name: Inspect NuGet package contents
+        run: |
+          Write-Host "Contents of main NuGet package:"
+          $package = Get-ChildItem "${{ env.NuGetDirectory }}/*.nupkg" | Where-Object { $_.Name -notlike "*.symbols.nupkg" } | Select-Object -First 1
+          if ($package) {
+            Write-Host "Inspecting: $($package.Name)"
+            Add-Type -AssemblyName System.IO.Compression.FileSystem
+            $zip = [System.IO.Compression.ZipFile]::OpenRead($package.FullName)
+            $zip.Entries | ForEach-Object { Write-Host "  $($_.FullName)" }
+            $zip.Dispose()
+          } else {
+            Write-Host "No main package found"
+          }
+
       - name: Upload NuGet package as artifact
         uses: actions/upload-artifact@v4
         with:
