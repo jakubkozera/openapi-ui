@@ -1,4 +1,5 @@
-<Project Sdk="Microsoft.NET.Sdk">  <PropertyGroup>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
     <TargetFrameworks>net6.0;net8.0;net9.0</TargetFrameworks>
     <PackageId>JakubKozera.OpenApiUi</PackageId>
     <Version>1.0.10</Version>
@@ -11,32 +12,36 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-      <!-- Debug symbols configuration -->
+
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
-    
-    <!-- Generate XML documentation -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <NoWarn>$(NoWarn);1591</NoWarn> <!-- Suppress missing XML documentation warnings for non-public members -->
-    
-    <!-- Include symbols in main package -->
-    <IncludeSymbols>true</IncludeSymbols>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-      <!-- Deterministic build configuration -->
-    <Deterministic>true</Deterministic>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+
+    <!-- Symbol i SourceLink -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-  </PropertyGroup><ItemGroup>
+    <EmbedUntrackedSources>false</EmbedUntrackedSources>
+    <IncludeSymbols>false</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+
+    <!-- Deterministic build -->
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
-  
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
   </ItemGroup>
+
   <ItemGroup>
     <Content Include="Content\**\*" Pack="true" PackagePath="contentFiles\any\$(TargetFramework)\openapi-ui" />
     <EmbeddedResource Include="Content\**\*" LogicalName="JakubKozera.OpenApiUi.openapi-ui.%(RecursiveDir)%(FileName)%(Extension)" />
-  </ItemGroup>  <ItemGroup>
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="Content\openapi-ui.png" Pack="true" PackagePath="\" />
     <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
