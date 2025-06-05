@@ -26,16 +26,43 @@
       "openapi-ui": [
         {
           "id": "openapi-ui-sidebar",
-          "name": "OpenAPI UI",
+          "name": "OpenAPI Sources",
           "when": "true"
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "openapi-ui-sidebar",
+        "contents": "Welcome to OpenAPI UI! Start by adding your first OpenAPI specification source.\n[Add OpenAPI Source](command:openapi-ui.addSource)\n\nYou can also open the OpenAPI UI viewer directly:\n[Open OpenAPI UI](command:openapi-ui.openView)",
+        "when": "true"
+      }
+    ],
     "commands": [
       {
         "command": "openapi-ui.openView",
         "title": "Open OpenAPI UI",
         "icon": "$(window)"
+      },
+      {
+        "command": "openapi-ui.addSource",
+        "title": "Add OpenAPI Source",
+        "icon": "$(add)"
+      },
+      {
+        "command": "openapi-ui.removeSource",
+        "title": "Remove OpenAPI Source",
+        "icon": "$(trash)"
+      },
+      {
+        "command": "openapi-ui.refreshSources",
+        "title": "Refresh Sources",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "openapi-ui.loadSource",
+        "title": "Load OpenAPI Source",
+        "icon": "$(play)"
       }
     ],
     "menus": {
@@ -44,11 +71,36 @@
           "command": "openapi-ui.openView",
           "when": "view == openapi-ui-sidebar",
           "group": "navigation"
+        },
+        {
+          "command": "openapi-ui.addSource",
+          "when": "view == openapi-ui-sidebar",
+          "group": "navigation"
+        },
+        {
+          "command": "openapi-ui.refreshSources",
+          "when": "view == openapi-ui-sidebar",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "openapi-ui.loadSource",
+          "when": "view == openapi-ui-sidebar && viewItem == openapi-source",
+          "group": "inline"
+        },
+        {
+          "command": "openapi-ui.removeSource",
+          "when": "view == openapi-ui-sidebar && viewItem == openapi-source",
+          "group": "inline"
         }
       ],
       "commandPalette": [
         {
           "command": "openapi-ui.openView"
+        },
+        {
+          "command": "openapi-ui.addSource"
         }
       ]
     }

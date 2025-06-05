@@ -1,16 +1,26 @@
 import * as vscode from "vscode";
 import * as path from "path";
 import * as fs from "fs";
+import { OpenAPIStorage } from "./storage";
+import { OpenAPITreeDataProvider, OpenAPITreeItem } from "./treeDataProvider";
+import { OpenAPISource } from "./models";
 
 export function activate(context: vscode.ExtensionContext) {
-  // Register the webview provider for the sidebar view
-  const provider = new OpenAPIWebviewProvider(context.extensionPath);
-  context.subscriptions.push(
-    vscode.window.registerWebviewViewProvider("openapi-ui-sidebar", provider)
-  );
+  // Initialize storage
+  const storage = new OpenAPIStorage(context);
+
+  // Initialize tree data provider
+  const treeDataProvider = new OpenAPITreeDataProvider(storage);
+
+  // Register tree view
+  const treeView = vscode.window.createTreeView("openapi-ui-sidebar", {
+    treeDataProvider: treeDataProvider,
+    showCollapseAll: true,
+  });
+  context.subscriptions.push(treeView);
 
   // Register command to open OpenAPI UI in main editor area
-  let disposable = vscode.commands.registerCommand(
+  let openViewDisposable = vscode.commands.registerCommand(
     "openapi-ui.openView",
     () => {
       const panel = vscode.window.createWebviewPanel(
@@ -34,107 +44,89 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  context.subscriptions.push(disposable);
-}
+  // Register command to add OpenAPI source
+  let addSourceDisposable = vscode.commands.registerCommand(
+    "openapi-ui.addSource",
+    async () => {
+      const name = await vscode.window.showInputBox({
+        prompt: "Enter a name for the OpenAPI source",
+        placeHolder: "e.g., My API",
+      });
 
-class OpenAPIWebviewProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = "openapi-ui-sidebar";
+      if (!name) {
+        return;
+      }
 
-  constructor(private readonly _extensionPath: string) {}
+      const url = await vscode.window.showInputBox({
+        prompt: "Enter the URL of the OpenAPI specification",
+        placeHolder: "e.g., https://api.example.com/openapi.json",
+        validateInput: (value) => {
+          if (!value) {
+            return "URL is required";
+          }
+          try {
+            new URL(value);
+            return null;
+          } catch {
+            return "Please enter a valid URL";
+          }
+        },
+      });
 
-  public resolveWebviewView(
-    webviewView: vscode.WebviewView,
-    context: vscode.WebviewViewResolveContext,
-    _token: vscode.CancellationToken
-  ) {
-    webviewView.webview.options = {
-      enableScripts: true,
-      localResourceRoots: [
-        vscode.Uri.file(
-          path.join(this._extensionPath, "..", "..", "core", "demo-dist")
-        ),
-      ],
-    };
+      if (!url) {
+        return;
+      }
 
-    // Create a simple interface with a button to open in editor
-    webviewView.webview.html = getSidebarContent();
+      storage.addSource(name, url);
+      vscode.window.showInformationMessage(`Added OpenAPI source: ${name}`);
+    }
+  );
 
-    // Handle messages from the webview
-    webviewView.webview.onDidReceiveMessage(
-      (message) => {
-        switch (message.command) {
-          case "openInEditor":
-            vscode.commands.executeCommand("openapi-ui.openView");
-            return;
-        }
-      },
-      undefined,
-      []
-    );
-  }
-}
+  // Register command to remove OpenAPI source
+  let removeSourceDisposable = vscode.commands.registerCommand(
+    "openapi-ui.removeSource",
+    async (item: OpenAPITreeItem) => {
+      const result = await vscode.window.showWarningMessage(
+        `Are you sure you want to remove "${item.source.name}"?`,
+        { modal: true },
+        "Yes",
+        "No"
+      );
 
-function getSidebarContent(): string {
-  return `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OpenAPI UI</title>
-    <style>
-        body { 
-            font-family: var(--vscode-font-family);
-            padding: 20px; 
-            background: var(--vscode-editor-background);
-            color: var(--vscode-editor-foreground);
-        }
-        .open-button {
-            background: var(--vscode-button-background);
-            color: var(--vscode-button-foreground);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-        .open-button:hover {
-            background: var(--vscode-button-hoverBackground);
-        }
-        .description {
-            font-size: 12px;
-            color: var(--vscode-descriptionForeground);
-            margin-top: 10px;
-        }
-        .logo {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-    <div class="logo">🔧 OpenAPI UI</div>
-    <button class="open-button" onclick="openInEditor()">
-        Open in Editor
-    </button>
-    <div class="description">
-        Click the button above to open OpenAPI UI in the main editor area for better viewing experience.
-    </div>
-    
-    <script>
-        const vscode = acquireVsCodeApi();
-        
-        function openInEditor() {
-            vscode.postMessage({
-                command: 'openInEditor'
-            });
-        }
-    </script>
-</body>
-</html>`;
+      if (result === "Yes") {
+        storage.removeSource(item.source.id);
+        vscode.window.showInformationMessage(
+          `Removed OpenAPI source: ${item.source.name}`
+        );
+      }
+    }
+  );
+
+  // Register command to refresh sources
+  let refreshSourcesDisposable = vscode.commands.registerCommand(
+    "openapi-ui.refreshSources",
+    () => {
+      treeDataProvider.refresh();
+      vscode.window.showInformationMessage("Refreshed OpenAPI sources");
+    }
+  );
+
+  // Register command to load source (placeholder for future implementation)
+  let loadSourceDisposable = vscode.commands.registerCommand(
+    "openapi-ui.loadSource",
+    async (source: OpenAPISource) => {
+      vscode.window.showInformationMessage(
+        `Loading OpenAPI source: ${source.name} (${source.url}) - Not implemented yet`
+      );
+    }
+  );
+  context.subscriptions.push(
+    openViewDisposable,
+    addSourceDisposable,
+    removeSourceDisposable,
+    refreshSourcesDisposable,
+    loadSourceDisposable
+  );
 }
 
 export function deactivate() {}

@@ -44,12 +44,21 @@ exports.deactivate = deactivate;
 const vscode = __importStar(__webpack_require__(1));
 const path = __importStar(__webpack_require__(2));
 const fs = __importStar(__webpack_require__(3));
+const storage_1 = __webpack_require__(4);
+const treeDataProvider_1 = __webpack_require__(5);
 function activate(context) {
-    // Register the webview provider for the sidebar view
-    const provider = new OpenAPIWebviewProvider(context.extensionPath);
-    context.subscriptions.push(vscode.window.registerWebviewViewProvider("openapi-ui-sidebar", provider));
+    // Initialize storage
+    const storage = new storage_1.OpenAPIStorage(context);
+    // Initialize tree data provider
+    const treeDataProvider = new treeDataProvider_1.OpenAPITreeDataProvider(storage);
+    // Register tree view
+    const treeView = vscode.window.createTreeView("openapi-ui-sidebar", {
+        treeDataProvider: treeDataProvider,
+        showCollapseAll: true,
+    });
+    context.subscriptions.push(treeView);
     // Register command to open OpenAPI UI in main editor area
-    let disposable = vscode.commands.registerCommand("openapi-ui.openView", () => {
+    let openViewDisposable = vscode.commands.registerCommand("openapi-ui.openView", () => {
         const panel = vscode.window.createWebviewPanel("openapiUI", "OpenAPI UI", vscode.ViewColumn.One, {
             enableScripts: true,
             localResourceRoots: [
@@ -58,94 +67,55 @@ function activate(context) {
         });
         panel.webview.html = getWebviewContent(panel.webview, context.extensionPath);
     });
-    context.subscriptions.push(disposable);
-}
-class OpenAPIWebviewProvider {
-    _extensionPath;
-    static viewType = "openapi-ui-sidebar";
-    constructor(_extensionPath) {
-        this._extensionPath = _extensionPath;
-    }
-    resolveWebviewView(webviewView, context, _token) {
-        webviewView.webview.options = {
-            enableScripts: true,
-            localResourceRoots: [
-                vscode.Uri.file(path.join(this._extensionPath, "..", "..", "core", "demo-dist")),
-            ],
-        };
-        // Create a simple interface with a button to open in editor
-        webviewView.webview.html = getSidebarContent();
-        // Handle messages from the webview
-        webviewView.webview.onDidReceiveMessage((message) => {
-            switch (message.command) {
-                case "openInEditor":
-                    vscode.commands.executeCommand("openapi-ui.openView");
-                    return;
-            }
-        }, undefined, []);
-    }
-}
-function getSidebarContent() {
-    return `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OpenAPI UI</title>
-    <style>
-        body { 
-            font-family: var(--vscode-font-family);
-            padding: 20px; 
-            background: var(--vscode-editor-background);
-            color: var(--vscode-editor-foreground);
+    // Register command to add OpenAPI source
+    let addSourceDisposable = vscode.commands.registerCommand("openapi-ui.addSource", async () => {
+        const name = await vscode.window.showInputBox({
+            prompt: "Enter a name for the OpenAPI source",
+            placeHolder: "e.g., My API",
+        });
+        if (!name) {
+            return;
         }
-        .open-button {
-            background: var(--vscode-button-background);
-            color: var(--vscode-button-foreground);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 14px;
-            margin-bottom: 10px;
+        const url = await vscode.window.showInputBox({
+            prompt: "Enter the URL of the OpenAPI specification",
+            placeHolder: "e.g., https://api.example.com/openapi.json",
+            validateInput: (value) => {
+                if (!value) {
+                    return "URL is required";
+                }
+                try {
+                    new URL(value);
+                    return null;
+                }
+                catch {
+                    return "Please enter a valid URL";
+                }
+            },
+        });
+        if (!url) {
+            return;
         }
-        .open-button:hover {
-            background: var(--vscode-button-hoverBackground);
+        storage.addSource(name, url);
+        vscode.window.showInformationMessage(`Added OpenAPI source: ${name}`);
+    });
+    // Register command to remove OpenAPI source
+    let removeSourceDisposable = vscode.commands.registerCommand("openapi-ui.removeSource", async (item) => {
+        const result = await vscode.window.showWarningMessage(`Are you sure you want to remove "${item.source.name}"?`, { modal: true }, "Yes", "No");
+        if (result === "Yes") {
+            storage.removeSource(item.source.id);
+            vscode.window.showInformationMessage(`Removed OpenAPI source: ${item.source.name}`);
         }
-        .description {
-            font-size: 12px;
-            color: var(--vscode-descriptionForeground);
-            margin-top: 10px;
-        }
-        .logo {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 18px;
-            font-weight: bold;
-        }
-    </style>
-</head>
-<body>
-    <div class="logo">🔧 OpenAPI UI</div>
-    <button class="open-button" onclick="openInEditor()">
-        Open in Editor
-    </button>
-    <div class="description">
-        Click the button above to open OpenAPI UI in the main editor area for better viewing experience.
-    </div>
-    
-    <script>
-        const vscode = acquireVsCodeApi();
-        
-        function openInEditor() {
-            vscode.postMessage({
-                command: 'openInEditor'
-            });
-        }
-    </script>
-</body>
-</html>`;
+    });
+    // Register command to refresh sources
+    let refreshSourcesDisposable = vscode.commands.registerCommand("openapi-ui.refreshSources", () => {
+        treeDataProvider.refresh();
+        vscode.window.showInformationMessage("Refreshed OpenAPI sources");
+    });
+    // Register command to load source (placeholder for future implementation)
+    let loadSourceDisposable = vscode.commands.registerCommand("openapi-ui.loadSource", async (source) => {
+        vscode.window.showInformationMessage(`Loading OpenAPI source: ${source.name} (${source.url}) - Not implemented yet`);
+    });
+    context.subscriptions.push(openViewDisposable, addSourceDisposable, removeSourceDisposable, refreshSourcesDisposable, loadSourceDisposable);
 }
 function deactivate() { }
 function getWebviewContent(webview, extensionPath) {
@@ -209,6 +179,218 @@ module.exports = require("path");
 /***/ ((module) => {
 
 module.exports = require("fs");
+
+/***/ }),
+/* 4 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.OpenAPIStorage = void 0;
+const vscode = __importStar(__webpack_require__(1));
+const fs = __importStar(__webpack_require__(3));
+const path = __importStar(__webpack_require__(2));
+class OpenAPIStorage {
+    context;
+    storageFile;
+    sources = [];
+    onDidChangeEmitter = new vscode.EventEmitter();
+    onDidChange = this.onDidChangeEmitter.event;
+    constructor(context) {
+        this.context = context;
+        // Store the JSON file in the workspace storage path
+        const storagePath = context.globalStorageUri.fsPath;
+        if (!fs.existsSync(storagePath)) {
+            fs.mkdirSync(storagePath, { recursive: true });
+        }
+        this.storageFile = path.join(storagePath, "openapi-sources.json");
+        this.loadSources();
+    }
+    loadSources() {
+        try {
+            if (fs.existsSync(this.storageFile)) {
+                const content = fs.readFileSync(this.storageFile, "utf-8");
+                const data = JSON.parse(content);
+                this.sources = data.sources.map((source) => ({
+                    ...source,
+                    createdAt: new Date(source.createdAt),
+                }));
+            }
+        }
+        catch (error) {
+            console.error("Error loading OpenAPI sources:", error);
+            this.sources = [];
+        }
+    }
+    saveSources() {
+        try {
+            const data = {
+                sources: this.sources,
+            };
+            fs.writeFileSync(this.storageFile, JSON.stringify(data, null, 2), "utf-8");
+            this.onDidChangeEmitter.fire();
+        }
+        catch (error) {
+            console.error("Error saving OpenAPI sources:", error);
+            vscode.window.showErrorMessage("Failed to save OpenAPI sources");
+        }
+    }
+    getSources() {
+        return [...this.sources];
+    }
+    addSource(name, url) {
+        const newSource = {
+            id: this.generateId(),
+            name,
+            url,
+            createdAt: new Date(),
+        };
+        this.sources.push(newSource);
+        this.saveSources();
+    }
+    removeSource(id) {
+        const initialLength = this.sources.length;
+        this.sources = this.sources.filter((source) => source.id !== id);
+        if (this.sources.length < initialLength) {
+            this.saveSources();
+            return true;
+        }
+        return false;
+    }
+    getSource(id) {
+        return this.sources.find((source) => source.id === id);
+    }
+    generateId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+}
+exports.OpenAPIStorage = OpenAPIStorage;
+
+
+/***/ }),
+/* 5 */
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.OpenAPITreeItem = exports.OpenAPITreeDataProvider = void 0;
+const vscode = __importStar(__webpack_require__(1));
+class OpenAPITreeDataProvider {
+    storage;
+    _onDidChangeTreeData = new vscode.EventEmitter();
+    onDidChangeTreeData = this._onDidChangeTreeData.event;
+    constructor(storage) {
+        this.storage = storage;
+        // Listen to storage changes and refresh the tree
+        this.storage.onDidChange(() => {
+            this.refresh();
+        });
+    }
+    refresh() {
+        this._onDidChangeTreeData.fire();
+    }
+    getTreeItem(element) {
+        return element;
+    }
+    getChildren(element) {
+        if (!element) {
+            // Root level - return all sources
+            const sources = this.storage.getSources();
+            return Promise.resolve(sources.map((source) => new OpenAPITreeItem(source)));
+        }
+        return Promise.resolve([]);
+    }
+}
+exports.OpenAPITreeDataProvider = OpenAPITreeDataProvider;
+class OpenAPITreeItem extends vscode.TreeItem {
+    source;
+    collapsibleState;
+    constructor(source, collapsibleState = vscode
+        .TreeItemCollapsibleState.None) {
+        super(source.name, collapsibleState);
+        this.source = source;
+        this.collapsibleState = collapsibleState;
+        this.tooltip = `${source.name}\n${source.url}\nCreated: ${source.createdAt.toLocaleString()}`;
+        this.description = source.url;
+        this.contextValue = "openapi-source";
+        // Add icons
+        this.iconPath = new vscode.ThemeIcon("globe");
+        // Add command to load the source when clicked (for future implementation)
+        this.command = {
+            command: "openapi-ui.loadSource",
+            title: "Load OpenAPI Source",
+            arguments: [source],
+        };
+    }
+}
+exports.OpenAPITreeItem = OpenAPITreeItem;
+
 
 /***/ })
 /******/ 	]);
