@@ -3,8 +3,8 @@ name: Publish NuGet Package
 on:
   push:
     tags:
-      - "v*.*.*" # Wyzwalane gdy tag zaczyna się od 'v' (np. v1.0.10)
-  workflow_dispatch: # Pozwala na ręczne uruchomienie
+      - "v*.*.*"
+  workflow_dispatch:
 
 env:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 # Pobiera pełną historię dla GitVersion
+          fetch-depth: 0
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
@@ -31,6 +31,40 @@ jobs:
             6.0.x
             8.0.x
             9.0.x
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build frontend assets
+        run: |
+          cd src/core
+          node build.js
+
+      - name: Copy assets to Content directory
+        run: |
+          $contentDir = "src/c-sharp/JakubKozera.OpenApiUi/Content"
+          $distDir = "src/core/dist"
+
+          # Create Content directory if it doesn't exist
+          if (-not (Test-Path $contentDir)) {
+            New-Item -ItemType Directory -Path $contentDir -Force | Out-Null
+          }
+
+          # Clear existing content
+          if (Test-Path $contentDir) {
+            Get-ChildItem -Path $contentDir -Recurse | Remove-Item -Force -Recurse
+          }
+
+          # Copy all files from dist to Content
+          Copy-Item -Path "$distDir\*" -Destination $contentDir -Recurse -Force
+
+          # List copied files for verification
+          Write-Host "Copied files to Content directory:"
+          Get-ChildItem -Path $contentDir -Recurse | ForEach-Object {
+            Write-Host "  $($_.FullName.Replace($contentDir, '.'))"
+          }
 
       - name: Create NuGet Directory
         run: mkdir ${{ env.NuGetDirectory }}
