@@ -7,8 +7,18 @@ using System.Reflection;
 
 namespace JakubKozera.OpenApiUi
 {
+    /// <summary>
+    /// Extension methods for configuring OpenAPI UI middleware in ASP.NET Core applications.
+    /// </summary>
     public static class OpenApiUiMiddlewareExtensions
     {
+        /// <summary>
+        /// Adds OpenAPI UI middleware to the ASP.NET Core application pipeline.
+        /// This middleware serves an embedded OpenAPI documentation interface.
+        /// </summary>
+        /// <param name="app">The application builder instance.</param>
+        /// <param name="openApiSpecPath">The path to the OpenAPI specification JSON file. Defaults to "/swagger/v1/swagger.json".</param>
+        /// <returns>The application builder instance for method chaining.</returns>
         public static IApplicationBuilder UseOpenApiUi(this IApplicationBuilder app, string openApiSpecPath = "/swagger/v1/swagger.json")
         {
             var assembly = Assembly.GetExecutingAssembly(); var embeddedProvider = new EmbeddedFileProvider(assembly, "JakubKozera.OpenApiUi.openapi-ui");

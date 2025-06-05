@@ -6,16 +6,26 @@
     <Description>A .NET library serving OpenAPI UI with HTML/CSS</Description>
     <PackageTags>openapi;ui;html;css;dotnet</PackageTags>
     <RepositoryUrl>https://github.com/jakubkozera/openapi-ui</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/jakubkozera/openapi-ui</PackageProjectUrl>
     <PackageIcon>openapi-ui.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+      <!-- Generate XML documentation -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn> <!-- Suppress missing XML documentation warnings for non-public members -->
+    
+    <!-- Include symbols -->
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup><ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>  
   <ItemGroup>
     <Content Include="Content\**\*" Pack="true" PackagePath="contentFiles\any\$(TargetFramework)\openapi-ui" />
     <EmbeddedResource Include="Content\**\*" LogicalName="JakubKozera.OpenApiUi.openapi-ui.%(RecursiveDir)%(FileName)%(Extension)" />
-  </ItemGroup>
-  <ItemGroup>
+  </ItemGroup>  <ItemGroup>
     <None Include="Content\openapi-ui.png" Pack="true" PackagePath="\" />
+    <None Include="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 </Project>
