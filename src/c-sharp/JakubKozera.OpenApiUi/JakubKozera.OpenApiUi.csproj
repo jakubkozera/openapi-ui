@@ -13,12 +13,12 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
-    <!-- PDB + SourceLink -->
+    <!-- PDB + SourceLink for .snupkg -->
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <IncludeSymbols>true</IncludeSymbols>
     <IncludeSource>true</IncludeSource>
-    <SymbolPackageFormat>symbols.nupkg</SymbolPackageFormat>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat> <!-- Explicitly set to snupkg -->
 
     <!-- XML docs -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
