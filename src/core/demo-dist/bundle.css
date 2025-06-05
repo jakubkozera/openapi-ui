@@ -2,7 +2,7 @@
 /* Custom styles for the API Documentation interface */
 
 /* Global Inter font application */
-* {
+*:not(.monaco-editor div) {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
 }
 
@@ -1619,47 +1619,6 @@ body[data-theme="dark"] #right-panel-headers-section select {
     position: relative !important; /* Ensure relative positioning for hover widget containment */
 }
 
-/* Fix Monaco hover widget positioning to stay within editor bounds */
-.monaco-editor .hover-widget,
-.monaco-editor [widgetid="editor.contrib.resizableContentHoverWidget"] {
-    position: absolute !important;
-    max-width: calc(100% - 20px) !important;
-    max-height: calc(100vh - 100px) !important;
-    z-index: 1000 !important;
-    overflow: hidden !important;
-}
-
-/* Ensure hover widget content is scrollable if needed */
-.monaco-editor .hover-widget .hover-contents,
-.monaco-editor [widgetid="editor.contrib.resizableContentHoverWidget"] .hover-contents {
-    max-height: 200px !important;
-    overflow-y: auto !important;
-    word-wrap: break-word !important;
-}
-
-/* Style the hover widget to match our theme */
-.monaco-editor .hover-widget,
-.monaco-editor [widgetid="editor.contrib.resizableContentHoverWidget"] {
-    background: #2d2d30 !important;
-    border: 1px solid #464647 !important;
-    border-radius: 6px !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-}
-
-/* Additional specific overrides for Monaco hover positioning */
-.monaco-editor .view-overlays .hover-widget {
-    position: absolute !important;
-    transform: none !important;
-}
-
-/* Force all Monaco content widgets to use absolute positioning within editor */
-.monaco-editor [monaco-visible-content-widget="true"] {
-    position: absolute !important;
-    left: auto !important;
-    right: 10px !important;
-    max-width: calc(100% - 20px) !important;
-}
-
 /* Ensure right panel Monaco editors have proper containment */
 #right-panel .monaco-editor {
     overflow: visible !important;
@@ -1667,13 +1626,7 @@ body[data-theme="dark"] #right-panel-headers-section select {
 }
 
 /* Specific fix for the resizable content hover widget */
-.monaco-editor [widgetid="editor.contrib.resizableContentHoverWidget"][style*="position: fixed"] {
-    position: absolute !important;
-    left: auto !important;
-    right: 10px !important;
-    top: 10px !important;
-    max-width: calc(100% - 20px) !important;
-}
+ 
 
 
 /* css/collection-runner.css */
@@ -3203,7 +3156,7 @@ body[data-theme="dark"] #server-selector-container .server-variables select {
 }
 
 /* Input fields with variables - Only for request parameter inputs, not variables table */
-.has-variables:not(.variable-input) {
+#try-it-out-section .has-variables:not(.variable-input) {
   border-color: var(--interactive-primary) !important;
   background: var(--input-focus-bg) !important;
   position: relative;
@@ -3228,7 +3181,7 @@ body[data-theme="dark"] #server-selector-container .server-variables select {
 }
 
 /* Variable indicator icon - Only for request parameter inputs */
-.has-variables:not(.variable-input)::after {
+#try-it-out-section .has-variables::after {
   content: "{{" attr(data-defined-count) "/" attr(data-variable-count) "}}";
   position: absolute;
   right: 8px;
@@ -3246,12 +3199,12 @@ body[data-theme="dark"] #server-selector-container .server-variables select {
 }
 
 /* Different colors based on variable status - Only for request parameter inputs */
-.has-variables:not(.variable-input)[data-has-undefined="true"]::after {
+#try-it-out-section .has-variables:not(.variable-input)[data-has-undefined="true"]::after {
   background: var(--method-delete);
   content: "{{⚠}}";
 }
 
-.has-variables:not(.variable-input)[data-has-undefined="false"]::after {
+#try-it-out-section .has-variables:not(.variable-input)[data-has-undefined="false"]::after {
   background: var(--method-get);
   content: "{{✓}}";
 }
@@ -3261,27 +3214,27 @@ body[data-theme="dark"] #server-selector-container .server-variables select {
 }
 
 /* Different input styling based on variable status - Only for request parameter inputs */
-.has-variables:not(.variable-input)[data-has-undefined="true"] {
+#try-it-out-section .has-variables:not(.variable-input)[data-has-undefined="true"] {
   border-color: var(--method-delete) !important;
   background: var(--surface-secondary) !important;
   color: var(--method-delete) !important;
   box-shadow: 0 0 0 3px var(--focus-ring) !important;
 }
 
-.has-variables:not(.variable-input)[data-has-undefined="true"]:focus {
+#try-it-out-section .has-variables:not(.variable-input)[data-has-undefined="true"]:focus {
   border-color: var(--method-delete) !important;
   background: var(--input-focus-bg) !important;
   box-shadow: 0 0 0 3px var(--focus-ring) !important;
 }
 
-.has-variables:not(.variable-input)[data-has-undefined="false"] {
+#try-it-out-section .has-variables:not(.variable-input)[data-has-undefined="false"] {
   border-color: var(--method-get) !important;
   background: var(--surface-secondary) !important;
   color: var(--method-get) !important;
   box-shadow: 0 0 0 3px var(--focus-ring) !important;
 }
 
-.has-variables:not(.variable-input)[data-has-undefined="false"]:focus {
+#try-it-out-section .has-variables:not(.variable-input)[data-has-undefined="false"]:focus {
   border-color: var(--method-get) !important;
   background: var(--input-focus-bg) !important;
   box-shadow: 0 0 0 3px var(--focus-ring) !important;
