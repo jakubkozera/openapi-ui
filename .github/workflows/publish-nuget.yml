@@ -84,13 +84,13 @@ jobs:
 
       - name: Create NuGet package
         run: |
-          dotnet pack src/c-sharp/JakubKozera.OpenApiUi/JakubKozera.OpenApiUi.csproj \
-            --configuration Release \
-            --no-build \
-            --output ${{ env.NuGetDirectory }} \
-            -p:ContinuousIntegrationBuild=true \
-            -p:IncludeSymbols=true \
-            -p:SymbolPackageFormat=snupkg \
+          dotnet pack src/c-sharp/JakubKozera.OpenApiUi/JakubKozera.OpenApiUi.csproj `
+            --configuration Release `
+            --no-build `
+            --output ${{ env.NuGetDirectory }} `
+            -p:ContinuousIntegrationBuild=true `
+            -p:IncludeSymbols=true `
+            -p:SymbolPackageFormat=snupkg `
             -p:EmbedAllSources=true
 
       - name: List generated packages
