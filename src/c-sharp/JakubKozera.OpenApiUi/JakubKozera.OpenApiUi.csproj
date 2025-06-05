@@ -11,19 +11,28 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    
-    <!-- Debug symbols configuration -->
+      <!-- Debug symbols configuration -->
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
-      <!-- Generate XML documentation -->
+    
+    <!-- Generate XML documentation -->
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn> <!-- Suppress missing XML documentation warnings for non-public members -->
-      <!-- Include symbols in main package -->
+    
+    <!-- Include symbols in main package -->
     <IncludeSymbols>true</IncludeSymbols>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-  </PropertyGroup><ItemGroup>
+    
+    <!-- Deterministic build configuration -->
+    <Deterministic>true</Deterministic>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+  </PropertyGroup>  <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>  
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Content\**\*" Pack="true" PackagePath="contentFiles\any\$(TargetFramework)\openapi-ui" />
     <EmbeddedResource Include="Content\**\*" LogicalName="JakubKozera.OpenApiUi.openapi-ui.%(RecursiveDir)%(FileName)%(Extension)" />

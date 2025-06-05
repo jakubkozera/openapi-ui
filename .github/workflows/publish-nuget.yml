@@ -58,9 +58,7 @@ jobs:
           }
 
           # Copy all files from dist to Content
-          Copy-Item -Path "$distDir\*" -Destination $contentDir -Recurse -Force
-
-          # List copied files for verification
+          Copy-Item -Path "$distDir\*" -Destination $contentDir -Recurse -Force          # List copied files for verification
           Write-Host "Copied files to Content directory:"
           Get-ChildItem -Path $contentDir -Recurse | ForEach-Object {
             Write-Host "  $($_.FullName.Replace($contentDir, '.'))"
@@ -73,10 +71,10 @@ jobs:
         run: dotnet restore src/c-sharp/JakubKozera.OpenApiUi/JakubKozera.OpenApiUi.csproj
 
       - name: Build project
-        run: dotnet build src/c-sharp/JakubKozera.OpenApiUi/JakubKozera.OpenApiUi.csproj --configuration Release --no-restore
+        run: dotnet build src/c-sharp/JakubKozera.OpenApiUi/JakubKozera.OpenApiUi.csproj --configuration Release --no-restore -p:ContinuousIntegrationBuild=true
 
       - name: Create NuGet package
-        run: dotnet pack src/c-sharp/JakubKozera.OpenApiUi/JakubKozera.OpenApiUi.csproj --configuration Release --no-build --output ${{ env.NuGetDirectory }}
+        run: dotnet pack src/c-sharp/JakubKozera.OpenApiUi/JakubKozera.OpenApiUi.csproj --configuration Release --no-build --output ${{ env.NuGetDirectory }} -p:ContinuousIntegrationBuild=true
 
       - name: Upload NuGet package as artifact
         uses: actions/upload-artifact@v4
