@@ -9,6 +9,10 @@
 html {
   scroll-behavior: smooth;
 }
+body {
+  padding: 0 !important;
+}
+
 
 /* Make code samples scrollable horizontally */
 pre {

@@ -62,7 +62,7 @@ function activate(context) {
         const panel = vscode.window.createWebviewPanel("openapiUI", "OpenAPI UI", vscode.ViewColumn.One, {
             enableScripts: true,
             localResourceRoots: [
-                vscode.Uri.file(path.join(context.extensionPath, "..", "..", "core", "demo-dist")),
+                vscode.Uri.file(path.join(context.extensionPath, "..", "..", "core", "dist")),
             ],
         });
         panel.webview.html = getWebviewContent(panel.webview, context.extensionPath);
@@ -113,14 +113,20 @@ function activate(context) {
     });
     // Register command to load source (placeholder for future implementation)
     let loadSourceDisposable = vscode.commands.registerCommand("openapi-ui.loadSource", async (source) => {
-        vscode.window.showInformationMessage(`Loading OpenAPI source: ${source.name} (${source.url}) - Not implemented yet`);
+        const panel = vscode.window.createWebviewPanel("openapiSourceUI", `OpenAPI UI - ${source.name}`, vscode.ViewColumn.One, {
+            enableScripts: true,
+            localResourceRoots: [
+                vscode.Uri.file(path.join(context.extensionPath, "..", "..", "core", "dist")),
+            ],
+        });
+        panel.webview.html = getWebviewContent(panel.webview, context.extensionPath, source.url);
     });
     context.subscriptions.push(openViewDisposable, addSourceDisposable, removeSourceDisposable, refreshSourcesDisposable, loadSourceDisposable);
 }
 function deactivate() { }
-function getWebviewContent(webview, extensionPath) {
+function getWebviewContent(webview, extensionPath, openapiUrl) {
     // Path to the core/dist directory
-    const distPath = path.join(extensionPath, "..", "..", "core", "demo-dist");
+    const distPath = path.join(extensionPath, "..", "..", "core", "dist");
     const htmlPath = path.join(distPath, "index.html");
     try {
         // Read the HTML file
@@ -128,11 +134,14 @@ function getWebviewContent(webview, extensionPath) {
         // Create URIs for the CSS and JS files
         const cssUri = webview.asWebviewUri(vscode.Uri.file(path.join(distPath, "bundle.css")));
         const jsUri = webview.asWebviewUri(vscode.Uri.file(path.join(distPath, "bundle.js")));
-        const imgUri = webview.asWebviewUri(vscode.Uri.file(path.join(distPath, "openapi-ui.png")));
-        // Replace the relative paths with webview URIs
+        const imgUri = webview.asWebviewUri(vscode.Uri.file(path.join(distPath, "openapi-ui.png"))); // Replace the relative paths with webview URIs
         htmlContent = htmlContent.replace('href="bundle.css"', `href="${cssUri}"`);
         htmlContent = htmlContent.replace('src="bundle.js"', `src="${jsUri}"`);
         htmlContent = htmlContent.replace('src="openapi-ui.png"', `src="${imgUri}"`);
+        // Replace the OpenAPI URL placeholder if provided
+        if (openapiUrl) {
+            htmlContent = htmlContent.replace("#swagger_path#", openapiUrl);
+        }
         return htmlContent;
     }
     catch (error) {
