@@ -58,7 +58,9 @@ jobs:
           }
 
           # Copy all files from dist to Content
-          Copy-Item -Path "$distDir\*" -Destination $contentDir -Recurse -Force          # List copied files for verification
+          Copy-Item -Path "$distDir\*" -Destination $contentDir -Recurse -Force
+
+          # List copied files for verification
           Write-Host "Copied files to Content directory:"
           Get-ChildItem -Path $contentDir -Recurse | ForEach-Object {
             Write-Host "  $($_.FullName.Replace($contentDir, '.'))"
@@ -74,16 +76,21 @@ jobs:
         run: |
           dotnet build src/c-sharp/JakubKozera.OpenApiUi/JakubKozera.OpenApiUi.csproj --configuration Release --no-restore -p:ContinuousIntegrationBuild=true --verbosity normal
 
-          Get-ChildItem -Path "src/c-sharp/JakubKozera.OpenApiUi/bin/Release" -Recurse -Include "*.pdb" | ForEach-Object { Write-Host "Found PDB: $($_.FullName)" }
-            - name: Create NuGet package
-              run: dotnet pack src/c-sharp/JakubKozera.OpenApiUi/JakubKozera.OpenApiUi.csproj --configuration Release --no-build --output ${{ env.NuGetDirectory }} -p:ContinuousIntegrationBuild=true
+          # Check if PDB files were generated
+          Write-Host "Looking for PDB files:"
+          Get-ChildItem -Path "src/c-sharp/JakubKozera.OpenApiUi/bin/Release" -Recurse -Include "*.pdb" | ForEach-Object { 
+            Write-Host "Found PDB: $($_.FullName)" 
+          }
 
-            - name: Upload NuGet package as artifact
-              uses: actions/upload-artifact@v4
-              with:
-                name: nuget-package
-                path: ${{ env.NuGetDirectory }}/*.nupkg
-                if-no-files-found: error
+      - name: Create NuGet package
+        run: dotnet pack src/c-sharp/JakubKozera.OpenApiUi/JakubKozera.OpenApiUi.csproj --configuration Release --no-build --output ${{ env.NuGetDirectory }} -p:ContinuousIntegrationBuild=true
+
+      - name: Upload NuGet package as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: ${{ env.NuGetDirectory }}/*.nupkg
+          if-no-files-found: error
 
   validate_nuget:
     runs-on: ubuntu-latest
@@ -106,23 +113,6 @@ jobs:
 
       - name: Validate NuGet package
         run: meziantou.validate-nuget-package (Get-ChildItem "${{ env.NuGetDirectory }}/*.nupkg")
-
-  #   run_test:
-  #     runs-on: ubuntu-latest
-
-  #     steps:
-  #     - uses: actions/checkout@v4
-
-  #     - name: Setup .NET
-  #       uses: actions/setup-dotnet@v4
-  #       with:
-  #         dotnet-version: |
-  #           6.0.x
-  #           8.0.x
-  #           9.0.x
-
-  #     - name: Run tests
-  #       run: dotnet test --configuration Release
 
   deploy:
     runs-on: ubuntu-latest
