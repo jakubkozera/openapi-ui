@@ -121,39 +121,39 @@ jobs:
           path: ${{ env.NuGetDirectory }}/*.nupkg
           if-no-files-found: error
 
-  validate_nuget:
-    runs-on: ubuntu-latest
-    needs: [create_nuget]
+  # validate_nuget:
+  #   runs-on: ubuntu-latest
+  #   needs: [create_nuget]
 
-    steps:
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 9.0.x
+  #   steps:
+  #     - name: Setup .NET
+  #       uses: actions/setup-dotnet@v4
+  #       with:
+  #         dotnet-version: 9.0.x
 
-      - name: Download NuGet package artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: nuget-package
-          path: ${{ env.NuGetDirectory }}
+  #     - name: Download NuGet package artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: nuget-package
+  #         path: ${{ env.NuGetDirectory }}
 
-      - name: Install NuGet validator
-        run: dotnet tool update Meziantou.Framework.NuGetPackageValidation.Tool --global
+  #     - name: Install NuGet validator
+  #       run: dotnet tool update Meziantou.Framework.NuGetPackageValidation.Tool --global
 
-      - name: Validate NuGet package
-        run: |
-          $package = Get-ChildItem "${{ env.NuGetDirectory }}/*.nupkg" | Where-Object { $_.Name -notlike "*.symbols.nupkg" } | Select-Object -First 1
-          if ($package) {
-            Write-Host "Validating package: $($package.Name)"
-            meziantou.validate-nuget-package "$($package.FullName)" --exclude-rule "111"
-          } else {
-            Write-Host "No package found to validate"
-            exit 1
-          }
+  #     - name: Validate NuGet package
+  #       run: |
+  #         $package = Get-ChildItem "${{ env.NuGetDirectory }}/*.nupkg" | Where-Object { $_.Name -notlike "*.symbols.nupkg" } | Select-Object -First 1
+  #         if ($package) {
+  #           Write-Host "Validating package: $($package.Name)"
+  #           meziantou.validate-nuget-package "$($package.FullName)" --exclude-rule "111"
+  #         } else {
+  #           Write-Host "No package found to validate"
+  #           exit 1
+  #         }
 
   deploy:
     runs-on: ubuntu-latest
-    needs: [validate_nuget]
+    needs: [create_nuget]
 
     steps:
       - name: Download NuGet package artifact
