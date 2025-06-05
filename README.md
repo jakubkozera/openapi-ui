@@ -2,6 +2,23 @@
 
 A modern, feature-rich OpenAPI/Swagger documentation and testing interface with advanced functionality for API development and testing.
 
+## 🎮 Demo
+
+Want to try OpenAPI UI before integrating it into your project? Check out our live demo:
+
+**[🚀 Try it yourself at https://jakubkozera.github.io/openapi-ui/](https://jakubkozera.github.io/openapi-ui/)**
+
+The demo showcases all the features mentioned above with a sample API specification, so you can:
+
+- Explore the modern UI and navigation
+- Test the interactive API functionality
+- Try out the Collection Runner
+- Experience the authentication features
+- Generate code snippets and API clients
+- See the variable management in action
+
+No installation required - just open the link and start exploring!
+
 ## 🚀 Features
 
 ### Core Features
@@ -56,23 +73,6 @@ A modern, feature-rich OpenAPI/Swagger documentation and testing interface with 
 - **Endpoint Grouping** - Organized by tags and paths
 - **Quick Access** - Jump to specific operations instantly
 - **Breadcrumb Navigation** - Always know where you are in the API
-
-## 🎮 Demo
-
-Want to try OpenAPI UI before integrating it into your project? Check out our live demo:
-
-**[🚀 Try it yourself at https://jakubkozera.github.io/openapi-ui/](https://jakubkozera.github.io/openapi-ui/)**
-
-The demo showcases all the features mentioned above with a sample API specification, so you can:
-
-- Explore the modern UI and navigation
-- Test the interactive API functionality
-- Try out the Collection Runner
-- Experience the authentication features
-- Generate code snippets and API clients
-- See the variable management in action
-
-No installation required - just open the link and start exploring!
 
 ## 🛠 Distribution Formats
 
