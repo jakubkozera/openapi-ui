@@ -1,0 +1,113 @@
+name: Publish NuGet Package
+
+on:
+  push:
+    tags:
+      - "v*.*.*" # Wyzwalane gdy tag zaczyna się od 'v' (np. v1.0.10)
+  workflow_dispatch: # Pozwala na ręczne uruchomienie
+
+env:
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  DOTNET_NOLOGO: true
+  NuGetDirectory: ${{ github.workspace}}/nuget
+
+defaults:
+  run:
+    shell: pwsh
+
+jobs:
+  create_nuget:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Pobiera pełną historię dla GitVersion
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            6.0.x
+            8.0.x
+            9.0.x
+
+      - name: Create NuGet Directory
+        run: mkdir ${{ env.NuGetDirectory }}
+
+      - name: Restore dependencies
+        run: dotnet restore src/c-sharp/JakubKozera.OpenApiUi/JakubKozera.OpenApiUi.csproj
+
+      - name: Build project
+        run: dotnet build src/c-sharp/JakubKozera.OpenApiUi/JakubKozera.OpenApiUi.csproj --configuration Release --no-restore
+
+      - name: Create NuGet package
+        run: dotnet pack src/c-sharp/JakubKozera.OpenApiUi/JakubKozera.OpenApiUi.csproj --configuration Release --no-build --output ${{ env.NuGetDirectory }}
+
+      - name: Upload NuGet package as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: ${{ env.NuGetDirectory }}/*.nupkg
+          if-no-files-found: error
+
+  validate_nuget:
+    runs-on: ubuntu-latest
+    needs: [create_nuget]
+
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Download NuGet package artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-package
+          path: ${{ env.NuGetDirectory }}
+
+      - name: Install NuGet validator
+        run: dotnet tool update Meziantou.Framework.NuGetPackageValidation.Tool --global
+
+      - name: Validate NuGet package
+        run: meziantou.validate-nuget-package (Get-ChildItem "${{ env.NuGetDirectory }}/*.nupkg")
+
+  #   run_test:
+  #     runs-on: ubuntu-latest
+
+  #     steps:
+  #     - uses: actions/checkout@v4
+
+  #     - name: Setup .NET
+  #       uses: actions/setup-dotnet@v4
+  #       with:
+  #         dotnet-version: |
+  #           6.0.x
+  #           8.0.x
+  #           9.0.x
+
+  #     - name: Run tests
+  #       run: dotnet test --configuration Release
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [validate_nuget]
+
+    steps:
+      - name: Download NuGet package artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-package
+          path: ${{ env.NuGetDirectory }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.0.x
+
+      - name: Publish NuGet package
+        run: |
+          foreach($file in (Get-ChildItem "${{ env.NuGetDirectory }}" -Recurse -Include *.nupkg)) {
+              dotnet nuget push $file --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          }

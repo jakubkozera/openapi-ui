@@ -44,6 +44,7 @@ function getBaseUrl() {
   return baseUrl;
 }
 
+
 /* js/themeManager.js */
 // Theme Management System
 // Supports multiple themes with easy extensibility
@@ -509,6 +510,7 @@ function initThemeManager() {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ThemeManager, initThemeManager };
 }
+
 
 /* js/utils.js */
 // Utility functions used across the application
@@ -1078,6 +1080,7 @@ window.utils = {
   },
 };
 
+
 /* js/tooltip.js */
 // Custom tooltip handlers
 
@@ -1166,6 +1169,7 @@ function handleTooltipMouseLeave(e) {
 }
 
 // All functions are now globally available
+
 
 /* js/monacoSetup.js */
 // Monaco Editor setup and initialization
@@ -1337,6 +1341,7 @@ window.monacoSetup = {
   setupMonacoThemeListener,
   getMonacoThemeForCurrentTheme,
 };
+
 
 /* js/codeSnippets.js */
 // Code Snippets Generator for API Documentation
@@ -1616,6 +1621,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initCodeSnippetFunctionality();
 });
 
+
 /* js/codeSnippetTabs.js */
 // Code Snippet Tabs functionality
 
@@ -1716,6 +1722,7 @@ if (document.readyState === "loading") {
 } else {
   initCodeSnippetTabs();
 }
+
 
 /* js/codeApiGenerators/csharpApiClientGenerator.js */
 // C# API Client Generator for openapi-ui
@@ -2325,6 +2332,7 @@ window.createCSharpApiGenerator = function (options = {}) {
   }
   return generator;
 };
+
 
 /* js/codeApiGenerators/javascriptApiClientGenerator.js */
 // JavaScript API Client Generator for openapi-ui
@@ -3091,6 +3099,7 @@ window.createJavaScriptApiGenerator = function (options = {}) {
   return generator;
 };
 
+
 /* js/apiClientOptions.js */
 // API Client Options Manager
 class ApiClientOptionsManager {
@@ -3433,6 +3442,7 @@ window.getApiClientOptions = function (language) {
   }
   return {};
 };
+
 
 /* js/apiClientGeneration.js */
 // API Client Generation functionality
@@ -3863,6 +3873,7 @@ if (document.readyState === "loading") {
   tryInitApiClient();
 }
 
+
 /* js/serverSelector.js */
 // Server selector functionality for OpenAPI servers property
 
@@ -4196,6 +4207,7 @@ window.serverSelector = {
     resolvedServerUrls[currentServerIndex]?.url || window.location.origin,
 };
 
+
 /* js/apiLoader.js */
 // Functions to load and parse Swagger data
 // All dependencies are now loaded globally
@@ -4302,6 +4314,7 @@ async function loadSwaggerSpec(swaggerJsonUrl) {
 }
 
 // Function is now globally available
+
 
 /* js/exampleGenerator.js */
 // Schema example generation functions
@@ -4733,6 +4746,7 @@ function validateValue(value, schema, components, path = "") {
 }
 
 // Functions are now globally available
+
 
 /* js/httpVerbFilter.js */
 // HTTP Verb Filter functionality
@@ -5266,6 +5280,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
+
 /* js/sidebarHandler.js */
 // Function to filter sidebar navigation based on search term
 function filterSidebar(searchTerm) {
@@ -5509,6 +5524,7 @@ function buildSidebar() {
 
 // Functions are now globally available
 
+
 /* js/sidebarToggle.js */
 // Module to handle opening/closing sidebars on small screens with enhanced animations
 function initSidebarToggle() {
@@ -5619,6 +5635,7 @@ if (document.readyState === "loading") {
   initSidebarToggle();
 }
 
+
 /* js/sidebarExpand.js */
 // Enhanced sidebar functionality - ensures endpoints sections collapse and expand properly
 document.addEventListener("DOMContentLoaded", function () {
@@ -5681,11 +5698,412 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+
+/* js/schemaPopover.js */
+// Schema Type Popover functionality for interactive schema exploration
+
+// Global popover instance
+let currentPopover = null;
+let popoverTimeout = null;
+
+/**
+ * Enhanced formatTypeDisplay that creates interactive elements for custom types
+ */
+function formatTypeDisplayWithPopovers(schema, level = 0) {
+  if (!schema || !schema.type) return "unknown";
+
+  if (schema.type === "array" && schema.items) {
+    let itemType = "unknown";
+    let isCustomType = false;
+
+    if (schema.items.type) {
+      // Direct type
+      itemType = schema.items.type;
+    } else if (schema.items.$ref) {
+      // Reference to custom schema - extract the type name from the $ref
+      const refParts = schema.items.$ref.split("/");
+      itemType = refParts[refParts.length - 1]; // Get the last part after the last '/'
+      isCustomType = true;
+    }
+
+    if (isCustomType) {
+      // Create interactive span for custom types
+      return `<span class="schema-type-interactive" data-schema-ref="${schema.items.$ref}" data-type-name="${itemType}" data-level="${level}">${itemType}</span>[]`;
+    }
+
+    return `${itemType}[]`;
+  }
+
+  // Handle direct schema references
+  if (schema.$ref) {
+    const refParts = schema.$ref.split("/");
+    const typeName = refParts[refParts.length - 1];
+    return `<span class="schema-type-interactive" data-schema-ref="${schema.$ref}" data-type-name="${typeName}" data-level="${level}">${typeName}</span>`;
+  }
+
+  return schema.type;
+}
+
+/**
+ * Resolve a schema reference to get the actual schema definition
+ */
+function resolveSchemaReference(schemaRef) {
+  if (!schemaRef || !window.swaggerData) return null;
+
+  const refPath = schemaRef.split("/").slice(1); // Remove #
+  return refPath.reduce((acc, part) => acc && acc[part], window.swaggerData);
+}
+
+/**
+ * Build popover content for a schema
+ */
+function buildSchemaPopoverContent(schema, typeName, level = 0) {
+  if (!schema) {
+    return `<div class="text-red-500 text-sm">Could not resolve schema for ${typeName}</div>`;
+  }
+
+  let content = `
+    <div class="schema-popover-content">
+      <div class="schema-popover-header">
+        <span class="schema-type-name">${typeName}</span>
+        ${
+          schema.description
+            ? `<div class="schema-description">${schema.description}</div>`
+            : ""
+        }
+      </div>
+  `;
+
+  if (schema.type === "object" && schema.properties) {
+    const requiredFields = schema.required || [];
+    const propertyCount = Object.keys(schema.properties).length;
+
+    content += `
+      <div class="schema-properties">
+        <div class="schema-properties-header">Properties (${propertyCount})</div>
+        <div class="schema-properties-list">
+    `;
+
+    Object.entries(schema.properties).forEach(([propName, propSchema]) => {
+      const isRequired = requiredFields.includes(propName);
+
+      // Resolve property schema if it's a reference
+      let resolvedPropSchema = propSchema;
+      if (propSchema.$ref) {
+        const refPath = propSchema.$ref.split("/").slice(1);
+        resolvedPropSchema = refPath.reduce(
+          (acc, part) => acc && acc[part],
+          window.swaggerData
+        );
+      } // Build validation rules for this property
+      const validationRules = [];
+      if (resolvedPropSchema?.minLength !== undefined)
+        validationRules.push(`min length: ${resolvedPropSchema.minLength}`);
+      if (resolvedPropSchema?.maxLength !== undefined)
+        validationRules.push(`max length: ${resolvedPropSchema.maxLength}`);
+      if (resolvedPropSchema?.minimum !== undefined)
+        validationRules.push(`minimum: ${resolvedPropSchema.minimum}`);
+      if (resolvedPropSchema?.maximum !== undefined)
+        validationRules.push(`maximum: ${resolvedPropSchema.maximum}`);
+      if (resolvedPropSchema?.pattern)
+        validationRules.push(
+          `pattern: <code class="text-xs bg-gray-200 px-1 rounded font-mono">${resolvedPropSchema.pattern}</code>`
+        );
+      if (resolvedPropSchema?.enum) {
+        validationRules.push(
+          `allowed values: ${resolvedPropSchema.enum.join(", ")}`
+        );
+      }
+      if (resolvedPropSchema?.default !== undefined) {
+        validationRules.push(
+          `default: ${JSON.stringify(resolvedPropSchema.default)}`
+        );
+      }
+
+      // Handle array items
+      if (resolvedPropSchema?.type === "array" && resolvedPropSchema.items) {
+        if (resolvedPropSchema.items.type) {
+          validationRules.push(`array of: ${resolvedPropSchema.items.type}`);
+        }
+        if (resolvedPropSchema.items.enum) {
+          validationRules.push(
+            `item values: ${resolvedPropSchema.items.enum.join(", ")}`
+          );
+        }
+      }
+
+      content += `
+        <div class="schema-property">
+          <div class="schema-property-header">
+            <div class="schema-property-name">
+              ${propName}${
+        isRequired ? '<span class="required-indicator">*</span>' : ""
+      }
+            </div>
+            <div class="schema-property-type">
+              ${formatTypeDisplayWithPopovers(resolvedPropSchema, level + 1)}
+            </div>
+          </div>
+          ${
+            resolvedPropSchema?.description
+              ? `<div class="schema-property-description">${resolvedPropSchema.description}</div>`
+              : ""
+          }
+          ${
+            validationRules.length > 0
+              ? `<div class="schema-property-validation">
+                  <div class="validation-header">Validation:</div>
+                  <ul class="validation-list">
+                    ${validationRules
+                      .map((rule) => `<li>${rule}</li>`)
+                      .join("")}
+                  </ul>
+                </div>`
+              : ""
+          }
+        </div>
+      `;
+    });
+
+    content += `
+        </div>
+      </div>
+    `;
+  } else if (schema.type === "array" && schema.items) {
+    content += `
+      <div class="schema-array-info">
+        <span class="schema-array-label">Array of:</span>
+        <span class="schema-array-type">${formatTypeDisplayWithPopovers(
+          schema.items,
+          level + 1
+        )}</span>
+      </div>
+    `;
+  } else {
+    // Primitive type or simple schema
+    content += `
+      <div class="schema-primitive-info">
+        <span class="schema-primitive-type">${schema.type}</span>
+        ${
+          schema.format
+            ? `<span class="schema-format">(${schema.format})</span>`
+            : ""
+        }
+      </div>
+    `;
+  }
+
+  content += `</div>`;
+  return content;
+}
+
+/**
+ * Create and show popover
+ */
+function showSchemaPopover(element, schemaRef, typeName, level) {
+  // Clear any existing timeout
+  if (popoverTimeout) {
+    clearTimeout(popoverTimeout);
+    popoverTimeout = null;
+  }
+
+  // Don't show popover if we're already at a deep level to prevent infinite nesting
+  if (level > 2) return;
+
+  // Resolve the schema
+  const schema = resolveSchemaReference(schemaRef);
+  if (!schema) return;
+
+  // Remove existing popover
+  hideSchemaPopover();
+
+  // Create popover element
+  const popover = document.createElement("div");
+  popover.className = "schema-popover";
+  popover.innerHTML = buildSchemaPopoverContent(schema, typeName, level);
+
+  // Add to document
+  document.body.appendChild(popover);
+  currentPopover = popover;
+
+  // Position popover
+  const rect = element.getBoundingClientRect();
+  const popoverRect = popover.getBoundingClientRect();
+
+  let left = rect.left + rect.width / 2 - popoverRect.width / 2;
+  let top = rect.bottom + 8;
+
+  // Adjust if popover goes off screen
+  if (left < 8) left = 8;
+  if (left + popoverRect.width > window.innerWidth - 8) {
+    left = window.innerWidth - popoverRect.width - 8;
+  }
+  if (top + popoverRect.height > window.innerHeight - 8) {
+    top = rect.top - popoverRect.height - 8;
+  }
+
+  popover.style.left = `${left}px`;
+  popover.style.top = `${top}px`;
+
+  // Show popover with animation
+  requestAnimationFrame(() => {
+    popover.classList.add("show");
+  });
+
+  // Add event listeners to interactive elements within the popover
+  addPopoverEventListeners(popover);
+}
+
+/**
+ * Hide popover
+ */
+function hideSchemaPopover() {
+  if (currentPopover) {
+    currentPopover.classList.remove("show");
+    setTimeout(() => {
+      if (currentPopover && currentPopover.parentNode) {
+        currentPopover.parentNode.removeChild(currentPopover);
+      }
+      currentPopover = null;
+    }, 200);
+  }
+}
+
+/**
+ * Add event listeners to interactive elements in popover
+ */
+function addPopoverEventListeners(container) {
+  const interactiveElements = container.querySelectorAll(
+    ".schema-type-interactive"
+  );
+
+  interactiveElements.forEach((element) => {
+    element.addEventListener("mouseenter", (e) => {
+      const schemaRef = e.target.getAttribute("data-schema-ref");
+      const typeName = e.target.getAttribute("data-type-name");
+      const level = parseInt(e.target.getAttribute("data-level") || "0");
+
+      popoverTimeout = setTimeout(() => {
+        showSchemaPopover(e.target, schemaRef, typeName, level);
+      }, 500); // Show nested popover after 500ms delay
+    });
+
+    element.addEventListener("mouseleave", () => {
+      if (popoverTimeout) {
+        clearTimeout(popoverTimeout);
+        popoverTimeout = null;
+      }
+    });
+  });
+}
+
+/**
+ * Initialize schema popover functionality
+ */
+function initializeSchemaPopovers() {
+  // Add global event listener for interactive schema types
+  document.addEventListener(
+    "mouseenter",
+    (e) => {
+      if (e.target.classList.contains("schema-type-interactive")) {
+        const schemaRef = e.target.getAttribute("data-schema-ref");
+        const typeName = e.target.getAttribute("data-type-name");
+        const level = parseInt(e.target.getAttribute("data-level") || "0");
+
+        popoverTimeout = setTimeout(() => {
+          showSchemaPopover(e.target, schemaRef, typeName, level);
+        }, 300); // Show popover after 300ms delay
+      }
+    },
+    true
+  );
+
+  document.addEventListener(
+    "mouseleave",
+    (e) => {
+      if (e.target.classList.contains("schema-type-interactive")) {
+        if (popoverTimeout) {
+          clearTimeout(popoverTimeout);
+          popoverTimeout = null;
+        }
+
+        // Hide popover after a short delay to allow moving to popover
+        setTimeout(() => {
+          if (
+            currentPopover &&
+            !currentPopover.matches(":hover") &&
+            !e.target.matches(":hover")
+          ) {
+            hideSchemaPopover();
+          }
+        }, 100);
+      }
+    },
+    true
+  );
+
+  // Keep popover open when hovering over it
+  document.addEventListener(
+    "mouseenter",
+    (e) => {
+      if (e.target.closest(".schema-popover")) {
+        if (popoverTimeout) {
+          clearTimeout(popoverTimeout);
+          popoverTimeout = null;
+        }
+      }
+    },
+    true
+  );
+
+  document.addEventListener(
+    "mouseleave",
+    (e) => {
+      if (e.target.closest(".schema-popover")) {
+        setTimeout(() => {
+          if (currentPopover && !currentPopover.matches(":hover")) {
+            hideSchemaPopover();
+          }
+        }, 300);
+      }
+    },
+    true
+  );
+
+  // Hide popover when clicking outside
+  document.addEventListener("click", (e) => {
+    if (
+      !e.target.closest(".schema-popover") &&
+      !e.target.classList.contains("schema-type-interactive")
+    ) {
+      hideSchemaPopover();
+    }
+  });
+}
+
+// Make functions available globally
+window.formatTypeDisplayWithPopovers = formatTypeDisplayWithPopovers;
+window.initializeSchemaPopovers = initializeSchemaPopovers;
+
+// Initialize when DOM is ready
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initializeSchemaPopovers);
+} else {
+  initializeSchemaPopovers();
+}
+
+
 /* js/mainContentBuilder.js */
 // Functions to build main content area
 
 // Helper function to format type names, especially for arrays
 function formatTypeDisplay(schema) {
+  // Use the enhanced version if available, fallback to basic version
+  if (window.formatTypeDisplayWithPopovers) {
+    return window.formatTypeDisplayWithPopovers(schema);
+  }
+
+  // Fallback implementation for when popovers aren't loaded
   if (!schema || !schema.type) return "unknown";
 
   if (schema.type === "array" && schema.items) {
@@ -5701,6 +6119,13 @@ function formatTypeDisplay(schema) {
     }
 
     return `${itemType}[]`;
+  }
+
+  // Handle direct schema references
+  if (schema.$ref) {
+    const refParts = schema.$ref.split("/");
+    const typeName = refParts[refParts.length - 1];
+    return typeName;
   }
 
   return schema.type;
@@ -6916,6 +7341,7 @@ window.formatTypeDisplay = formatTypeDisplay;
 window.toggleEndpointsSection = toggleEndpointsSection;
 window.recalculateEndpointContainerHeight = recalculateEndpointContainerHeight;
 
+
 /* js/rightPanel.js */
 // Right panel and API interaction functionality
 
@@ -7766,6 +8192,7 @@ function setupResponseEditor(container) {
   }, 100);
 }
 
+
 /* js/viewModes.js */
 // Functions for handling different view modes (list/tree)
 
@@ -8146,6 +8573,7 @@ function buildTreeView(operations, container) {
 }
 
 // Functions are now globally available
+
 
 /* js/auth.js */
 // Authentication module for security schemes
@@ -10091,6 +10519,7 @@ window.auth = {
   autoSelectRequiredScheme,
 };
 
+
 /* js/favorites.js */
 // Favorites functionality for API endpoints
 /**
@@ -10628,6 +11057,7 @@ window.favorites = {
   createFavoriteHeartIcon,
   updateFavoritesUI,
 };
+
 
 /* js/variables.js */
 // Variables management functionality
@@ -12167,6 +12597,7 @@ window.monacoVariableHighlighting = {
   },
 };
 
+
 /* js/rightPanelHandlers.js */
 // Right panel event handlers
 
@@ -12509,6 +12940,7 @@ if (document.readyState === "loading") {
   window.initVerticalMenu();
 }
 
+
 /* js/responseDetailsHandler.js */
 // Response details handler
 
@@ -12579,6 +13011,7 @@ window.responseDetails = {
   updateResponseDetails,
   initResponseDetailsHandlers,
 };
+
 
 /* js/executeButtonHandler.js */
 // Initialize the execute request button
@@ -12908,6 +13341,7 @@ function initExecuteRequestButton() {
 // Export the function
 window.initExecuteRequestButton = initExecuteRequestButton;
 
+
 /* js/responseDisplayHandler.js */
 // Function to display actual API response
 function displayActualResponse(
@@ -13087,6 +13521,7 @@ function setupResponseEditor(container) {
 // Make functions available globally
 window.displayActualResponse = displayActualResponse;
 window.setupResponseEditor = setupResponseEditor;
+
 
 /* js/eventHandlers.js */
 // DOM event handlers and initialization
@@ -13796,6 +14231,7 @@ function updateExecuteButtonColor(method) {
 window.updateExecuteButtonColor = updateExecuteButtonColor;
 window.navigateToEndpointFromHash = navigateToEndpointFromHash;
 
+
 /* js/collectionRunner.js */
 // Collection Runner module
 // Provides functionality similar to Postman's Collection Runner
@@ -14421,6 +14857,7 @@ window.CollectionRunner = class CollectionRunner {
 // Create a singleton instance
 window.collectionRunner =
   window.collectionRunner || new window.CollectionRunner();
+
 
 /* js/collectionRunnerUI.js */
 // Collection Runner UI Implementation for the right panel  // Define a global CollectionRunnerUI class
@@ -18083,6 +18520,7 @@ window.CollectionRunnerUI = class CollectionRunnerUI {
   }
 };
 
+
 /* js/scrollToTop.js */
 /**
  * Scroll to top functionality for the main content area
@@ -18164,6 +18602,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+
 /* js/app.js */
 // Main application file
 // All modules are now loaded separately in index.html
@@ -18228,3 +18667,5 @@ document.addEventListener("swaggerDataLoaded", () => {
     window.favorites.updateFavoritesUI();
   }
 });
+
+
