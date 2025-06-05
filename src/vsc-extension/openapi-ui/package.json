@@ -68,27 +68,12 @@
     "menus": {
       "view/title": [
         {
-          "command": "openapi-ui.openView",
-          "when": "view == openapi-ui-sidebar",
-          "group": "navigation"
-        },
-        {
           "command": "openapi-ui.addSource",
-          "when": "view == openapi-ui-sidebar",
-          "group": "navigation"
-        },
-        {
-          "command": "openapi-ui.refreshSources",
           "when": "view == openapi-ui-sidebar",
           "group": "navigation"
         }
       ],
       "view/item/context": [
-        {
-          "command": "openapi-ui.loadSource",
-          "when": "view == openapi-ui-sidebar && viewItem == openapi-source",
-          "group": "inline"
-        },
         {
           "command": "openapi-ui.removeSource",
           "when": "view == openapi-ui-sidebar && viewItem == openapi-source",
@@ -101,6 +86,9 @@
         },
         {
           "command": "openapi-ui.addSource"
+        },
+        {
+          "command": "openapi-ui.loadSource"
         }
       ]
     }

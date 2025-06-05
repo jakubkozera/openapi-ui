@@ -11,11 +11,10 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Initialize tree data provider
   const treeDataProvider = new OpenAPITreeDataProvider(storage);
-
   // Register tree view
   const treeView = vscode.window.createTreeView("openapi-ui-sidebar", {
     treeDataProvider: treeDataProvider,
-    showCollapseAll: true,
+    showCollapseAll: false,
   });
   context.subscriptions.push(treeView);
 
@@ -109,30 +108,91 @@ export function activate(context: vscode.ExtensionContext) {
       treeDataProvider.refresh();
       vscode.window.showInformationMessage("Refreshed OpenAPI sources");
     }
-  );
-  // Register command to load source (placeholder for future implementation)
+  ); // Register command to load source
   let loadSourceDisposable = vscode.commands.registerCommand(
     "openapi-ui.loadSource",
-    async (source: OpenAPISource) => {
-      const panel = vscode.window.createWebviewPanel(
-        "openapiSourceUI",
-        `OpenAPI UI - ${source.name}`,
-        vscode.ViewColumn.One,
-        {
-          enableScripts: true,
-          localResourceRoots: [
-            vscode.Uri.file(
-              path.join(context.extensionPath, "..", "..", "core", "dist")
-            ),
-          ],
-        }
-      );
+    async (sourceId?: string) => {
+      let selectedSourceId = sourceId;
 
-      panel.webview.html = getWebviewContent(
-        panel.webview,
-        context.extensionPath,
-        source.url
-      );
+      // If no source ID provided, show selection dialog
+      if (!selectedSourceId) {
+        const sources = storage.getSources();
+
+        if (sources.length === 0) {
+          vscode.window
+            .showInformationMessage(
+              "No OpenAPI sources available. Add a source first.",
+              "Add Source"
+            )
+            .then((selection) => {
+              if (selection === "Add Source") {
+                vscode.commands.executeCommand("openapi-ui.addSource");
+              }
+            });
+          return;
+        }
+
+        // Create quick pick items
+        const quickPickItems = sources.map((source) => ({
+          label: source.name,
+          description: source.url,
+          detail: `Created: ${source.createdAt.toLocaleString()}`,
+          sourceId: source.id,
+        }));
+
+        const selectedItem = await vscode.window.showQuickPick(quickPickItems, {
+          placeHolder: "Select an OpenAPI source to load",
+          matchOnDescription: true,
+          matchOnDetail: true,
+        });
+
+        if (!selectedItem) {
+          return; // User cancelled selection
+        }
+
+        selectedSourceId = selectedItem.sourceId;
+      }
+
+      const source = storage.getSource(selectedSourceId);
+      if (!source) {
+        vscode.window.showErrorMessage("OpenAPI source not found");
+        return;
+      }
+
+      if (!source.name || !source.url) {
+        vscode.window.showErrorMessage("Invalid OpenAPI source data");
+        return;
+      }
+
+      try {
+        const panel = vscode.window.createWebviewPanel(
+          "openapiSourceUI",
+          `OpenAPI UI - ${source.name}`,
+          vscode.ViewColumn.One,
+          {
+            enableScripts: true,
+            localResourceRoots: [
+              vscode.Uri.file(
+                path.join(context.extensionPath, "..", "..", "core", "dist")
+              ),
+            ],
+          }
+        );
+
+        panel.webview.html = getWebviewContent(
+          panel.webview,
+          context.extensionPath,
+          source.url
+        );
+
+        vscode.window.showInformationMessage(
+          `Loaded OpenAPI source: ${source.name}`
+        );
+      } catch (error) {
+        vscode.window.showErrorMessage(
+          `Failed to load OpenAPI source: ${error}`
+        );
+      }
     }
   );
   context.subscriptions.push(

@@ -22,11 +22,9 @@ export class OpenAPITreeDataProvider
   refresh(): void {
     this._onDidChangeTreeData.fire();
   }
-
   getTreeItem(element: OpenAPITreeItem): vscode.TreeItem {
     return element;
   }
-
   getChildren(element?: OpenAPITreeItem): Thenable<OpenAPITreeItem[]> {
     if (!element) {
       // Root level - return all sources
@@ -51,17 +49,15 @@ export class OpenAPITreeItem extends vscode.TreeItem {
     this.tooltip = `${source.name}\n${
       source.url
     }\nCreated: ${source.createdAt.toLocaleString()}`;
-    this.description = source.url;
+    this.description = undefined;
     this.contextValue = "openapi-source";
 
     // Add icons
-    this.iconPath = new vscode.ThemeIcon("globe");
-
-    // Add command to load the source when clicked (for future implementation)
+    this.iconPath = new vscode.ThemeIcon("globe"); // Add command to load the source when clicked
     this.command = {
       command: "openapi-ui.loadSource",
       title: "Load OpenAPI Source",
-      arguments: [source],
+      arguments: [source.id],
     };
   }
 }
