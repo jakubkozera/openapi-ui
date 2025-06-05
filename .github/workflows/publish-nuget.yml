@@ -142,8 +142,14 @@ jobs:
 
       - name: Validate NuGet package
         run: |
-          $package = Get-ChildItem "${{ env.NuGetDirectory }}/*.nupkg" | Select-Object -First 1
-          meziantou.validate-nuget-package $package.FullName --exclude-rule 111
+          $package = Get-ChildItem "${{ env.NuGetDirectory }}/*.nupkg" | Where-Object { $_.Name -notlike "*.symbols.nupkg" } | Select-Object -First 1
+          if ($package) {
+            Write-Host "Validating package: $($package.Name)"
+            meziantou.validate-nuget-package "$($package.FullName)" --exclude-rule "111"
+          } else {
+            Write-Host "No package found to validate"
+            exit 1
+          }
 
   deploy:
     runs-on: ubuntu-latest
