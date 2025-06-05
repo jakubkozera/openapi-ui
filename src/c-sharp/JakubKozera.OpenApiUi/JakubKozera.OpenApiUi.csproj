@@ -13,16 +13,21 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
-    <!-- Symbols + SourceLink -->
+    <!-- PDB + SourceLink -->
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <IncludeSymbols>true</IncludeSymbols>
     <IncludeSource>true</IncludeSource>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
+    <!-- XML docs -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- SourceLink -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>false</EmbedUntrackedSources>
     <Deterministic>true</Deterministic>
+
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
 
