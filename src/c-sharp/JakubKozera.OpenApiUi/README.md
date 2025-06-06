@@ -32,7 +32,7 @@ No installation required - just open the link and start exploring!
 - 🔐 **Authentication Options** - Built-in support for various authentication schemes (Bearer Token, Basic Auth, API Key, OAuth2, OpenID Connect)
 - **Real-time Response Viewing** - Immediate feedback with formatted response data
 
-![OpenAI UI overview](../../../readme-assets/openapi-ui-overview.png)
+![OpenAI UI overview](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/openapi-ui-overview.png)
 
 ### Advanced Features
 
@@ -40,18 +40,18 @@ No installation required - just open the link and start exploring!
 
 - 🏃 **Collection Runner** - Execute multiple API requests in sequence for testing workflows
 
-![collection-runner](../../../readme-assets/collection-runner.png)
+![collection-runner](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/collection-runner.png)
 
 - Variable extraction and chaining between requests
 
-![variable-definition](../../../readme-assets/variable-definition.png)
-![variable-usage](../../../readme-assets/variable-usage.png)
-![variable-usage-request-body](../../../readme-assets/variable-usage-request-body.png)
+![variable-definition](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/variable-definition.png)
+![variable-usage](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/variable-usage.png)
+![variable-usage-request-body](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/variable-usage-request-body.png)
 
 - **Output Parameters** - Extract values from responses for reuse
 
-![output-parameters-definition](../../../readme-assets/output-parameters-definition.png)
-![output-parameters-usage](../../../readme-assets/output-parameters-usage.png)
+![output-parameters-definition](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/output-parameters-definition.png)
+![output-parameters-usage](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/output-parameters-usage.png)
 
 ## Installation
 
