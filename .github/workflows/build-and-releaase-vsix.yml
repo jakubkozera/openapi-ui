@@ -3,7 +3,7 @@ name: Build and Release Extension
 on:
   push:
     tags:
-      - "v*"
+      - "vsc/v*"
   workflow_dispatch:
     inputs:
       release_type:
