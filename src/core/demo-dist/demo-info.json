@@ -10,16 +10,16 @@
   ],
   "sampleSpecs": [
     {
-      "file": "sample-api.json",
-      "title": "Demonstration API",
-      "version": "1.0.0",
-      "description": "A comprehensive API specification to demonstrate various OpenAPI 3.0.0 features for UI rendering testing."
-    },
-    {
       "file": "files.json",
       "title": "File Management API",
       "version": "1.0.0",
       "description": "An API for uploading and downloading files with validation rules."
+    },
+    {
+      "file": "sample-api.json",
+      "title": "Demonstration API",
+      "version": "1.0.0",
+      "description": "A comprehensive API specification to demonstrate various OpenAPI 3.0.0 features for UI rendering testing."
     },
     {
       "file": "test-security-swagger.json",
@@ -28,5 +28,5 @@
       "description": "A comprehensive test API demonstrating all supported OpenAPI security schemes"
     }
   ],
-  "buildDate": "2025-06-03T08:20:58.635Z"
+  "buildDate": "2025-06-05T12:46:56.758Z"
 }

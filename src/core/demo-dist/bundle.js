@@ -44,6 +44,7 @@ function getBaseUrl() {
   return baseUrl;
 }
 
+
 /* js/themeManager.js */
 // Theme Management System
 // Supports multiple themes with easy extensibility
@@ -509,6 +510,7 @@ function initThemeManager() {
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { ThemeManager, initThemeManager };
 }
+
 
 /* js/utils.js */
 // Utility functions used across the application
@@ -1078,6 +1080,7 @@ window.utils = {
   },
 };
 
+
 /* js/tooltip.js */
 // Custom tooltip handlers
 
@@ -1166,6 +1169,7 @@ function handleTooltipMouseLeave(e) {
 }
 
 // All functions are now globally available
+
 
 /* js/monacoSetup.js */
 // Monaco Editor setup and initialization
@@ -1337,6 +1341,7 @@ window.monacoSetup = {
   setupMonacoThemeListener,
   getMonacoThemeForCurrentTheme,
 };
+
 
 /* js/codeSnippets.js */
 // Code Snippets Generator for API Documentation
@@ -1616,6 +1621,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initCodeSnippetFunctionality();
 });
 
+
 /* js/codeSnippetTabs.js */
 // Code Snippet Tabs functionality
 
@@ -1716,6 +1722,7 @@ if (document.readyState === "loading") {
 } else {
   initCodeSnippetTabs();
 }
+
 
 /* js/codeApiGenerators/csharpApiClientGenerator.js */
 // C# API Client Generator for openapi-ui
@@ -2325,6 +2332,7 @@ window.createCSharpApiGenerator = function (options = {}) {
   }
   return generator;
 };
+
 
 /* js/codeApiGenerators/javascriptApiClientGenerator.js */
 // JavaScript API Client Generator for openapi-ui
@@ -3091,6 +3099,7 @@ window.createJavaScriptApiGenerator = function (options = {}) {
   return generator;
 };
 
+
 /* js/apiClientOptions.js */
 // API Client Options Manager
 class ApiClientOptionsManager {
@@ -3433,6 +3442,7 @@ window.getApiClientOptions = function (language) {
   }
   return {};
 };
+
 
 /* js/apiClientGeneration.js */
 // API Client Generation functionality
@@ -3863,6 +3873,7 @@ if (document.readyState === "loading") {
   tryInitApiClient();
 }
 
+
 /* js/serverSelector.js */
 // Server selector functionality for OpenAPI servers property
 
@@ -4196,6 +4207,7 @@ window.serverSelector = {
     resolvedServerUrls[currentServerIndex]?.url || window.location.origin,
 };
 
+
 /* js/apiLoader.js */
 // Functions to load and parse Swagger data
 // All dependencies are now loaded globally
@@ -4302,6 +4314,7 @@ async function loadSwaggerSpec(swaggerJsonUrl) {
 }
 
 // Function is now globally available
+
 
 /* js/exampleGenerator.js */
 // Schema example generation functions
@@ -4733,6 +4746,7 @@ function validateValue(value, schema, components, path = "") {
 }
 
 // Functions are now globally available
+
 
 /* js/httpVerbFilter.js */
 // HTTP Verb Filter functionality
@@ -5266,6 +5280,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
+
 /* js/sidebarHandler.js */
 // Function to filter sidebar navigation based on search term
 function filterSidebar(searchTerm) {
@@ -5509,6 +5524,7 @@ function buildSidebar() {
 
 // Functions are now globally available
 
+
 /* js/sidebarToggle.js */
 // Module to handle opening/closing sidebars on small screens with enhanced animations
 function initSidebarToggle() {
@@ -5619,6 +5635,7 @@ if (document.readyState === "loading") {
   initSidebarToggle();
 }
 
+
 /* js/sidebarExpand.js */
 // Enhanced sidebar functionality - ensures endpoints sections collapse and expand properly
 document.addEventListener("DOMContentLoaded", function () {
@@ -5681,11 +5698,18 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
+
 /* js/mainContentBuilder.js */
 // Functions to build main content area
 
 // Helper function to format type names, especially for arrays
 function formatTypeDisplay(schema) {
+  // Use the enhanced version if available, fallback to basic version
+  if (window.formatTypeDisplayWithPopovers) {
+    return window.formatTypeDisplayWithPopovers(schema);
+  }
+
+  // Fallback implementation for when popovers aren't loaded
   if (!schema || !schema.type) return "unknown";
 
   if (schema.type === "array" && schema.items) {
@@ -5701,6 +5725,13 @@ function formatTypeDisplay(schema) {
     }
 
     return `${itemType}[]`;
+  }
+
+  // Handle direct schema references
+  if (schema.$ref) {
+    const refParts = schema.$ref.split("/");
+    const typeName = refParts[refParts.length - 1];
+    return typeName;
   }
 
   return schema.type;
@@ -6916,6 +6947,7 @@ window.formatTypeDisplay = formatTypeDisplay;
 window.toggleEndpointsSection = toggleEndpointsSection;
 window.recalculateEndpointContainerHeight = recalculateEndpointContainerHeight;
 
+
 /* js/rightPanel.js */
 // Right panel and API interaction functionality
 
@@ -7766,6 +7798,7 @@ function setupResponseEditor(container) {
   }, 100);
 }
 
+
 /* js/viewModes.js */
 // Functions for handling different view modes (list/tree)
 
@@ -8146,6 +8179,7 @@ function buildTreeView(operations, container) {
 }
 
 // Functions are now globally available
+
 
 /* js/auth.js */
 // Authentication module for security schemes
@@ -10091,6 +10125,7 @@ window.auth = {
   autoSelectRequiredScheme,
 };
 
+
 /* js/favorites.js */
 // Favorites functionality for API endpoints
 /**
@@ -10628,6 +10663,7 @@ window.favorites = {
   createFavoriteHeartIcon,
   updateFavoritesUI,
 };
+
 
 /* js/variables.js */
 // Variables management functionality
@@ -12167,6 +12203,7 @@ window.monacoVariableHighlighting = {
   },
 };
 
+
 /* js/rightPanelHandlers.js */
 // Right panel event handlers
 
@@ -12509,6 +12546,7 @@ if (document.readyState === "loading") {
   window.initVerticalMenu();
 }
 
+
 /* js/responseDetailsHandler.js */
 // Response details handler
 
@@ -12579,6 +12617,7 @@ window.responseDetails = {
   updateResponseDetails,
   initResponseDetailsHandlers,
 };
+
 
 /* js/executeButtonHandler.js */
 // Initialize the execute request button
@@ -12908,6 +12947,7 @@ function initExecuteRequestButton() {
 // Export the function
 window.initExecuteRequestButton = initExecuteRequestButton;
 
+
 /* js/responseDisplayHandler.js */
 // Function to display actual API response
 function displayActualResponse(
@@ -13087,6 +13127,7 @@ function setupResponseEditor(container) {
 // Make functions available globally
 window.displayActualResponse = displayActualResponse;
 window.setupResponseEditor = setupResponseEditor;
+
 
 /* js/eventHandlers.js */
 // DOM event handlers and initialization
@@ -13796,6 +13837,7 @@ function updateExecuteButtonColor(method) {
 window.updateExecuteButtonColor = updateExecuteButtonColor;
 window.navigateToEndpointFromHash = navigateToEndpointFromHash;
 
+
 /* js/collectionRunner.js */
 // Collection Runner module
 // Provides functionality similar to Postman's Collection Runner
@@ -14421,6 +14463,7 @@ window.CollectionRunner = class CollectionRunner {
 // Create a singleton instance
 window.collectionRunner =
   window.collectionRunner || new window.CollectionRunner();
+
 
 /* js/collectionRunnerUI.js */
 // Collection Runner UI Implementation for the right panel  // Define a global CollectionRunnerUI class
@@ -18083,6 +18126,7 @@ window.CollectionRunnerUI = class CollectionRunnerUI {
   }
 };
 
+
 /* js/scrollToTop.js */
 /**
  * Scroll to top functionality for the main content area
@@ -18163,6 +18207,7 @@ document.addEventListener("DOMContentLoaded", () => {
     new ScrollToTop();
   }
 });
+
 
 /* js/demoMode.js */
 // Demo Mode functionality for OpenAPI UI
@@ -18646,6 +18691,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // Make it globally available
 window.DemoMode = DemoMode;
 
+
 /* js/app.js */
 // Main application file
 // All modules are now loaded separately in index.html
@@ -18710,3 +18756,5 @@ document.addEventListener("swaggerDataLoaded", () => {
     window.favorites.updateFavoritesUI();
   }
 });
+
+
