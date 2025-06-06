@@ -2,7 +2,7 @@
   "name": "openapi-ui",
   "displayName": "OpenAPI UI",
   "description": "OpenAPI UI viewer for VS Code",
-  "version": "1.0.0",
+  "version": "1.0.10",
   "publisher": "JakubKozera",
   "icon": "openapi-ui.png",
   "repository": {
