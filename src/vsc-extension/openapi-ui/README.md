@@ -46,7 +46,7 @@ A powerful Visual Studio Code extension that provides an intuitive interface for
    - Click on any source in the sidebar to load it
    - The OpenAPI specification will open in the main editor area
 
-![vscode-extension](vscode-extension.png)
+![vscode-extension](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/src/vsc-extension/openapi-ui/vscode-extension.png)
 
 ## Features
 
