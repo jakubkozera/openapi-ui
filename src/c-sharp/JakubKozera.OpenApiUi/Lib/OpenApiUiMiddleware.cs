@@ -17,24 +17,31 @@ namespace JakubKozera.OpenApiUi
         /// This middleware serves an embedded OpenAPI documentation interface.
         /// </summary>
         /// <param name="app">The application builder instance.</param>
-        /// <param name="openApiSpecPath">The path to the OpenAPI specification JSON file. Defaults to "/swagger/v1/swagger.json".</param>
+        /// <param name="configuration">The OpenAPI UI configuration options.</param>
         /// <returns>The application builder instance for method chaining.</returns>
-        public static IApplicationBuilder UseOpenApiUi(this IApplicationBuilder app, string openApiSpecPath = "/swagger/v1/swagger.json")
+        public static IApplicationBuilder UseOpenApiUi(this IApplicationBuilder app, OpenApiUiConfiguration configuration)
         {
-            var assembly = Assembly.GetExecutingAssembly(); var embeddedProvider = new EmbeddedFileProvider(assembly, "JakubKozera.OpenApiUi.openapi-ui");
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration));
+
+            var assembly = Assembly.GetExecutingAssembly();
+            var embeddedProvider = new EmbeddedFileProvider(assembly, "JakubKozera.OpenApiUi.openapi-ui");
+
+            // Use the configurable UI path for serving static files
+            var requestPath = $"/{configuration.OpenApiUiPath.TrimStart('/')}";
 
             app.UseStaticFiles(new StaticFileOptions
             {
                 FileProvider = embeddedProvider,
-                RequestPath = "/openapi-ui",
+                RequestPath = requestPath,
                 ServeUnknownFileTypes = true
             });
 
             app.Use(async (context, next) =>
             {
-                var requestPath = context.Request.Path.Value;
+                var currentPath = context.Request.Path.Value;
 
-                if (context.Request.Path == "/openapi-ui" || context.Request.Path == "/openapi-ui/")
+                if (context.Request.Path == requestPath || context.Request.Path == $"{requestPath}/")
                 {
                     var fileInfo = embeddedProvider.GetFileInfo("index.html");
 
@@ -47,12 +54,13 @@ namespace JakubKozera.OpenApiUi
                             var content = await reader.ReadToEndAsync();
 
                             // Replace the placeholder with the actual OpenAPI spec path
-                            var originalContent = content;
-                            content = content.Replace("#swagger_path#", openApiSpecPath);
+                            content = content.Replace("#swagger_path#", configuration.OpenApiSpecPath);
 
-                            content = content.Replace("bundle.css", "openapi-ui/bundle.css");
-                            content = content.Replace("bundle.js", "openapi-ui/bundle.js");
-                            content = content.Replace("openapi-ui.png", "openapi-ui/openapi-ui.png");
+                            // Update resource paths to use the configurable UI path
+                            var uiPath = configuration.OpenApiUiPath.TrimStart('/');
+                            content = content.Replace("bundle.css", $"{uiPath}/bundle.css");
+                            content = content.Replace("bundle.js", $"{uiPath}/bundle.js");
+                            content = content.Replace("openapi-ui.png", $"{uiPath}/openapi-ui.png");
 
                             context.Response.ContentType = "text/html";
                             await context.Response.WriteAsync(content);
@@ -79,5 +87,14 @@ namespace JakubKozera.OpenApiUi
 
             return app;
         }
+
+        /// <summary>
+        /// Adds OpenAPI UI middleware to the ASP.NET Core application pipeline with default configuration.
+        /// This middleware serves an embedded OpenAPI documentation interface.
+        /// </summary>
+        /// <param name="app">The application builder instance.</param>
+        /// <returns>The application builder instance for method chaining.</returns>
+        public static IApplicationBuilder UseOpenApiUi(this IApplicationBuilder app)
+            => UseOpenApiUi(app, new OpenApiUiConfiguration());
     }
 }
