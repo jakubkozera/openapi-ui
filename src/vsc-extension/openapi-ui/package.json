@@ -2,7 +2,8 @@
   "name": "openapi-ui",
   "displayName": "OpenAPI UI",
   "description": "OpenAPI UI viewer for VS Code",
-  "version": "0.0.1",
+  "version": "1.0.0",
+  "publisher": "JakubKozera",
   "icon": "openapi-ui.png",
   "repository": {
     "type": "git",
@@ -12,7 +13,8 @@
     "vscode": "^1.100.0"
   },
   "categories": [
-    "Other"
+    "Other",
+    "Formatters"
   ],
   "activationEvents": [],
   "main": "./dist/extension.js",
