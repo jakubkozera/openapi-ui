@@ -29,9 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
         {
           enableScripts: true,
           localResourceRoots: [
-            vscode.Uri.file(
-              path.join(context.extensionPath, "..", "..", "core", "dist")
-            ),
+            vscode.Uri.file(path.join(context.extensionPath, "core-dist")),
           ],
         }
       );
@@ -172,9 +170,7 @@ export function activate(context: vscode.ExtensionContext) {
           {
             enableScripts: true,
             localResourceRoots: [
-              vscode.Uri.file(
-                path.join(context.extensionPath, "..", "..", "core", "dist")
-              ),
+              vscode.Uri.file(path.join(context.extensionPath, "core-dist")),
             ],
           }
         );
@@ -212,7 +208,7 @@ function getWebviewContent(
   openapiUrl?: string
 ): string {
   // Path to the core/dist directory
-  const distPath = path.join(extensionPath, "..", "..", "core", "dist");
+  const distPath = path.join(extensionPath, "core-dist");
   const htmlPath = path.join(distPath, "index.html");
 
   try {
