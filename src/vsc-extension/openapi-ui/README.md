@@ -1,71 +1,94 @@
-# openapi-ui README
+# OpenAPI UI - VS Code Extension
 
-This is the README for your extension "openapi-ui". After writing up a brief description, we recommend including the following sections.
+A powerful Visual Studio Code extension that provides an intuitive interface for viewing and managing OpenAPI specifications directly within your development environment.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- 🔍 **OpenAPI Viewer**: Interactive UI for browsing OpenAPI specifications
+- 📁 **Source Management**: Add, remove, and organize multiple OpenAPI sources
+- 🌐 **URL Support**: Load OpenAPI specs from remote URLs or local files
+- 🎯 **Activity Bar Integration**: Dedicated sidebar for quick access to your API sources
+- ⚡ **Real-time Loading**: Dynamic loading of OpenAPI specifications
+- 🔄 **Refresh Support**: Update your API sources on demand
 
-For example if there is an image subfolder under your extension project workspace:
+## Installation
 
-\!\[feature X\]\(images/feature-x.png\)
+### From VS Code Marketplace
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+1. Open VS Code
+2. Go to Extensions (Ctrl+Shift+X)
+3. Search for "OpenAPI UI"
+4. Click Install
 
-## Requirements
+### Manual Installation
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+1. Clone this repository
+2. Navigate to the extension directory
+3. Run `npm install` to install dependencies
+4. Press `F5` to launch a new Extension Development Host window
 
-## Extension Settings
+## Usage
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+### Getting Started
 
-For example:
+1. **Open the OpenAPI UI Panel**
 
-This extension contributes the following settings:
+   - Click on the OpenAPI UI icon in the Activity Bar
+   - Or use Command Palette (Ctrl+Shift+P) and search for "Open OpenAPI UI"
 
-* `myExtension.enable`: Enable/disable this extension.
-* `myExtension.thing`: Set to `blah` to do something.
+2. **Add an OpenAPI Source**
 
-## Known Issues
+   - Click the "+" button in the OpenAPI Sources panel
+   - Enter a name for your API source
+   - Provide the URL or file path to your OpenAPI specification
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+3. **View Your API**
+   - Click on any source in the sidebar to load it
+   - The OpenAPI specification will open in the main editor area
 
-## Release Notes
+![vscode-extension](vscode-extension.png)
 
-Users appreciate release notes as you update your extension.
+## Features
 
-### 1.0.0
+- 🚀 **Easy Integration** - Simple one-line setup in your ASP.NET Core application
+- 📱 **Modern UI** - Clean, responsive interface for API documentation
+- 🔍 **Easy Navigation** - Search and filter options for quick endpoint discovery
+- 📋 **Comprehensive Endpoint Documentation** - Detailed API docs with requirements, parameters, and schemas
+- ⚡ **Try It Out Section** - Interactive API testing directly from the documentation
+- 🔐 **Authentication Options** - Built-in support for various authentication schemes (Bearer Token, Basic Auth, API Key, OAuth2, OpenID Connect)
+- **Real-time Response Viewing** - Immediate feedback with formatted response data
 
-Initial release of ...
+![OpenAI UI overview](../../../readme-assets/openapi-ui-overview.png)
 
-### 1.0.1
+### Advanced Features
 
-Fixed issue #.
+#### 🏃‍♂️ Collection Runner (Postman-like)
 
-### 1.1.0
+- 🏃 **Collection Runner** - Execute multiple API requests in sequence for testing workflows
 
-Added features X, Y, and Z.
+![collection-runner](../../../readme-assets/collection-runner.png)
 
----
+- Variable extraction and chaining between requests
 
-## Following extension guidelines
+![variable-definition](../../../readme-assets/variable-definition.png)
+![variable-usage](../../../readme-assets/variable-usage.png)
+![variable-usage-request-body](../../../readme-assets/variable-usage-request-body.png)
 
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
+- **Output Parameters** - Extract values from responses for reuse
 
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
+![output-parameters-definition](../../../readme-assets/output-parameters-definition.png)
+![output-parameters-usage](../../../readme-assets/output-parameters-usage.png)
 
-## Working with Markdown
+## Configuration
 
-You can author your README using Visual Studio Code. Here are some useful editor keyboard shortcuts:
+The extension stores your OpenAPI sources locally using VS Code's workspace storage. No external configuration is required.
 
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux).
-* Toggle preview (`Shift+Cmd+V` on macOS or `Shift+Ctrl+V` on Windows and Linux).
-* Press `Ctrl+Space` (Windows, Linux, macOS) to see a list of Markdown snippets.
+## Supported OpenAPI Versions
 
-## For more information
+- OpenAPI 3.0.x
+- OpenAPI 3.1.x
+- Swagger 2.0 (partial support)
 
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
+## License
 
-**Enjoy!**
+This project is licensed under the MIT License - see the LICENSE file for details.
