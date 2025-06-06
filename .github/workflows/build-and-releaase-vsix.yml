@@ -5,22 +5,12 @@ on:
     tags:
       - "vsc/v*"
   workflow_dispatch:
-    inputs:
-      release_type:
-        description: "Release type"
-        required: true
-        default: "patch"
-        type: "choice"
-        options:
-          - patch
-          - minor
-          - major
 
 permissions:
   contents: write # This is needed to create releases
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -33,45 +23,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 20
+
       - name: Install dependencies
         run: npm ci
 
       - name: Copy assets
         run: cp -r ../../core/dist ./core-dist
-
-      - name: Compile
-        run: npm run compile
-
-      - name: Package Extension
-        if: success()
-        run: |
-          npm install -g @vscode/vsce
-          vsce package
-
-      - name: Upload VSIX as artifact
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: openapi-ui-vsix
-          path: "src/vsc-extension/openapi-ui/*.vsix"
-          retention-days: 30
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: src/vsc-extension/openapi-ui
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm ci
 
       - name: Package Extension
         run: |
