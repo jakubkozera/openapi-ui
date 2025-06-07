@@ -35,6 +35,22 @@ builder.Services.AddSwaggerGen(c =>
         BearerFormat = "JWT",
         Description = "Enter your JWT token in the format: Bearer {your_token}"
     });
+
+    // Add global security requirement - endpoints can opt out with [AllowAnonymous]
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
 });
 
 // Register custom services - using direct instantiation as workaround
