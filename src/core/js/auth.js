@@ -371,7 +371,7 @@ function startExpirationCheck() {
         clearAccessToken(schemeKey);
       }
     });
-  }, 1000); // Check every second
+  }, 5000); // Check 5 seconds
 }
 
 // Helper function to check if a scheme is authenticated
