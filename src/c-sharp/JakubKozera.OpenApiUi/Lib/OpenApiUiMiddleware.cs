@@ -51,10 +51,12 @@ namespace JakubKozera.OpenApiUi
                         {
                             using var stream = fileInfo.CreateReadStream();
                             using var reader = new StreamReader(stream);
-                            var content = await reader.ReadToEndAsync();
-
-                            // Replace the placeholder with the actual OpenAPI spec path
+                            var content = await reader.ReadToEndAsync();                            // Replace the placeholder with the actual OpenAPI spec path
                             content = content.Replace("#swagger_path#", configuration.OpenApiSpecPath);
+
+                            // Replace the base URL placeholder with the current host
+                            var baseUrl = $"{context.Request.Scheme}://{context.Request.Host}";
+                            content = content.Replace("#base_url#", baseUrl);
 
                             // Update resource paths to use the configurable UI path
                             var uiPath = configuration.OpenApiUiPath.TrimStart('/');

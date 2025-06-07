@@ -1,7 +1,7 @@
 // Global configuration and state variables
 
 // API Base URL and other state variables
-let baseUrl = "https://localhost:7030/";
+let baseUrl = window.baseUrl;
 window.swaggerData = null;
 let currentPath = null; // Store the current path
 let currentMethod = null; // Store the current method
