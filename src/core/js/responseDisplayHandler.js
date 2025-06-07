@@ -94,7 +94,7 @@ function displayActualResponse(
   if (headersList && response.headers) {
     let formattedHeaders = "";
     response.headers.forEach((value, name) => {
-      formattedHeaders += `<div class="py-1 border-b border-gray-600 last:border-0">
+      formattedHeaders += `<div class="border-b border-gray-600 last:border-0">
         <span class="font-semibold text-gray-300">${name}:</span> 
         <span class="text-gray-400">${value}</span>
       </div>`;

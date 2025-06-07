@@ -19,7 +19,7 @@ function endTiming() {
 function formatHeaders(headers) {
   let formatted = "";
   headers.forEach((value, name) => {
-    formatted += `<div class="text-sm py-1 border-b border-gray-600 last:border-0">
+    formatted += `<div class="text-sm border-b border-gray-600 last:border-0">
             <span class="font-semibold text-gray-300">${name}:</span> 
             <span class="text-gray-400">${value}</span>
         </div>`;
