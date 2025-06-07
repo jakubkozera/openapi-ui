@@ -1,0 +1,116 @@
+### Articles API Test Requests
+
+@baseUrl = http://localhost:5120
+@token = {{auth_login.response.body.token}}
+
+### 1. Login as admin
+# @name auth_login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "login": "admin",
+  "password": "admin123"
+}
+
+### 2. Get current user info (requires token from login)
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{token}}
+
+### 3. Get all articles (public endpoint with pagination)
+GET {{baseUrl}}/api/articles?page=1&pageSize=5
+
+### 4. Get articles with search filter
+GET {{baseUrl}}/api/articles?search=aspnet&page=1&pageSize=10
+
+### 5. Get articles by tag
+GET {{baseUrl}}/api/articles?tag=tutorial
+
+### 6. Get articles by author
+GET {{baseUrl}}/api/articles?authorLogin=admin
+
+### 7. Get specific article by ID
+GET {{baseUrl}}/api/articles/1
+
+### 8. Get all available tags
+GET {{baseUrl}}/api/articles/tags
+
+### 9. Create new article (requires authentication)
+POST {{baseUrl}}/api/articles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Testing API with REST Client",
+  "content": "This article was created using the REST client to test the API functionality. It demonstrates how to create new articles through the API with proper authentication and validation.",
+  "summary": "An article created via API testing",
+  "tags": ["api", "testing", "rest"],
+  "isPublished": true
+}
+
+### 10. Get my articles (requires authentication)
+GET {{baseUrl}}/api/articles/my
+Authorization: Bearer {{token}}
+
+### 11. Update an article (requires authentication and ownership)
+# Note: Replace {id} with actual article ID from your data
+PUT {{baseUrl}}/api/articles/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Updated: Getting Started with ASP.NET Core",
+  "content": "ASP.NET Core is a cross-platform, high-performance framework for building modern, cloud-based, Internet-connected applications. This updated guide covers the latest features and best practices for ASP.NET Core development.",
+  "summary": "An updated comprehensive guide to ASP.NET Core development",
+  "tags": ["aspnet", "core", "tutorial", "updated"],
+  "isPublished": true
+}
+
+### 12. Delete an article (requires authentication and ownership)
+# Note: Replace {id} with actual article ID you own
+DELETE {{baseUrl}}/api/articles/4
+Authorization: Bearer {{token}}
+
+### 13. Login as different user
+# @name john_login
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "login": "john.doe",
+  "password": "password123"
+}
+
+### 14. Try to update someone else's article (should fail with 403)
+PUT {{baseUrl}}/api/articles/1
+Authorization: Bearer {{john_login.response.body.token}}
+Content-Type: application/json
+
+{
+  "title": "Trying to hack someone else's article",
+  "content": "This should fail because john.doe doesn't own this article",
+  "summary": "This should not work",
+  "tags": ["hack", "fail"],
+  "isPublished": true
+}
+
+### 15. Test invalid credentials
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "login": "invalid",
+  "password": "wrong"
+}
+
+### 16. Test accessing protected endpoint without token
+POST {{baseUrl}}/api/articles
+Content-Type: application/json
+
+{
+  "title": "This should fail",
+  "content": "No authentication provided",
+  "summary": "Should return 401",
+  "tags": ["fail"],
+  "isPublished": true
+}
