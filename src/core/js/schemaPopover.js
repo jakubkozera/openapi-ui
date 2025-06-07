@@ -303,7 +303,11 @@ function initializeSchemaPopovers() {
   document.addEventListener(
     "mouseenter",
     (e) => {
-      if (e.target.classList.contains("schema-type-interactive")) {
+      if (
+        e.target &&
+        e.target.classList &&
+        e.target.classList.contains("schema-type-interactive")
+      ) {
         const schemaRef = e.target.getAttribute("data-schema-ref");
         const typeName = e.target.getAttribute("data-type-name");
         const level = parseInt(e.target.getAttribute("data-level") || "0");
@@ -315,11 +319,14 @@ function initializeSchemaPopovers() {
     },
     true
   );
-
   document.addEventListener(
     "mouseleave",
     (e) => {
-      if (e.target.classList.contains("schema-type-interactive")) {
+      if (
+        e.target &&
+        e.target.classList &&
+        e.target.classList.contains("schema-type-interactive")
+      ) {
         if (popoverTimeout) {
           clearTimeout(popoverTimeout);
           popoverTimeout = null;
@@ -330,6 +337,8 @@ function initializeSchemaPopovers() {
           if (
             currentPopover &&
             !currentPopover.matches(":hover") &&
+            e.target &&
+            e.target.matches &&
             !e.target.matches(":hover")
           ) {
             hideSchemaPopover();
@@ -339,12 +348,11 @@ function initializeSchemaPopovers() {
     },
     true
   );
-
   // Keep popover open when hovering over it
   document.addEventListener(
     "mouseenter",
     (e) => {
-      if (e.target.closest(".schema-popover")) {
+      if (e.target && e.target.closest && e.target.closest(".schema-popover")) {
         if (popoverTimeout) {
           clearTimeout(popoverTimeout);
           popoverTimeout = null;
@@ -353,13 +361,16 @@ function initializeSchemaPopovers() {
     },
     true
   );
-
   document.addEventListener(
     "mouseleave",
     (e) => {
-      if (e.target.closest(".schema-popover")) {
+      if (e.target && e.target.closest && e.target.closest(".schema-popover")) {
         setTimeout(() => {
-          if (currentPopover && !currentPopover.matches(":hover")) {
+          if (
+            currentPopover &&
+            currentPopover.matches &&
+            !currentPopover.matches(":hover")
+          ) {
             hideSchemaPopover();
           }
         }, 300);
@@ -367,12 +378,13 @@ function initializeSchemaPopovers() {
     },
     true
   );
-
   // Hide popover when clicking outside
   document.addEventListener("click", (e) => {
     if (
-      !e.target.closest(".schema-popover") &&
-      !e.target.classList.contains("schema-type-interactive")
+      e.target &&
+      (!e.target.closest || !e.target.closest(".schema-popover")) &&
+      (!e.target.classList ||
+        !e.target.classList.contains("schema-type-interactive"))
     ) {
       hideSchemaPopover();
     }
