@@ -26,6 +26,18 @@ public class AuthController : ControllerBase
     /// </summary>
     /// <param name="request">Login credentials</param>
     /// <returns>JWT token if credentials are valid</returns>
+    /// <remarks>
+    /// Sample login credentials for testing:
+    /// 
+    /// **Administrator:**
+    /// - Login: admin
+    /// - Password: admin123
+    /// 
+    /// **Regular Users:**
+    /// - Login: john.doe, Password: password123
+    /// - Login: jane.smith, Password: secret456
+    /// 
+    /// </remarks>
     /// <response code="200">Login successful, returns JWT token</response>
     /// <response code="400">Invalid request format</response>
     /// <response code="401">Invalid credentials</response>

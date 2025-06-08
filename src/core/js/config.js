@@ -2,6 +2,9 @@
 
 // API Base URL and other state variables
 let baseUrl = window.baseUrl;
+if (baseUrl === "#base_url#") {
+  baseUrl = window.location.origin;
+}
 window.swaggerData = null;
 let currentPath = null; // Store the current path
 let currentMethod = null; // Store the current method

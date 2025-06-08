@@ -5,17 +5,25 @@ namespace JakubKozera.OpenApiUi.Sample.Models;
 /// <summary>
 /// Request model for user login
 /// </summary>
+/// <example>
+/// {
+///   "login": "admin",
+///   "password": "admin123"
+/// }
+/// </example>
 public class LoginRequest
 {
     /// <summary>
     /// User login
     /// </summary>
+    /// <example>admin</example>
     [Required]
     public required string Login { get; set; }
 
     /// <summary>
     /// User password
     /// </summary>
+    /// <example>admin123</example>
     [Required]
     public required string Password { get; set; }
 }

@@ -26,6 +26,7 @@ const jsFiles = [
   "js/config.js",
   "js/themeManager.js",
   "js/utils.js",
+  "js/markdownRenderer.js",
   "js/tooltip.js",
   "js/monacoSetup.js",
   "js/codeSnippets.js",

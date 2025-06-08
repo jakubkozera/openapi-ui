@@ -1,5 +1,24 @@
 // Functions to build main content area
 
+// Helper function to render description with markdown support
+function renderDescriptionWithMarkdown(description) {
+  if (!description) return "";
+
+  if (
+    window.markdownRenderer &&
+    typeof window.markdownRenderer.renderSafe === "function"
+  ) {
+    try {
+      const rendered = window.markdownRenderer.renderSafe(description);
+      return rendered;
+    } catch (error) {
+      return `<p class="text-gray-700 mb-4">${description}</p>`;
+    }
+  } else {
+    return `<p class="text-gray-700 mb-4">${description}</p>`;
+  }
+}
+
 // Helper function to format type names, especially for arrays
 function formatTypeDisplay(schema) {
   // Use the enhanced version if available, fallback to basic version
@@ -420,13 +439,9 @@ function buildMainContent() {
             operation.summary
               ? `<p class="text-gray-600 mb-2 text-sm mt-2">${operation.summary}</p>`
               : ""
-          }
-          <div class="endpoint-content hidden">
-            ${
-              operation.description
-                ? `<p class="text-gray-700 mb-4">${operation.description}</p>`
-                : ""
-            }`; // Add parameters sections
+          }          <div class="endpoint-content hidden">
+            ${renderDescriptionWithMarkdown(operation.description)}
+            `; // Add parameters sections
       if (operation.parameters && operation.parameters.length > 0) {
         const pathParams = operation.parameters.filter((p) => p.in === "path");
         const queryParams = operation.parameters.filter(
@@ -1202,6 +1217,28 @@ function buildResponsesSection(operation, sectionId) {
 
   sectionHTML += `</div>`;
   return sectionHTML;
+}
+
+// Helper function to safely render markdown with fallback
+function renderDescription(description) {
+  if (!description) {
+    return "";
+  }
+
+  // Check if markdown renderer is available
+  if (
+    window.markdownRenderer &&
+    typeof window.markdownRenderer.renderSafe === "function"
+  ) {
+    try {
+      const rendered = window.markdownRenderer.renderSafe(description);
+      return rendered;
+    } catch (error) {
+      return `<p class="text-gray-700 mb-4">${description}</p>`;
+    }
+  } else {
+    return `<p class="text-gray-700 mb-4">${description}</p>`;
+  }
 }
 
 // Utility function to toggle endpoints section
