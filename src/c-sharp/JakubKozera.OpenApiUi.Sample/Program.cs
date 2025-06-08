@@ -83,9 +83,9 @@ builder.Services.AddAuthorization();
 // Add CORS for GitHub Pages
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("GitHubPages", policy =>
+    options.AddPolicy("CorsValidOrigins", policy =>
     {
-        policy.WithOrigins("https://jakubkozera.github.io", "http://localhost:5501")
+        policy.WithOrigins("https://jakubkozera.github.io", "http://localhost:5501", "https://*.vscode-webview.net", "vscode-webview://*")
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
@@ -95,7 +95,7 @@ builder.Services.AddCors(options =>
 var app = builder.Build();
 
 // Enable CORS
-app.UseCors("GitHubPages");
+app.UseCors("CorsValidOrigins");
 
 app.UseAuthentication();
 app.UseAuthorization();
