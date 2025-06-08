@@ -13472,7 +13472,8 @@ function displayActualResponse(
     } else {
       copyActualResponseBtn.style.display = "flex";
     }
-  }  if (downloadData) {
+  }
+  if (downloadData) {
     // Handle file download display
     if (responseBodyContainer) {
       // Hide Monaco editor container
@@ -13480,16 +13481,21 @@ function displayActualResponse(
       responseBodyContainer.classList.add("hidden");
 
       // Check if download container already exists
-      let downloadContainer = document.getElementById("download-response-container");
+      let downloadContainer = document.getElementById(
+        "download-response-container"
+      );
       if (!downloadContainer) {
         // Create download interface container
         downloadContainer = document.createElement("div");
         downloadContainer.id = "download-response-container";
         downloadContainer.className =
           "flex flex-col items-center justify-center h-full p-8 bg-gray-800 border border-gray-600 rounded-md";
-        
+
         // Insert after the response body container
-        responseBodyContainer.parentNode.insertBefore(downloadContainer, responseBodyContainer.nextSibling);
+        responseBodyContainer.parentNode.insertBefore(
+          downloadContainer,
+          responseBodyContainer.nextSibling
+        );
       }
 
       downloadContainer.innerHTML = `
@@ -13540,12 +13546,14 @@ function displayActualResponse(
     return;
   } else {
     // Hide download container if it exists (for regular responses)
-    const downloadContainer = document.getElementById("download-response-container");
+    const downloadContainer = document.getElementById(
+      "download-response-container"
+    );
     if (downloadContainer) {
       downloadContainer.style.display = "none";
       downloadContainer.classList.add("hidden");
     }
-    
+
     // Ensure response body container is visible for regular responses
     if (responseBodyContainer) {
       responseBodyContainer.style.display = "block";

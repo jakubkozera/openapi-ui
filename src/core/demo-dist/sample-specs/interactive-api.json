@@ -1,0 +1,832 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "Articles API",
+    "description": "A sample API for managing articles with JWT authentication",
+    "version": "v1"
+  },
+  "servers": [
+    {
+      "url": "https://openapi-ui.azurewebsites.net/",
+      "description": "Test server"
+    }
+  ],
+  "paths": {
+    "/api/Articles": {
+      "get": {
+        "tags": ["Articles"],
+        "summary": "Gets a paginated list of published articles",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number (1-based)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "description": "Number of items per page (1-100)",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Search term to filter articles by title or content",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tag",
+            "in": "query",
+            "description": "Filter by specific tag",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "authorLogin",
+            "in": "query",
+            "description": "Filter by author login",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns paginated list of articles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ArticlePaginatedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid pagination parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Articles"],
+        "summary": "Creates a new article (requires authentication)",
+        "requestBody": {
+          "description": "Article creation data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateArticleRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateArticleRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateArticleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Article created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Article"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid article data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Articles/{id}": {
+      "get": {
+        "tags": ["Articles"],
+        "summary": "Gets a specific article by ID",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Article ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the article",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Article"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Article not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Articles"],
+        "summary": "Updates an existing article (requires authentication and ownership)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Article ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Article update data",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateArticleRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateArticleRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateArticleRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Article updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Article"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid article data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to update this article",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Article not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Articles"],
+        "summary": "Deletes an article (requires authentication and ownership)",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Article ID",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Article deleted successfully"
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Not authorized to delete this article",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Article not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Articles/tags": {
+      "get": {
+        "tags": ["Articles"],
+        "summary": "Gets all unique tags from published articles",
+        "responses": {
+          "200": {
+            "description": "Returns list of tags",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Articles/my": {
+      "get": {
+        "tags": ["Articles"],
+        "summary": "Gets articles by the current authenticated user",
+        "responses": {
+          "200": {
+            "description": "Returns user's articles",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Article"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Auth/login": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Authenticates a user and returns a JWT token",
+        "description": "Sample login credentials for testing:\r\n\r\n**Administrator:**\r\n- Login: admin\r\n- Password: admin123\r\n\r\n**Regular Users:**\r\n- Login: john.doe, Password: password123\r\n- Login: jane.smith, Password: secret456",
+        "requestBody": {
+          "description": "Login credentials",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful, returns JWT token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Auth/me": {
+      "get": {
+        "tags": ["Auth"],
+        "summary": "Gets information about the currently authenticated user",
+        "responses": {
+          "200": {
+            "description": "Returns current user information",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "401": {
+            "description": "User is not authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/File/upload": {
+      "post": {
+        "tags": ["File"],
+        "summary": "Uploads a file and returns its name and size",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "description": "The file to upload",
+                    "format": "binary"
+                  }
+                }
+              },
+              "encoding": {
+                "file": {
+                  "style": "form"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns file information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FileInfoResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No file provided or file is empty",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/File/download": {
+      "get": {
+        "tags": ["File"],
+        "summary": "Downloads a sample text file",
+        "parameters": [
+          {
+            "name": "fileName",
+            "in": "query",
+            "description": "Optional custom filename for the downloaded file",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the text file"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Article": {
+        "required": ["authorLogin", "content", "title"],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique identifier of the article",
+            "format": "int32"
+          },
+          "title": {
+            "maxLength": 200,
+            "minLength": 5,
+            "type": "string",
+            "description": "Title of the article"
+          },
+          "content": {
+            "maxLength": 5000,
+            "minLength": 10,
+            "type": "string",
+            "description": "Content of the article"
+          },
+          "summary": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string",
+            "description": "Short description/summary of the article",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Tags associated with the article",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "Creation date of the article",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "description": "Last modification date",
+            "format": "date-time"
+          },
+          "authorLogin": {
+            "minLength": 1,
+            "type": "string",
+            "description": "Login of the article author"
+          },
+          "isPublished": {
+            "type": "boolean",
+            "description": "Whether the article is published"
+          },
+          "viewCount": {
+            "type": "integer",
+            "description": "Number of article views",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Represents an article in the system"
+      },
+      "ArticlePaginatedResponse": {
+        "required": ["items"],
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Article"
+            },
+            "description": "List of items for current page",
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "description": "Total number of items across all pages",
+            "format": "int32"
+          },
+          "currentPage": {
+            "type": "integer",
+            "description": "Current page number",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "description": "Number of items per page",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "description": "Total number of pages",
+            "format": "int32"
+          },
+          "hasNextPage": {
+            "type": "boolean",
+            "description": "Whether there is a next page"
+          },
+          "hasPreviousPage": {
+            "type": "boolean",
+            "description": "Whether there is a previous page"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Paginated response containing list of articles"
+      },
+      "CreateArticleRequest": {
+        "required": ["content", "title"],
+        "type": "object",
+        "properties": {
+          "title": {
+            "maxLength": 200,
+            "minLength": 5,
+            "type": "string",
+            "description": "Title of the article"
+          },
+          "content": {
+            "maxLength": 5000,
+            "minLength": 10,
+            "type": "string",
+            "description": "Content of the article"
+          },
+          "summary": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string",
+            "description": "Short summary of the article",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Tags associated with the article",
+            "nullable": true
+          },
+          "isPublished": {
+            "type": "boolean",
+            "description": "Whether the article should be published immediately"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request model for creating a new article"
+      },
+      "FileInfoResponse": {
+        "type": "object",
+        "properties": {
+          "fileName": {
+            "type": "string",
+            "description": "Original filename of the uploaded file",
+            "nullable": true
+          },
+          "size": {
+            "type": "integer",
+            "description": "Size of the file in bytes",
+            "format": "int64"
+          },
+          "contentType": {
+            "type": "string",
+            "description": "Content type of the uploaded file",
+            "nullable": true
+          },
+          "uploadedAt": {
+            "type": "string",
+            "description": "Timestamp when the file was uploaded",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Response model for file upload information"
+      },
+      "LoginRequest": {
+        "required": ["login", "password"],
+        "type": "object",
+        "properties": {
+          "login": {
+            "minLength": 1,
+            "type": "string",
+            "description": "User login",
+            "example": "admin"
+          },
+          "password": {
+            "minLength": 1,
+            "type": "string",
+            "description": "User password",
+            "example": "admin123"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request model for user login"
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": {}
+      },
+      "TokenResponse": {
+        "required": ["token", "userLogin"],
+        "type": "object",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT access token",
+            "nullable": true
+          },
+          "expiresAt": {
+            "type": "string",
+            "description": "Token expiration date",
+            "format": "date-time"
+          },
+          "userLogin": {
+            "type": "string",
+            "description": "User login",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Response model containing authentication token"
+      },
+      "UpdateArticleRequest": {
+        "required": ["content", "title"],
+        "type": "object",
+        "properties": {
+          "title": {
+            "maxLength": 200,
+            "minLength": 5,
+            "type": "string",
+            "description": "Updated title of the article"
+          },
+          "content": {
+            "maxLength": 5000,
+            "minLength": 10,
+            "type": "string",
+            "description": "Updated content of the article"
+          },
+          "summary": {
+            "maxLength": 500,
+            "minLength": 0,
+            "type": "string",
+            "description": "Updated summary of the article",
+            "nullable": true
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Updated tags associated with the article",
+            "nullable": true
+          },
+          "isPublished": {
+            "type": "boolean",
+            "description": "Whether the article should be published"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request model for updating an existing article"
+      }
+    },
+    "securitySchemes": {
+      "Bearer": {
+        "type": "http",
+        "description": "Enter your JWT token in the format: Bearer {your_token}",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "security": [
+    {
+      "Bearer": []
+    }
+  ]
+}

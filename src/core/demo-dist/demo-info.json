@@ -16,6 +16,12 @@
       "description": "An API for uploading and downloading files with validation rules."
     },
     {
+      "file": "interactive-api.json",
+      "title": "Articles API",
+      "version": "v1",
+      "description": "A sample API for managing articles with JWT authentication"
+    },
+    {
       "file": "sample-api.json",
       "title": "Demonstration API",
       "version": "1.0.0",
@@ -28,5 +34,5 @@
       "description": "A comprehensive test API demonstrating all supported OpenAPI security schemes"
     }
   ],
-  "buildDate": "2025-06-08T10:17:22.206Z"
+  "buildDate": "2025-06-08T12:32:35.312Z"
 }
