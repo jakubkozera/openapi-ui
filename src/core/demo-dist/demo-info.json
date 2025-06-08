@@ -10,12 +10,6 @@
   ],
   "sampleSpecs": [
     {
-      "file": "files.json",
-      "title": "File Management API",
-      "version": "1.0.0",
-      "description": "An API for uploading and downloading files with validation rules."
-    },
-    {
       "file": "interactive-api.json",
       "title": "Articles API",
       "version": "v1",
