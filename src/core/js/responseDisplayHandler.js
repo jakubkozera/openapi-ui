@@ -3,7 +3,8 @@ function displayActualResponse(
   response,
   responseBodyText,
   error = false,
-  executionTime = 0
+  executionTime = 0,
+  downloadData = null
 ) {
   const responseContent = document.getElementById("response-content");
   const actualResponseStatusCodeDisplay = document.getElementById(
@@ -100,11 +101,108 @@ function displayActualResponse(
       </div>`;
     });
     headersList.innerHTML = formattedHeaders;
-  }
-
-  // Process response body
+  } // Process response body
   let displayValue = responseBodyText || "";
   let language = "text";
+
+  // Hide/show copy button based on whether it's a file download
+  const copyActualResponseBtn = document.getElementById(
+    "copyActualResponseBtn"
+  );
+  if (copyActualResponseBtn) {
+    if (downloadData) {
+      copyActualResponseBtn.style.display = "none";
+    } else {
+      copyActualResponseBtn.style.display = "flex";
+    }
+  }
+  if (downloadData) {
+    // Handle file download display
+    if (responseBodyContainer) {
+      // Hide Monaco editor container
+      responseBodyContainer.style.display = "none";
+      responseBodyContainer.classList.add("hidden");
+
+      // Check if download container already exists
+      let downloadContainer = document.getElementById(
+        "download-response-container"
+      );
+      if (!downloadContainer) {
+        // Create download interface container
+        downloadContainer = document.createElement("div");
+        downloadContainer.id = "download-response-container";
+        downloadContainer.className =
+          "flex flex-col items-center justify-center h-full p-8 bg-gray-800 border border-gray-600 rounded-md";
+
+        // Insert after the response body container
+        responseBodyContainer.parentNode.insertBefore(
+          downloadContainer,
+          responseBodyContainer.nextSibling
+        );
+      }
+
+      downloadContainer.innerHTML = `
+        <div class="text-center">
+          <svg class="w-16 h-16 mx-auto mb-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <h3 class="text-lg font-medium text-white mb-2">File Downloaded Successfully</h3>
+          <p class="text-gray-300 mb-4">
+            <span class="font-medium">${downloadData.filename}</span>
+            <br>            <span class="text-sm text-gray-400">${window.formatFileSize(
+              downloadData.size
+            )} • ${downloadData.type || "Unknown type"}</span>
+          </p>
+          <button id="re-download-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded transition-colors flex items-center justify-center w-full">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+            Download Again
+          </button>
+        </div>
+      `;
+
+      // Show download container
+      downloadContainer.style.display = "block";
+      downloadContainer.classList.remove("hidden");
+
+      // Add click handler for re-download
+      const reDownloadBtn = document.getElementById("re-download-btn");
+      if (reDownloadBtn) {
+        reDownloadBtn.addEventListener("click", () => {
+          const downloadUrl = window.URL.createObjectURL(downloadData.blob);
+          const downloadLink = document.createElement("a");
+          downloadLink.href = downloadUrl;
+          downloadLink.download = downloadData.filename;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+          window.URL.revokeObjectURL(downloadUrl);
+
+          window.utils.showToast("File downloaded successfully", "success");
+        });
+      }
+    }
+
+    // Switch to response tab
+    switchTab("response");
+    return;
+  } else {
+    // Hide download container if it exists (for regular responses)
+    const downloadContainer = document.getElementById(
+      "download-response-container"
+    );
+    if (downloadContainer) {
+      downloadContainer.style.display = "none";
+      downloadContainer.classList.add("hidden");
+    }
+
+    // Ensure response body container is visible for regular responses
+    if (responseBodyContainer) {
+      responseBodyContainer.style.display = "block";
+      responseBodyContainer.classList.remove("hidden");
+    }
+  }
 
   const contentTypeHeader =
     response.headers?.get("Content-Type") || "application/octet-stream";

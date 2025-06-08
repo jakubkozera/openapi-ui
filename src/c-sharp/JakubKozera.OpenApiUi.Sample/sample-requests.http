@@ -114,3 +114,23 @@ Content-Type: application/json
   "tags": ["fail"],
   "isPublished": true
 }
+
+### File Operations
+
+### 17. Upload a file
+POST {{baseUrl}}/api/file/upload
+Content-Type: multipart/form-data; boundary=boundary
+
+--boundary
+Content-Disposition: form-data; name="file"; filename="test.txt"
+Content-Type: text/plain
+
+This is a test file content.
+You can replace this with any file content.
+--boundary--
+
+### 18. Download a sample text file
+GET {{baseUrl}}/api/file/download
+
+### 19. Download a sample text file with custom filename
+GET {{baseUrl}}/api/file/download?fileName=my-custom-file.txt

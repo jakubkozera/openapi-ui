@@ -2,7 +2,10 @@
 // Global configuration and state variables
 
 // API Base URL and other state variables
-let baseUrl = "https://localhost:7030/";
+let baseUrl = window.baseUrl;
+if (baseUrl === "#base_url#") {
+  baseUrl = window.location.origin;
+}
 window.swaggerData = null;
 let currentPath = null; // Store the current path
 let currentMethod = null; // Store the current method
@@ -872,6 +875,22 @@ function showToast(message, type = "success") {
   }
 }
 
+/**
+ * Format file size in a human readable format
+ * @param {number} bytes - File size in bytes
+ * @returns {string} Formatted file size
+ */
+function formatFileSize(bytes) {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+}
+
+// Make formatFileSize available globally
+window.formatFileSize = formatFileSize;
+
 // Helper functions for endpoints collapsing/expanding
 // Expand an endpoints section with a smooth transition
 function expandEndpointsSection(section, arrowElement = null) {
@@ -1079,6 +1098,183 @@ window.utils = {
     wrapper.appendChild(toggleBtn);
   },
 };
+
+
+/* js/markdownRenderer.js */
+/**
+ * Markdown Renderer Utility
+ * Converts Markdown text to HTML with proper sanitization
+ */
+
+class MarkdownRenderer {
+  constructor() {
+    // Initialize the renderer
+  }
+  /**
+   * Convert Markdown to HTML
+   * @param {string} markdownText - The markdown text to convert
+   * @returns {string} - HTML string
+   */
+  render(markdownText) {
+    if (!markdownText || typeof markdownText !== "string") {
+      return "";
+    }
+
+    let html = markdownText;
+
+    // Normalize line endings (convert \r\n to \n)
+    html = html.replace(/\r\n/g, "\n");
+
+    // Convert headers
+    html = html.replace(
+      /^### (.*$)/gm,
+      '<h3 class="text-lg font-semibold text-gray-800 mt-4 mb-2">$1</h3>'
+    );
+    html = html.replace(
+      /^## (.*$)/gm,
+      '<h2 class="text-xl font-semibold text-gray-800 mt-4 mb-3">$1</h2>'
+    );
+    html = html.replace(
+      /^# (.*$)/gm,
+      '<h1 class="text-2xl font-bold text-gray-800 mt-4 mb-3">$1</h1>'
+    );
+
+    // Convert code blocks FIRST (before any other backtick processing)
+    html = html.replace(/```(\w+)?\s*([\s\S]*?)```/g, (match, lang, code) => {
+      const language = lang ? ` data-language="${lang}"` : "";
+      return `<pre class="bg-gray-50 border border-gray-200 rounded-md p-3 my-3 overflow-x-auto"><code class="text-sm font-mono text-gray-800"${language}>${this.escapeHtml(
+        code.trim()
+      )}</code></pre>`;
+    });
+
+    // Convert inline code AFTER code blocks
+    html = html.replace(
+      /`([^`]+)`/g,
+      '<code class="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono text-gray-800">$1</code>'
+    );
+
+    // Convert bold text
+    html = html.replace(
+      /\*\*(.*?)\*\*/g,
+      '<strong class="font-semibold">$1</strong>'
+    );
+    html = html.replace(
+      /__(.*?)__/g,
+      '<strong class="font-semibold">$1</strong>'
+    );
+
+    // Convert italic text
+    html = html.replace(/\*(.*?)\*/g, '<em class="italic">$1</em>');
+    html = html.replace(/_(.*?)_/g, '<em class="italic">$1</em>');
+
+    // Convert links
+    html = html.replace(
+      /\[([^\]]+)\]\(([^)]+)\)/g,
+      '<a href="$2" class="text-blue-600 hover:text-blue-800 underline" target="_blank" rel="noopener noreferrer">$1</a>'
+    );
+
+    // Convert unordered lists
+    html = html.replace(
+      /^[\s]*[-\*\+][\s]+(.*$)/gm,
+      '<li class="ml-4 list-disc">$1</li>'
+    );
+    html = html.replace(
+      /(<li[^>]*>.*<\/li>)/s,
+      '<ul class="my-2 space-y-1">$1</ul>'
+    );
+
+    // Convert ordered lists
+    html = html.replace(
+      /^[\s]*\d+\.[\s]+(.*$)/gm,
+      '<li class="ml-4 list-decimal">$1</li>'
+    );
+    html = html.replace(
+      /(<li[^>]*class="[^"]*list-decimal[^"]*"[^>]*>.*<\/li>)/s,
+      '<ol class="my-2 space-y-1">$1</ol>'
+    );
+
+    // Convert line breaks
+    html = html.replace(/\n\n/g, '</p><p class="text-gray-700 mb-4">');
+
+    // Convert blockquotes
+    html = html.replace(
+      /^> (.*$)/gm,
+      '<blockquote class="border-l-4 border-gray-300 pl-4 italic text-gray-600 my-2">$1</blockquote>'
+    );
+
+    // Convert horizontal rules
+    html = html.replace(/^---$/gm, '<hr class="my-4 border-gray-300">');
+
+    // Wrap in paragraph if not already wrapped
+    if (html && !html.trim().startsWith("<")) {
+      html = `<p class="text-gray-700 mb-4">${html}</p>`;
+    }
+
+    return html;
+  }
+
+  /**
+   * Escape HTML characters to prevent XSS
+   * @param {string} text - Text to escape
+   * @returns {string} - Escaped text
+   */
+  escapeHtml(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  /**
+   * Sanitize HTML content
+   * @param {string} html - HTML to sanitize
+   * @returns {string} - Sanitized HTML
+   */
+  sanitize(html) {
+    // Create a temporary element to parse HTML
+    const temp = document.createElement("div");
+    temp.innerHTML = html;
+
+    // Remove script tags and event handlers
+    const scripts = temp.querySelectorAll("script");
+    scripts.forEach((script) => script.remove());
+
+    // Remove potentially dangerous attributes
+    const allElements = temp.querySelectorAll("*");
+    allElements.forEach((element) => {
+      // Remove event handlers
+      Array.from(element.attributes).forEach((attr) => {
+        if (attr.name.startsWith("on")) {
+          element.removeAttribute(attr.name);
+        }
+      });
+
+      // Remove javascript: links
+      if (element.href && element.href.startsWith("javascript:")) {
+        element.removeAttribute("href");
+      }
+    });
+
+    return temp.innerHTML;
+  }
+
+  /**
+   * Render and sanitize markdown content
+   * @param {string} markdownText - The markdown text to convert
+   * @returns {string} - Safe HTML string
+   */
+  renderSafe(markdownText) {
+    const html = this.render(markdownText);
+    return this.sanitize(html);
+  }
+}
+
+// Create a global instance
+window.markdownRenderer = new MarkdownRenderer();
+
+// Export for module usage
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = MarkdownRenderer;
+}
 
 
 /* js/tooltip.js */
@@ -6005,7 +6201,11 @@ function initializeSchemaPopovers() {
   document.addEventListener(
     "mouseenter",
     (e) => {
-      if (e.target.classList.contains("schema-type-interactive")) {
+      if (
+        e.target &&
+        e.target.classList &&
+        e.target.classList.contains("schema-type-interactive")
+      ) {
         const schemaRef = e.target.getAttribute("data-schema-ref");
         const typeName = e.target.getAttribute("data-type-name");
         const level = parseInt(e.target.getAttribute("data-level") || "0");
@@ -6017,11 +6217,14 @@ function initializeSchemaPopovers() {
     },
     true
   );
-
   document.addEventListener(
     "mouseleave",
     (e) => {
-      if (e.target.classList.contains("schema-type-interactive")) {
+      if (
+        e.target &&
+        e.target.classList &&
+        e.target.classList.contains("schema-type-interactive")
+      ) {
         if (popoverTimeout) {
           clearTimeout(popoverTimeout);
           popoverTimeout = null;
@@ -6032,6 +6235,8 @@ function initializeSchemaPopovers() {
           if (
             currentPopover &&
             !currentPopover.matches(":hover") &&
+            e.target &&
+            e.target.matches &&
             !e.target.matches(":hover")
           ) {
             hideSchemaPopover();
@@ -6041,12 +6246,11 @@ function initializeSchemaPopovers() {
     },
     true
   );
-
   // Keep popover open when hovering over it
   document.addEventListener(
     "mouseenter",
     (e) => {
-      if (e.target.closest(".schema-popover")) {
+      if (e.target && e.target.closest && e.target.closest(".schema-popover")) {
         if (popoverTimeout) {
           clearTimeout(popoverTimeout);
           popoverTimeout = null;
@@ -6055,13 +6259,16 @@ function initializeSchemaPopovers() {
     },
     true
   );
-
   document.addEventListener(
     "mouseleave",
     (e) => {
-      if (e.target.closest(".schema-popover")) {
+      if (e.target && e.target.closest && e.target.closest(".schema-popover")) {
         setTimeout(() => {
-          if (currentPopover && !currentPopover.matches(":hover")) {
+          if (
+            currentPopover &&
+            currentPopover.matches &&
+            !currentPopover.matches(":hover")
+          ) {
             hideSchemaPopover();
           }
         }, 300);
@@ -6069,12 +6276,13 @@ function initializeSchemaPopovers() {
     },
     true
   );
-
   // Hide popover when clicking outside
   document.addEventListener("click", (e) => {
     if (
-      !e.target.closest(".schema-popover") &&
-      !e.target.classList.contains("schema-type-interactive")
+      e.target &&
+      (!e.target.closest || !e.target.closest(".schema-popover")) &&
+      (!e.target.classList ||
+        !e.target.classList.contains("schema-type-interactive"))
     ) {
       hideSchemaPopover();
     }
@@ -6095,6 +6303,25 @@ if (document.readyState === "loading") {
 
 /* js/mainContentBuilder.js */
 // Functions to build main content area
+
+// Helper function to render description with markdown support
+function renderDescriptionWithMarkdown(description) {
+  if (!description) return "";
+
+  if (
+    window.markdownRenderer &&
+    typeof window.markdownRenderer.renderSafe === "function"
+  ) {
+    try {
+      const rendered = window.markdownRenderer.renderSafe(description);
+      return rendered;
+    } catch (error) {
+      return `<p class="text-gray-700 mb-4">${description}</p>`;
+    }
+  } else {
+    return `<p class="text-gray-700 mb-4">${description}</p>`;
+  }
+}
 
 // Helper function to format type names, especially for arrays
 function formatTypeDisplay(schema) {
@@ -6516,13 +6743,9 @@ function buildMainContent() {
             operation.summary
               ? `<p class="text-gray-600 mb-2 text-sm mt-2">${operation.summary}</p>`
               : ""
-          }
-          <div class="endpoint-content hidden">
-            ${
-              operation.description
-                ? `<p class="text-gray-700 mb-4">${operation.description}</p>`
-                : ""
-            }`; // Add parameters sections
+          }          <div class="endpoint-content hidden">
+            ${renderDescriptionWithMarkdown(operation.description)}
+            `; // Add parameters sections
       if (operation.parameters && operation.parameters.length > 0) {
         const pathParams = operation.parameters.filter((p) => p.in === "path");
         const queryParams = operation.parameters.filter(
@@ -7298,6 +7521,28 @@ function buildResponsesSection(operation, sectionId) {
 
   sectionHTML += `</div>`;
   return sectionHTML;
+}
+
+// Helper function to safely render markdown with fallback
+function renderDescription(description) {
+  if (!description) {
+    return "";
+  }
+
+  // Check if markdown renderer is available
+  if (
+    window.markdownRenderer &&
+    typeof window.markdownRenderer.renderSafe === "function"
+  ) {
+    try {
+      const rendered = window.markdownRenderer.renderSafe(description);
+      return rendered;
+    } catch (error) {
+      return `<p class="text-gray-700 mb-4">${description}</p>`;
+    }
+  } else {
+    return `<p class="text-gray-700 mb-4">${description}</p>`;
+  }
 }
 
 // Utility function to toggle endpoints section
@@ -8949,7 +9194,7 @@ function startExpirationCheck() {
         clearAccessToken(schemeKey);
       }
     });
-  }, 1000); // Check every second
+  }, 5000); // Check 5 seconds
 }
 
 // Helper function to check if a scheme is authenticated
@@ -12963,7 +13208,7 @@ function endTiming() {
 function formatHeaders(headers) {
   let formatted = "";
   headers.forEach((value, name) => {
-    formatted += `<div class="text-sm py-1 border-b border-gray-600 last:border-0">
+    formatted += `<div class="text-sm border-b border-gray-600 last:border-0">
             <span class="font-semibold text-gray-300">${name}:</span> 
             <span class="text-gray-400">${value}</span>
         </div>`;
@@ -13015,733 +13260,76 @@ window.responseDetails = {
 
 /* js/executeButtonHandler.js */
 // Initialize the execute request button
-function initExecuteRequestButton() {
-  const executeRequestBtn = document.getElementById("executeRequestBtn");
-  if (executeRequestBtn) {
-    executeRequestBtn.addEventListener("click", async () => {
-      const pathElement = document.querySelector("#right-panel-path");
-      const methodElement = document.querySelector("#right-panel-method");
 
-      if (!pathElement || !methodElement || !swaggerData) {
-        console.error(
-          "Missing current path, method, or Swagger data for execution."
-        );
-        displayActualResponse(
-          {
-            status: "Error",
-            statusText: "Client Error",
-            headers: new Headers(),
-            body: "Missing current path, method, or Swagger data for execution.",
-          },
-          true
-        );
-        return;
-      }
-
-      // Ensure "Add to Collection" button is available after executing a request
-      if (window.collectionRunnerUI) {
-        window.collectionRunnerUI.setupTryItOutActionButtons(false);
-      }
-
-      let currentPath = pathElement.textContent;
-      const currentMethod = methodElement.textContent.toUpperCase();
-
-      // Make sure Monaco editor is initialized
-      if (!window.responseBodyEditor) {
-        try {
-          await window.initMonacoEditor();
-        } catch (error) {
-          console.error("Error initializing Monaco editor:", error);
-        }
-      }
-
-      // Clear previous response
-      if (window.responseBodyEditor) {
-        window.responseBodyEditor.setValue("Executing request...");
-      }
-
-      // Get parameters and handle path and query parameters separately
-      const queryParams = new URLSearchParams();
-      const pathParams = new Map();
-      const pathParametersContainer = document.getElementById(
-        "right-panel-path-parameters-container"
-      );
-      const queryParametersContainer = document.getElementById(
-        "right-panel-query-parameters-container"
-      ); // Process path parameters
-      if (pathParametersContainer) {
-        pathParametersContainer
-          .querySelectorAll("input, select, textarea")
-          .forEach((input) => {
-            if (input.name && input.value) {
-              // Apply variable replacement
-              const processedValue = window.replaceVariables
-                ? window.replaceVariables(input.value)
-                : input.value;
-              pathParams.set(input.name, processedValue);
-            }
-          });
-      } // Process query parameters
-      if (queryParametersContainer) {
-        queryParametersContainer
-          .querySelectorAll("input, select, textarea")
-          .forEach((input) => {
-            if (input.name && input.value) {
-              // Apply variable replacement
-              const processedValue = window.replaceVariables
-                ? window.replaceVariables(input.value)
-                : input.value;
-              if (input.type === "checkbox") {
-                if (input.checked) {
-                  queryParams.append(input.name, processedValue);
-                }
-              } else {
-                queryParams.append(input.name, processedValue);
-              }
-            }
-          });
-      }
-
-      // Replace path parameters in the URL
-      pathParams.forEach((value, name) => {
-        const paramPattern = new RegExp(`\\{${name}\\}`, "g");
-        currentPath = currentPath.replace(paramPattern, value);
-      });
-
-      // Add query parameters to URL
-      const queryString = queryParams.toString();
-      if (queryString) {
-        currentPath += `?${queryString}`;
-      } // Prepare headers
-      const fetchHeaders = new Headers();
-      const headersContainer = document.getElementById(
-        "right-panel-headers-container"
-      );
-      if (headersContainer) {
-        headersContainer
-          .querySelectorAll("input, select, textarea")
-          .forEach((input) => {
-            if (input.name && input.value) {
-              // Apply variable replacement to both header name and value
-              const processedName = window.replaceVariables
-                ? window.replaceVariables(input.name)
-                : input.name;
-              const processedValue = window.replaceVariables
-                ? window.replaceVariables(input.value)
-                : input.value;
-              fetchHeaders.append(processedName, processedValue);
-            }
-          });
-      } // Prepare body and Content-Type header
-      let requestBody = undefined;
-      const requestBodyContentTypeSelect = document.getElementById(
-        "right-panel-request-body-content-type-select"
-      );
-      const selectedContentType = requestBodyContentTypeSelect
-        ? requestBodyContentTypeSelect.value
-        : null;
-      if (selectedContentType === "application/x-www-form-urlencoded") {
-        // Handle form-encoded data
-        const formFieldsContainer = document.getElementById(
-          "form-fields-container"
-        );
-        if (
-          formFieldsContainer &&
-          formFieldsContainer.style.display !== "none"
-        ) {
-          const formData = new URLSearchParams();
-          const formInputs = formFieldsContainer.querySelectorAll(
-            "input, select, textarea"
-          );
-
-          formInputs.forEach((input) => {
-            if (input.name && input.value) {
-              // Apply variable replacement to form field values
-              const processedValue = window.replaceVariables
-                ? window.replaceVariables(input.value)
-                : input.value;
-              formData.append(input.name, processedValue);
-            }
-          });
-
-          requestBody = formData.toString();
-        }
-        // Always set Content-Type for form-encoded data
-        fetchHeaders.append(
-          "Content-Type",
-          "application/x-www-form-urlencoded"
-        );
-      } else if (selectedContentType === "multipart/form-data") {
-        // Handle multipart/form-data
-        const formFieldsContainer = document.getElementById(
-          "form-fields-container"
-        );
-        if (
-          formFieldsContainer &&
-          formFieldsContainer.style.display !== "none"
-        ) {
-          const formData = new FormData();
-          const formInputs = formFieldsContainer.querySelectorAll(
-            "input, select, textarea"
-          );
-
-          formInputs.forEach((input) => {
-            if (input.name) {
-              if (input.type === "file") {
-                // Handle file input
-                if (input.files && input.files.length > 0) {
-                  formData.append(input.name, input.files[0]);
-                }
-              } else if (input.value) {
-                // Handle regular form fields with variable replacement
-                const processedValue = window.replaceVariables
-                  ? window.replaceVariables(input.value)
-                  : input.value;
-                formData.append(input.name, processedValue);
-              }
-            }
-          });
-
-          requestBody = formData;
-        }
-        // Don't set Content-Type header for multipart/form-data - browser will set it with boundary
-      } else {
-        // Handle JSON and other content types using Monaco editor
-        if (window.requestBodyEditor) {
-          requestBody = window.requestBodyEditor.getValue();
-          // Apply variable replacement to request body
-          if (requestBody && window.replaceVariables) {
-            requestBody = window.replaceVariables(requestBody);
-          }
-        }
-        // Set Content-Type for other content types only if there's a body
-        if (
-          requestBody &&
-          requestBodyContentTypeSelect &&
-          requestBodyContentTypeSelect.value
-        ) {
-          fetchHeaders.append(
-            "Content-Type",
-            requestBodyContentTypeSelect.value
-          );
-        }
-      }
-
-      let fetchOptions = {
-        method: currentMethod,
-        headers: fetchHeaders,
-      };
-      if (currentMethod !== "GET" && currentMethod !== "HEAD" && requestBody) {
-        fetchOptions.body = requestBody;
-      } // Get operation security requirements
-      let operationSecurity = null;
-      if (
-        swaggerData &&
-        swaggerData.paths &&
-        swaggerData.paths[pathElement.textContent] &&
-        swaggerData.paths[pathElement.textContent][currentMethod.toLowerCase()]
-      ) {
-        const operation =
-          swaggerData.paths[pathElement.textContent][
-            currentMethod.toLowerCase()
-          ];
-        operationSecurity =
-          operation.security !== undefined
-            ? operation.security
-            : swaggerData.security;
-      } // Add authorization header if available
-      if (
-        window.auth &&
-        typeof window.auth.addAuthorizationHeader === "function"
-      ) {
-        fetchOptions = window.auth.addAuthorizationHeader(
-          fetchOptions,
-          operationSecurity
-        );
-      }
-
-      // Handle API key query parameters from authentication
-      if (fetchOptions.apiKeyParams) {
-        const urlObj = new URL(currentPath, window.location.origin);
-        Object.entries(fetchOptions.apiKeyParams).forEach(([name, value]) => {
-          urlObj.searchParams.append(name, value);
-        });
-        currentPath = urlObj.pathname + urlObj.search;
-      }
-
-      try {
-        // Get the base URL from config or swagger spec
-        const baseUrl = getBaseUrl();
-        if (!currentPath.startsWith("/")) {
-          currentPath = "/" + currentPath;
-        }
-        const fullUrl = baseUrl.replace(/\/$/, "") + currentPath;
-
-        // Show loading overlay
-        const loader = document.getElementById("try-it-out-loader");
-        loader.classList.remove("hidden");
-
-        // Start timing
-        const startTime = performance.now();
-        const response = await fetch(fullUrl, fetchOptions);
-        const endTime = performance.now();
-        const executionTime = Math.round(endTime - startTime);
-
-        let responseBodyText;
-        try {
-          responseBodyText = await response.text();
-        } catch (textError) {
-          responseBodyText = "Unable to read response body";
-        }
-
-        // Update execution time display
-        const timeSpan = document.getElementById("response-execution-time");
-        if (timeSpan) {
-          timeSpan.textContent = `${executionTime}ms`;
-        } // Display response details
-        displayActualResponse(
-          response,
-          responseBodyText,
-          !response.ok,
-          executionTime
-        );
-
-        // Store the last executed request in a global object for the collection runner
-        window.lastExecutedRequest = {
-          path: fullUrl,
-          method: currentMethod,
-          headers: Object.fromEntries([...fetchHeaders.entries()]),
-          body: requestBody,
-          name: currentPath.split("/").pop() || currentMethod,
-        };
-      } catch (error) {
-        console.error("Error during API request execution:", error);
-
-        // Update time even for errors
-        const endTime = performance.now();
-        const executionTime = Math.round(endTime - startTime);
-        const timeSpan = document.getElementById("response-execution-time");
-        displayActualResponse(
-          {
-            status: 500,
-            statusText: error.message || "Network Error",
-            headers: new Headers(),
-          },
-          error.message || "Failed to execute request",
-          true,
-          executionTime
-        );
-      } finally {
-        loader.classList.add("hidden");
-      }
-    });
-  }
-}
-
-// Export the function
-window.initExecuteRequestButton = initExecuteRequestButton;
-
-
-/* js/responseDisplayHandler.js */
-// Function to display actual API response
-function displayActualResponse(
-  response,
-  responseBodyText,
-  error = false,
-  executionTime = 0
-) {
-  const responseContent = document.getElementById("response-content");
-  const actualResponseStatusCodeDisplay = document.getElementById(
-    "actual-response-status-code-display"
-  );
-  const tabsContainer = document.getElementById("try-it-out-tabs");
-  const responseBodyContainer = document.getElementById("actualResponseSample");
-  const timeSpan = document.getElementById("response-execution-time");
-  const headersList = document.getElementById("response-headers");
-
-  // Show both tabs after response is received
-  if (tabsContainer) {
-    tabsContainer.classList.remove("hidden");
-    tabsContainer.classList.add("visible", "response-available");
+// Helper function to detect if a response is a file download
+function isFileResponse(contentDisposition, contentType, requestPath) {
+  // Check for explicit content-disposition header
+  if (contentDisposition && contentDisposition.includes("attachment")) {
+    return true;
   }
 
-  // Show the response content
-  if (responseContent) {
-    responseContent.classList.remove("hidden");
-  }
+  // Check for file-like content types
+  const fileContentTypes = [
+    "application/octet-stream",
+    "application/pdf",
+    "application/zip",
+    "application/x-zip-compressed",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "application/x-rar-compressed",
+    "application/x-tar",
+    "application/gzip",
+    "application/x-7z-compressed",
+  ];
 
-  // Get proper status text
-  const statusText = window.utils.getStatusText(response.status);
-
-  // Update status code display and button style
-  if (actualResponseStatusCodeDisplay) {
-    actualResponseStatusCodeDisplay.textContent = `${response.status} ${statusText}`;
-  } // Update button style and reattach click handler
-  const responseDetailsBtn = document.getElementById("response-details-button");
-  if (responseDetailsBtn) {
-    // Determine color based on status code (same logic as response headers)
-    const statusStr = String(response.status);
-    const responseColor = statusStr.startsWith("2")
-      ? "green"
-      : statusStr.startsWith("3")
-      ? "yellow"
-      : "red";
-
-    // Check if there are any response headers
-    const hasHeaders = response.headers && response.headers.keys().next().value;
-
-    // Only show arrow if there are headers
-    const arrowHtml = hasHeaders
-      ? `<svg id="response-details-arrow" class="h-5 w-5 mr-2 transform transition-transform duration-200" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
-      </svg>`
-      : "";
-
-    const buttonHtml = `${arrowHtml}<div class="flex items-center justify-between w-full">
-        <span id="actual-response-status-code-display" class="text-sm font-medium">${response.status} ${statusText}</span>
-        <div class="flex items-center">
-          <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <span id="response-execution-time" class="text-sm">${executionTime}ms</span>
-        </div>
-      </div>
-    `;
-    responseDetailsBtn.innerHTML = buttonHtml;
-    responseDetailsBtn.className = `flex items-center w-full bg-${responseColor}-100 text-${responseColor}-800 py-2 px-3 rounded-md response-details-button`;
-
-    // Remove old listeners and add new one
-    const newResponseDetailsBtn = responseDetailsBtn.cloneNode(true);
-    responseDetailsBtn.parentNode.replaceChild(
-      newResponseDetailsBtn,
-      responseDetailsBtn
-    );
-
-    // Only add click handler if there are headers
-    if (hasHeaders) {
-      newResponseDetailsBtn.addEventListener("click", () => {
-        const content = document.getElementById("response-details-content");
-        const arrow = document.getElementById("response-details-arrow");
-        if (content && arrow) {
-          content.classList.toggle("hidden");
-          arrow.classList.toggle("rotate-90");
-        }
-      });
-    }
-  }
-
-  // Update execution time
-  if (timeSpan) {
-    timeSpan.textContent = `${executionTime}ms`;
-  }
-
-  // Update response headers
-  if (headersList && response.headers) {
-    let formattedHeaders = "";
-    response.headers.forEach((value, name) => {
-      formattedHeaders += `<div class="py-1 border-b border-gray-600 last:border-0">
-        <span class="font-semibold text-gray-300">${name}:</span> 
-        <span class="text-gray-400">${value}</span>
-      </div>`;
-    });
-    headersList.innerHTML = formattedHeaders;
-  }
-
-  // Process response body
-  let displayValue = responseBodyText || "";
-  let language = "text";
-
-  const contentTypeHeader =
-    response.headers?.get("Content-Type") || "application/octet-stream";
+  // Check for binary content types
   if (
-    contentTypeHeader.includes("application/json") ||
-    contentTypeHeader.includes("application/problem+json")
+    fileContentTypes.some((type) => contentType.toLowerCase().includes(type))
   ) {
-    try {
-      const jsonBody = JSON.parse(responseBodyText);
-      displayValue = JSON.stringify(jsonBody, null, 2);
-      language = "json";
-    } catch (e) {
-      console.warn("Failed to parse JSON response", e);
+    return true;
+  }
+
+  // Check for media content types
+  if (
+    contentType.startsWith("image/") ||
+    contentType.startsWith("video/") ||
+    contentType.startsWith("audio/")
+  ) {
+    return true;
+  }
+
+  // Check for text/plain with file-like patterns in the request path
+  if (contentType.includes("text/plain")) {
+    // Look for file extensions or download-related patterns in the path
+    const fileExtensionPattern =
+      /\.(txt|log|csv|json|xml|yaml|yml|md|sql|sh|bat|ps1)$/i;
+    const downloadPattern = /(download|export|file|document|report)/i;
+
+    if (
+      fileExtensionPattern.test(requestPath) ||
+      downloadPattern.test(requestPath)
+    ) {
+      return true;
     }
   }
 
-  // Create or update the response editor
-  try {
-    if (!window.responseBodyEditor) {
-      // Create new editor if it doesn't exist
-      window.monacoSetup
-        .createMonacoEditor("actualResponseSample", {
-          language,
-          value: displayValue,
-          readOnly: true,
-          minimap: { enabled: false },
-          lineNumbers: "off",
-          automaticLayout: true,
-          scrollBeyondLastLine: false,
-          wordWrap: "on",
-        })
-        .then((editor) => {
-          window.responseBodyEditor = editor;
-          setupResponseEditor(responseBodyContainer);
-        });
-    } else {
-      const model = window.responseBodyEditor.getModel();
-      monaco.editor.setModelLanguage(model, language);
-      window.responseBodyEditor.setValue(displayValue);
-      setupResponseEditor(responseBodyContainer);
-    }
-  } catch (err) {
-    console.error("Error displaying response:", err);
-    // Fallback to plain text display
-    if (responseBodyContainer) {
-      responseBodyContainer.innerHTML = `<pre class="text-sm text-gray-300 p-4">${displayValue}</pre>`;
-    }
+  // Check for other document/text formats that might be downloadable
+  if (
+    contentType.includes("text/csv") ||
+    (contentType.includes("application/json") &&
+      requestPath.includes("export")) ||
+    (contentType.includes("application/xml") && requestPath.includes("export"))
+  ) {
+    return true;
   }
 
-  // Switch to response tab
-  switchTab("response");
+  return false;
 }
 
-// Helper function to setup response editor container
-function setupResponseEditor(container) {
-  if (!container) return;
-
-  container.style.display = "block";
-  container.classList.remove("hidden");
-
-  // Give the editor time to layout properly
-  setTimeout(() => {
-    if (window.responseBodyEditor) {
-      window.responseBodyEditor.layout();
-    }
-  }, 100);
-}
-
-// Make functions available globally
-window.displayActualResponse = displayActualResponse;
-window.setupResponseEditor = setupResponseEditor;
-
-
-/* js/eventHandlers.js */
-// DOM event handlers and initialization
-
-// Update execute button color to match the HTTP verb
-function updateExecuteButtonColor(method) {
-  const executeRequestBtn = document.getElementById("executeRequestBtn");
-  if (!executeRequestBtn || !method) return;
-
-  // Get the base classes for the button excluding background and text color
-  const baseClasses =
-    "flex items-center hover:bg-opacity-80 font-bold py-1.5 px-3 rounded";
-
-  // Extract just the background color based on the HTTP method
-  let bgColorClass = "";
-  switch (method.trim().toUpperCase()) {
-    case "GET":
-      bgColorClass = "bg-green-600";
-      break;
-    case "POST":
-      bgColorClass = "bg-blue-600";
-      break;
-    case "PUT":
-      bgColorClass = "bg-yellow-500";
-      break;
-    case "PATCH":
-      bgColorClass = "bg-yellow-400";
-      break;
-    case "DELETE":
-      bgColorClass = "bg-red-600";
-      break;
-    case "HEAD":
-      bgColorClass = "bg-purple-600";
-      break;
-    case "OPTIONS":
-      bgColorClass = "bg-gray-500";
-      break;
-    default:
-      bgColorClass = "bg-gray-600";
-  }
-
-  // Set the button classes
-  executeRequestBtn.className = `${baseClasses} ${bgColorClass} text-white`;
-}
-
-// Function to navigate to an endpoint from hash
-function navigateToEndpointFromHash() {
-  const hash = window.location.hash;
-  if (hash) {
-    // Hash format: #method-path (e.g., #get-/api/users)
-    const parts = hash.substring(1).split("-");
-    if (parts.length >= 2) {
-      const method = parts[0];
-      const path = parts.slice(1).join("-");
-
-      // Find the matching endpoint using clean path
-      const endpoint = findEndpointFromCleanPath(path, method);
-      if (endpoint) {
-        const [swaggerPath, swaggerMethod] = endpoint;
-        const endpointLink = document.querySelector(
-          `.endpoint-link[data-path="${swaggerPath}"][data-method="${swaggerMethod}"]`
-        );
-        if (endpointLink) {
-          // Trigger click on the sidebar link
-          endpointLink.click();
-
-          // Also ensure the section is expanded
-          const sectionId = generateSectionId(swaggerPath, swaggerMethod);
-          const section = document.getElementById(sectionId);
-          if (section) {
-            // When navigating directly to an endpoint, we should check if there's a saved preference
-            const outlineButton = section.querySelector(".outline-btn");
-            const contentDiv = section.querySelector(".flex-1");
-
-            if (outlineButton && contentDiv) {
-              const content = [...contentDiv.children].slice(1);
-              const svg = outlineButton.querySelector("svg");
-
-              // Check if there's a saved preference
-              if (
-                window.swaggerData &&
-                window.swaggerData.info &&
-                window.swaggerData.info.title &&
-                window.swaggerData.info.version
-              ) {
-                const apiTitle = window.swaggerData.info.title
-                  .toLowerCase()
-                  .replace(/\s+/g, "_");
-                const apiVersion = window.swaggerData.info.version
-                  .toLowerCase()
-                  .replace(/\s+/g, "_");
-                const savedState = localStorage.getItem(
-                  `${apiTitle}_${apiVersion}_outline_expanded_${sectionId}`
-                );
-
-                // If there's an explicit preference to expand, or if we're navigating from a hash and no preference exists
-                if (savedState === "true" || (hash && !savedState)) {
-                  // Remove hidden class from content
-                  content.forEach((element) =>
-                    element.classList.remove("hidden")
-                  );
-
-                  // Rotate arrow to expanded state
-                  if (svg) {
-                    svg.style.transform = "rotate(90deg)";
-                  }
-                }
-              }
-            }
-            // Scroll into view with a slight delay to ensure everything is rendered
-            setTimeout(() => {
-              section.scrollIntoView({ behavior: "smooth" });
-            }, 600);
-          }
-
-          // Update code snippet section with the current endpoint
-          updateCodeSnippetSection(swaggerPath, swaggerMethod);
-        }
-      }
-    }
-  }
-}
-
-// Function to update the code snippet section with endpoint details
-function updateCodeSnippetSection(path, method) {
-  // Update the snippet method and path display
-  const snippetMethodElement = document.querySelector("#snippet-method");
-  const snippetPathElement = document.querySelector("#snippet-path");
-
-  if (snippetMethodElement && snippetPathElement) {
-    snippetMethodElement.textContent = method.toUpperCase();
-    snippetMethodElement.className =
-      getMethodClass(method) + " text-white px-2 py-0.5 text-xs rounded mr-2";
-    snippetPathElement.textContent = path;
-  }
-
-  // If currently viewing code snippet section, regenerate the snippet
-  const codeSnippetSection = document.getElementById("code-snippet-section");
-  if (codeSnippetSection && codeSnippetSection.classList.contains("active")) {
-    setTimeout(() => {
-      // Import the module to avoid circular dependency
-      if (typeof generateCodeSnippet === "function") {
-        generateCodeSnippet();
-      }
-    }, 100);
-  }
-}
-
-// Initialize the application when DOM is loaded
-document.addEventListener("DOMContentLoaded", () => {
-  loadSwaggerSpec(window.swaggerPath);
-
-  // Set up sidebar search functionality
-  const sidebarSearch = document.getElementById("sidebar-search");
-  if (sidebarSearch) {
-    sidebarSearch.addEventListener("input", (e) => {
-      filterSidebar(e.target.value);
-    });
-  }
-
-  // Set up view toggle event listeners
-  initViewToggles();
-
-  // Set up execute request button
-  initExecuteRequestButton(); // Setup copy to clipboard buttons
-  initCopyButtons();
-
-  // Handle hash changes (browser back/forward)
-  window.addEventListener("hashchange", navigateToEndpointFromHash);
-
-  // Initialize the vertical menu
-  initVerticalMenu();
-});
-
-// Initialize the view mode toggle buttons
-function initViewToggles() {
-  const viewListBtn = document.getElementById("view-list");
-  const viewTreeBtn = document.getElementById("view-tree");
-
-  if (viewListBtn && viewTreeBtn) {
-    // Initialize the correct button state on page load
-    updateViewToggleButtons();
-
-    viewListBtn.addEventListener("click", () => {
-      // Always update when clicked, regardless of current state
-      setViewMode("list");
-      updateViewToggleButtons();
-      buildSidebar(); // Rebuild the sidebar with the new view mode
-    });
-
-    viewTreeBtn.addEventListener("click", () => {
-      // Always update when clicked, regardless of current state
-      setViewMode("tree");
-      updateViewToggleButtons();
-      buildSidebar(); // Rebuild the sidebar with the new view mode
-    });
-  }
-}
-
-// Function to update the active state of view toggle buttons
-function updateViewToggleButtons() {
-  const viewListBtn = document.getElementById("view-list");
-  const viewTreeBtn = document.getElementById("view-tree");
-
-  // Ensure buttons are found before attempting to modify their class lists
-  if (viewListBtn && viewTreeBtn) {
-    // Explicitly remove 'active-view' from both buttons first
-    viewListBtn.classList.remove("active-view");
-    viewTreeBtn.classList.remove("active-view");
-
-    // Then, add 'active-view' to the button corresponding to the current viewMode
-    if (viewMode === "list") {
-      viewListBtn.classList.add("active-view");
-    } else if (viewMode === "tree") {
-      viewTreeBtn.classList.add("active-view");
-    }
-  }
-}
-
-// Initialize the execute request button
 function initExecuteRequestButton() {
   const executeRequestBtn = document.getElementById("executeRequestBtn");
   if (executeRequestBtn) {
@@ -14030,13 +13618,108 @@ function initExecuteRequestButton() {
         // Combine base URL with current path, ensuring no double slashes
         const fullUrl = baseUrl.replace(/\/$/, "") + currentPath;
         const startTime = performance.now();
-        const response = await fetch(fullUrl, fetchOptions);
+        const response = await fetch(fullUrl, fetchOptions); // Check if response is a file download
+        const contentDisposition = response.headers.get("content-disposition");
+        const contentType = response.headers.get("content-type") || "";
+        debugger;
+        let downloadData = null;
         let responseBodyText;
-        try {
-          responseBodyText = await response.text();
-        } catch (textError) {
-          responseBodyText = "Unable to read response body";
+
+        // Enhanced file download detection
+        const isFileDownload = isFileResponse(
+          contentDisposition,
+          contentType,
+          currentPath
+        );
+        if (isFileDownload) {
+          // Handle file download
+          try {
+            const blob = await response.blob();
+
+            // Extract filename from content-disposition header or generate one
+            let filename = "download";
+            if (contentDisposition) {
+              const filenameMatch = contentDisposition.match(
+                /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+              );
+              if (filenameMatch) {
+                filename = filenameMatch[1].replace(/['"]/g, "");
+              } else {
+                // Try filename* format (RFC 5987)
+                const filenameStarMatch = contentDisposition.match(
+                  /filename\*=UTF-8''([^;\n]*)/
+                );
+                if (filenameStarMatch) {
+                  filename = decodeURIComponent(filenameStarMatch[1]);
+                }
+              }
+            } else {
+              // Generate filename based on content-type and timestamp
+              const timestamp = new Date()
+                .toISOString()
+                .replace(/[:.]/g, "-")
+                .slice(0, -5);
+              if (contentType.includes("text/plain")) {
+                filename = `response-${timestamp}.txt`;
+              } else if (contentType.includes("application/json")) {
+                filename = `response-${timestamp}.json`;
+              } else if (contentType.includes("application/xml")) {
+                filename = `response-${timestamp}.xml`;
+              } else if (contentType.includes("text/csv")) {
+                filename = `response-${timestamp}.csv`;
+              } else if (contentType.includes("application/pdf")) {
+                filename = `response-${timestamp}.pdf`;
+              } else if (contentType.startsWith("image/")) {
+                const ext = contentType.split("/")[1] || "img";
+                filename = `response-${timestamp}.${ext}`;
+              } else {
+                // Extract extension from path or use generic
+                const pathMatch = currentPath.match(/\.([a-zA-Z0-9]+)(?:\?|$)/);
+                const ext = pathMatch ? pathMatch[1] : "bin";
+                filename = `response-${timestamp}.${ext}`;
+              }
+            }
+
+            downloadData = {
+              blob: blob,
+              filename: filename,
+              size: blob.size,
+              type:
+                blob.type ||
+                response.headers.get("content-type") ||
+                "application/octet-stream",
+            };
+
+            // Trigger automatic download
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const downloadLink = document.createElement("a");
+            downloadLink.href = downloadUrl;
+            downloadLink.download = filename;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            window.URL.revokeObjectURL(downloadUrl);
+
+            // Show success toast
+            window.utils.showToast(
+              `File "${filename}" downloaded successfully`,
+              "success"
+            );
+
+            responseBodyText = `File downloaded: ${filename}`;
+          } catch (blobError) {
+            console.error("Error processing file download:", blobError);
+            responseBodyText = "Error processing file download";
+          }
+        } else {
+          // Handle regular response
+          try {
+            responseBodyText = await response.text();
+          } catch (textError) {
+            responseBodyText = "Unable to read response body";
+          }
         }
+
         const executionTime = Math.round(performance.now() - startTime);
 
         if (!response.ok) {
@@ -14050,7 +13733,8 @@ function initExecuteRequestButton() {
           response,
           responseBodyText,
           !response.ok,
-          executionTime
+          executionTime,
+          downloadData
         );
       } catch (error) {
         console.error("Error during API request execution:", error);
@@ -14072,63 +13756,498 @@ function initExecuteRequestButton() {
   }
 }
 
-// Initialize the vertical menu functionality
-function initVerticalMenu() {
-  const menuIcons = document.querySelectorAll(".vertical-menu-icon");
-  const sections = document.querySelectorAll(".right-panel-section");
+// Export the function
+window.initExecuteRequestButton = initExecuteRequestButton;
 
-  menuIcons.forEach((icon) => {
-    icon.addEventListener("click", () => {
-      // Update active state of icons
-      menuIcons.forEach((i) => i.classList.remove("active"));
-      icon.classList.add("active"); // Show corresponding section
-      const sectionId = icon.dataset.section + "-section";
-      sections.forEach((section) => {
-        if (section.id === sectionId) {
-          section.classList.add("active");
-          section.classList.remove("hidden");
 
-          // Special handling for different sections
-          if (sectionId === "try-it-out-section") {
-            // Hide all collection runner content
-            const collectionTabs = document.querySelectorAll(
-              ".collection-tab-content"
-            );
-            collectionTabs.forEach((tab) => tab.classList.add("hidden"));
-          } else if (sectionId === "collection-runner-section") {
-            // When switching to collection runner, restore the previously active tab
-            if (window.collectionRunnerUI) {
-              window.collectionRunnerUI.restoreActiveTab();
-            } else {
-              // Fallback if collectionRunnerUI is not available yet
-              document
-                .querySelectorAll(".collection-tab-content")
-                .forEach((tab) => {
-                  if (tab.id === "collection-tab") {
-                    tab.classList.remove("hidden");
-                  } else {
-                    tab.classList.add("hidden");
-                  }
-                });
-              // Also update the tab buttons
-              document
-                .querySelectorAll(".collection-tab[data-tab]")
-                .forEach((btn) => {
-                  if (btn.dataset.tab === "collection-tab") {
-                    btn.classList.add("active");
-                  } else {
-                    btn.classList.remove("active");
-                  }
-                });
-            }
-          }
-        } else {
-          section.classList.remove("active");
-          section.classList.add("hidden");
+/* js/responseDisplayHandler.js */
+// Function to display actual API response
+function displayActualResponse(
+  response,
+  responseBodyText,
+  error = false,
+  executionTime = 0,
+  downloadData = null
+) {
+  const responseContent = document.getElementById("response-content");
+  const actualResponseStatusCodeDisplay = document.getElementById(
+    "actual-response-status-code-display"
+  );
+  const tabsContainer = document.getElementById("try-it-out-tabs");
+  const responseBodyContainer = document.getElementById("actualResponseSample");
+  const timeSpan = document.getElementById("response-execution-time");
+  const headersList = document.getElementById("response-headers");
+
+  // Show both tabs after response is received
+  if (tabsContainer) {
+    tabsContainer.classList.remove("hidden");
+    tabsContainer.classList.add("visible", "response-available");
+  }
+
+  // Show the response content
+  if (responseContent) {
+    responseContent.classList.remove("hidden");
+  }
+
+  // Get proper status text
+  const statusText = window.utils.getStatusText(response.status);
+
+  // Update status code display and button style
+  if (actualResponseStatusCodeDisplay) {
+    actualResponseStatusCodeDisplay.textContent = `${response.status} ${statusText}`;
+  } // Update button style and reattach click handler
+  const responseDetailsBtn = document.getElementById("response-details-button");
+  if (responseDetailsBtn) {
+    // Determine color based on status code (same logic as response headers)
+    const statusStr = String(response.status);
+    const responseColor = statusStr.startsWith("2")
+      ? "green"
+      : statusStr.startsWith("3")
+      ? "yellow"
+      : "red";
+
+    // Check if there are any response headers
+    const hasHeaders = response.headers && response.headers.keys().next().value;
+
+    // Only show arrow if there are headers
+    const arrowHtml = hasHeaders
+      ? `<svg id="response-details-arrow" class="h-5 w-5 mr-2 transform transition-transform duration-200" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path>
+      </svg>`
+      : "";
+
+    const buttonHtml = `${arrowHtml}<div class="flex items-center justify-between w-full">
+        <span id="actual-response-status-code-display" class="text-sm font-medium">${response.status} ${statusText}</span>
+        <div class="flex items-center">
+          <svg class="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span id="response-execution-time" class="text-sm">${executionTime}ms</span>
+        </div>
+      </div>
+    `;
+    responseDetailsBtn.innerHTML = buttonHtml;
+    responseDetailsBtn.className = `flex items-center w-full bg-${responseColor}-100 text-${responseColor}-800 py-2 px-3 rounded-md response-details-button`;
+
+    // Remove old listeners and add new one
+    const newResponseDetailsBtn = responseDetailsBtn.cloneNode(true);
+    responseDetailsBtn.parentNode.replaceChild(
+      newResponseDetailsBtn,
+      responseDetailsBtn
+    );
+
+    // Only add click handler if there are headers
+    if (hasHeaders) {
+      newResponseDetailsBtn.addEventListener("click", () => {
+        const content = document.getElementById("response-details-content");
+        const arrow = document.getElementById("response-details-arrow");
+        if (content && arrow) {
+          content.classList.toggle("hidden");
+          arrow.classList.toggle("rotate-90");
         }
       });
+    }
+  }
+
+  // Update execution time
+  if (timeSpan) {
+    timeSpan.textContent = `${executionTime}ms`;
+  }
+
+  // Update response headers
+  if (headersList && response.headers) {
+    let formattedHeaders = "";
+    response.headers.forEach((value, name) => {
+      formattedHeaders += `<div class="border-b border-gray-600 last:border-0">
+        <span class="font-semibold text-gray-300">${name}:</span> 
+        <span class="text-gray-400">${value}</span>
+      </div>`;
     });
-  });
+    headersList.innerHTML = formattedHeaders;
+  } // Process response body
+  let displayValue = responseBodyText || "";
+  let language = "text";
+
+  // Hide/show copy button based on whether it's a file download
+  const copyActualResponseBtn = document.getElementById(
+    "copyActualResponseBtn"
+  );
+  if (copyActualResponseBtn) {
+    if (downloadData) {
+      copyActualResponseBtn.style.display = "none";
+    } else {
+      copyActualResponseBtn.style.display = "flex";
+    }
+  }  if (downloadData) {
+    // Handle file download display
+    if (responseBodyContainer) {
+      // Hide Monaco editor container
+      responseBodyContainer.style.display = "none";
+      responseBodyContainer.classList.add("hidden");
+
+      // Check if download container already exists
+      let downloadContainer = document.getElementById("download-response-container");
+      if (!downloadContainer) {
+        // Create download interface container
+        downloadContainer = document.createElement("div");
+        downloadContainer.id = "download-response-container";
+        downloadContainer.className =
+          "flex flex-col items-center justify-center h-full p-8 bg-gray-800 border border-gray-600 rounded-md";
+        
+        // Insert after the response body container
+        responseBodyContainer.parentNode.insertBefore(downloadContainer, responseBodyContainer.nextSibling);
+      }
+
+      downloadContainer.innerHTML = `
+        <div class="text-center">
+          <svg class="w-16 h-16 mx-auto mb-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <h3 class="text-lg font-medium text-white mb-2">File Downloaded Successfully</h3>
+          <p class="text-gray-300 mb-4">
+            <span class="font-medium">${downloadData.filename}</span>
+            <br>            <span class="text-sm text-gray-400">${window.formatFileSize(
+              downloadData.size
+            )} • ${downloadData.type || "Unknown type"}</span>
+          </p>
+          <button id="re-download-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded transition-colors flex items-center justify-center w-full">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+            Download Again
+          </button>
+        </div>
+      `;
+
+      // Show download container
+      downloadContainer.style.display = "block";
+      downloadContainer.classList.remove("hidden");
+
+      // Add click handler for re-download
+      const reDownloadBtn = document.getElementById("re-download-btn");
+      if (reDownloadBtn) {
+        reDownloadBtn.addEventListener("click", () => {
+          const downloadUrl = window.URL.createObjectURL(downloadData.blob);
+          const downloadLink = document.createElement("a");
+          downloadLink.href = downloadUrl;
+          downloadLink.download = downloadData.filename;
+          document.body.appendChild(downloadLink);
+          downloadLink.click();
+          document.body.removeChild(downloadLink);
+          window.URL.revokeObjectURL(downloadUrl);
+
+          window.utils.showToast("File downloaded successfully", "success");
+        });
+      }
+    }
+
+    // Switch to response tab
+    switchTab("response");
+    return;
+  } else {
+    // Hide download container if it exists (for regular responses)
+    const downloadContainer = document.getElementById("download-response-container");
+    if (downloadContainer) {
+      downloadContainer.style.display = "none";
+      downloadContainer.classList.add("hidden");
+    }
+    
+    // Ensure response body container is visible for regular responses
+    if (responseBodyContainer) {
+      responseBodyContainer.style.display = "block";
+      responseBodyContainer.classList.remove("hidden");
+    }
+  }
+
+  const contentTypeHeader =
+    response.headers?.get("Content-Type") || "application/octet-stream";
+  if (
+    contentTypeHeader.includes("application/json") ||
+    contentTypeHeader.includes("application/problem+json")
+  ) {
+    try {
+      const jsonBody = JSON.parse(responseBodyText);
+      displayValue = JSON.stringify(jsonBody, null, 2);
+      language = "json";
+    } catch (e) {
+      console.warn("Failed to parse JSON response", e);
+    }
+  }
+
+  // Create or update the response editor
+  try {
+    if (!window.responseBodyEditor) {
+      // Create new editor if it doesn't exist
+      window.monacoSetup
+        .createMonacoEditor("actualResponseSample", {
+          language,
+          value: displayValue,
+          readOnly: true,
+          minimap: { enabled: false },
+          lineNumbers: "off",
+          automaticLayout: true,
+          scrollBeyondLastLine: false,
+          wordWrap: "on",
+        })
+        .then((editor) => {
+          window.responseBodyEditor = editor;
+          setupResponseEditor(responseBodyContainer);
+        });
+    } else {
+      const model = window.responseBodyEditor.getModel();
+      monaco.editor.setModelLanguage(model, language);
+      window.responseBodyEditor.setValue(displayValue);
+      setupResponseEditor(responseBodyContainer);
+    }
+  } catch (err) {
+    console.error("Error displaying response:", err);
+    // Fallback to plain text display
+    if (responseBodyContainer) {
+      responseBodyContainer.innerHTML = `<pre class="text-sm text-gray-300 p-4">${displayValue}</pre>`;
+    }
+  }
+
+  // Switch to response tab
+  switchTab("response");
+}
+
+// Helper function to setup response editor container
+function setupResponseEditor(container) {
+  if (!container) return;
+
+  container.style.display = "block";
+  container.classList.remove("hidden");
+
+  // Give the editor time to layout properly
+  setTimeout(() => {
+    if (window.responseBodyEditor) {
+      window.responseBodyEditor.layout();
+    }
+  }, 100);
+}
+
+// Make functions available globally
+window.displayActualResponse = displayActualResponse;
+window.setupResponseEditor = setupResponseEditor;
+
+
+/* js/eventHandlers.js */
+// DOM event handlers and initialization
+
+// Update execute button color to match the HTTP verb
+function updateExecuteButtonColor(method) {
+  const executeRequestBtn = document.getElementById("executeRequestBtn");
+  if (!executeRequestBtn || !method) return;
+
+  // Get the base classes for the button excluding background and text color
+  const baseClasses =
+    "flex items-center hover:bg-opacity-80 font-bold py-1.5 px-3 rounded";
+
+  // Extract just the background color based on the HTTP method
+  let bgColorClass = "";
+  switch (method.trim().toUpperCase()) {
+    case "GET":
+      bgColorClass = "bg-green-600";
+      break;
+    case "POST":
+      bgColorClass = "bg-blue-600";
+      break;
+    case "PUT":
+      bgColorClass = "bg-yellow-500";
+      break;
+    case "PATCH":
+      bgColorClass = "bg-yellow-400";
+      break;
+    case "DELETE":
+      bgColorClass = "bg-red-600";
+      break;
+    case "HEAD":
+      bgColorClass = "bg-purple-600";
+      break;
+    case "OPTIONS":
+      bgColorClass = "bg-gray-500";
+      break;
+    default:
+      bgColorClass = "bg-gray-600";
+  }
+
+  // Set the button classes
+  executeRequestBtn.className = `${baseClasses} ${bgColorClass} text-white`;
+}
+
+// Function to navigate to an endpoint from hash
+function navigateToEndpointFromHash() {
+  const hash = window.location.hash;
+  if (hash) {
+    // Hash format: #method-path (e.g., #get-/api/users)
+    const parts = hash.substring(1).split("-");
+    if (parts.length >= 2) {
+      const method = parts[0];
+      const path = parts.slice(1).join("-");
+
+      // Find the matching endpoint using clean path
+      const endpoint = findEndpointFromCleanPath(path, method);
+      if (endpoint) {
+        const [swaggerPath, swaggerMethod] = endpoint;
+        const endpointLink = document.querySelector(
+          `.endpoint-link[data-path="${swaggerPath}"][data-method="${swaggerMethod}"]`
+        );
+        if (endpointLink) {
+          // Trigger click on the sidebar link
+          endpointLink.click();
+
+          // Also ensure the section is expanded
+          const sectionId = generateSectionId(swaggerPath, swaggerMethod);
+          const section = document.getElementById(sectionId);
+          if (section) {
+            // When navigating directly to an endpoint, we should check if there's a saved preference
+            const outlineButton = section.querySelector(".outline-btn");
+            const contentDiv = section.querySelector(".flex-1");
+
+            if (outlineButton && contentDiv) {
+              const content = [...contentDiv.children].slice(1);
+              const svg = outlineButton.querySelector("svg");
+
+              // Check if there's a saved preference
+              if (
+                window.swaggerData &&
+                window.swaggerData.info &&
+                window.swaggerData.info.title &&
+                window.swaggerData.info.version
+              ) {
+                const apiTitle = window.swaggerData.info.title
+                  .toLowerCase()
+                  .replace(/\s+/g, "_");
+                const apiVersion = window.swaggerData.info.version
+                  .toLowerCase()
+                  .replace(/\s+/g, "_");
+                const savedState = localStorage.getItem(
+                  `${apiTitle}_${apiVersion}_outline_expanded_${sectionId}`
+                );
+
+                // If there's an explicit preference to expand, or if we're navigating from a hash and no preference exists
+                if (savedState === "true" || (hash && !savedState)) {
+                  // Remove hidden class from content
+                  content.forEach((element) =>
+                    element.classList.remove("hidden")
+                  );
+
+                  // Rotate arrow to expanded state
+                  if (svg) {
+                    svg.style.transform = "rotate(90deg)";
+                  }
+                }
+              }
+            }
+            // Scroll into view with a slight delay to ensure everything is rendered
+            setTimeout(() => {
+              section.scrollIntoView({ behavior: "smooth" });
+            }, 600);
+          }
+
+          // Update code snippet section with the current endpoint
+          updateCodeSnippetSection(swaggerPath, swaggerMethod);
+        }
+      }
+    }
+  }
+}
+
+// Function to update the code snippet section with endpoint details
+function updateCodeSnippetSection(path, method) {
+  // Update the snippet method and path display
+  const snippetMethodElement = document.querySelector("#snippet-method");
+  const snippetPathElement = document.querySelector("#snippet-path");
+
+  if (snippetMethodElement && snippetPathElement) {
+    snippetMethodElement.textContent = method.toUpperCase();
+    snippetMethodElement.className =
+      getMethodClass(method) + " text-white px-2 py-0.5 text-xs rounded mr-2";
+    snippetPathElement.textContent = path;
+  }
+
+  // If currently viewing code snippet section, regenerate the snippet
+  const codeSnippetSection = document.getElementById("code-snippet-section");
+  if (codeSnippetSection && codeSnippetSection.classList.contains("active")) {
+    setTimeout(() => {
+      // Import the module to avoid circular dependency
+      if (typeof generateCodeSnippet === "function") {
+        generateCodeSnippet();
+      }
+    }, 100);
+  }
+}
+
+// Initialize the application when DOM is loaded
+document.addEventListener("DOMContentLoaded", () => {
+  loadSwaggerSpec(window.swaggerPath);
+
+  // Set up sidebar search functionality
+  const sidebarSearch = document.getElementById("sidebar-search");
+  if (sidebarSearch) {
+    sidebarSearch.addEventListener("input", (e) => {
+      filterSidebar(e.target.value);
+    });
+  }
+
+  // Set up view toggle event listeners
+  initViewToggles();
+  // Set up execute request button
+  if (window.initExecuteRequestButton) {
+    window.initExecuteRequestButton();
+  } // Setup copy to clipboard buttons
+  initCopyButtons();
+
+  // Handle hash changes (browser back/forward)
+  window.addEventListener("hashchange", navigateToEndpointFromHash);
+
+  // Initialize the vertical menu
+  initVerticalMenu();
+});
+
+// Initialize the view mode toggle buttons
+function initViewToggles() {
+  const viewListBtn = document.getElementById("view-list");
+  const viewTreeBtn = document.getElementById("view-tree");
+
+  if (viewListBtn && viewTreeBtn) {
+    // Initialize the correct button state on page load
+    updateViewToggleButtons();
+
+    viewListBtn.addEventListener("click", () => {
+      // Always update when clicked, regardless of current state
+      setViewMode("list");
+      updateViewToggleButtons();
+      buildSidebar(); // Rebuild the sidebar with the new view mode
+    });
+
+    viewTreeBtn.addEventListener("click", () => {
+      // Always update when clicked, regardless of current state
+      setViewMode("tree");
+      updateViewToggleButtons();
+      buildSidebar(); // Rebuild the sidebar with the new view mode
+    });
+  }
+}
+
+// Function to update the active state of view toggle buttons
+function updateViewToggleButtons() {
+  const viewListBtn = document.getElementById("view-list");
+  const viewTreeBtn = document.getElementById("view-tree");
+
+  // Ensure buttons are found before attempting to modify their class lists
+  if (viewListBtn && viewTreeBtn) {
+    // Explicitly remove 'active-view' from both buttons first
+    viewListBtn.classList.remove("active-view");
+    viewTreeBtn.classList.remove("active-view");
+
+    // Then, add 'active-view' to the button corresponding to the current viewMode
+    if (viewMode === "list") {
+      viewListBtn.classList.add("active-view");
+    } else if (viewMode === "tree") {
+      viewTreeBtn.classList.add("active-view");
+    }
+  }
 }
 
 // Initialize copy to clipboard buttons

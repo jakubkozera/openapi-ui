@@ -5,10 +5,35 @@ $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $projectDir = Split-Path -Parent $scriptDir
 $distDir = Join-Path (Split-Path -Parent (Split-Path -Parent $projectDir)) "core\dist"
 $contentDir = Join-Path $projectDir "Content"
+$buildScriptPath = Join-Path (Split-Path -Parent (Split-Path -Parent $projectDir)) "core\build.js"
 
 Write-Host "Project directory: $projectDir" -ForegroundColor Green
 Write-Host "Dist directory: $distDir" -ForegroundColor Green
 Write-Host "Content directory: $contentDir" -ForegroundColor Green
+Write-Host "Build script path: $buildScriptPath" -ForegroundColor Green
+
+# First, run the build script to generate the dist files
+Write-Host "`nRunning build script..." -ForegroundColor Yellow
+if (-not (Test-Path $buildScriptPath)) {
+    Write-Error "Build script not found: $buildScriptPath"
+    exit 1
+}
+
+try {
+    Set-Location (Split-Path -Parent $buildScriptPath)
+    node build.js
+    
+    if ($LASTEXITCODE -ne 0) {
+        throw "Build script failed"
+    }
+    
+    Write-Host "Build script completed successfully!" -ForegroundColor Green
+    Set-Location $scriptDir
+}
+catch {
+    Write-Error "Error running build script: $($_.Exception.Message)"
+    exit 1
+}
 
 # Check if dist directory exists
 if (-not (Test-Path $distDir)) {
@@ -93,7 +118,8 @@ try {
         }
     }
     
-} catch {
+}
+catch {
     Write-Error "Error during build/pack process: $($_.Exception.Message)"
     exit 1
 }

@@ -357,6 +357,22 @@ function showToast(message, type = "success") {
   }
 }
 
+/**
+ * Format file size in a human readable format
+ * @param {number} bytes - File size in bytes
+ * @returns {string} Formatted file size
+ */
+function formatFileSize(bytes) {
+  if (bytes === 0) return "0 Bytes";
+  const k = 1024;
+  const sizes = ["Bytes", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+}
+
+// Make formatFileSize available globally
+window.formatFileSize = formatFileSize;
+
 // Helper functions for endpoints collapsing/expanding
 // Expand an endpoints section with a smooth transition
 function expandEndpointsSection(section, arrowElement = null) {

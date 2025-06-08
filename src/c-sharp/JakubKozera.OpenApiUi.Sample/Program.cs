@@ -85,7 +85,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("GitHubPages", policy =>
     {
-        policy.WithOrigins("https://jakubkozera.github.io")
+        policy.WithOrigins("https://jakubkozera.github.io", "http://localhost:5501")
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();

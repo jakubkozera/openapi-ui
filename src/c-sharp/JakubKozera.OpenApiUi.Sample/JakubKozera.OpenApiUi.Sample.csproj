@@ -6,7 +6,7 @@
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>  <ItemGroup>
-    <PackageReference Include="JakubKozera.OpenApiUi" Version="1.0.12" />
+    <PackageReference Include="JakubKozera.OpenApiUi" Version="1.0.14" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.4" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.0" />
