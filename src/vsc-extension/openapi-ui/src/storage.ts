@@ -55,12 +55,25 @@ export class OpenAPIStorage {
   public getSources(): OpenAPISource[] {
     return [...this.sources];
   }
-
   public addSource(name: string, url: string): void {
     const newSource: OpenAPISource = {
       id: this.generateId(),
       name,
+      type: "url",
       url,
+      createdAt: new Date(),
+    };
+
+    this.sources.push(newSource);
+    this.saveSources();
+  }
+
+  public addJsonSource(name: string, content: string): void {
+    const newSource: OpenAPISource = {
+      id: this.generateId(),
+      name,
+      type: "json",
+      content,
       createdAt: new Date(),
     };
 

@@ -40,7 +40,6 @@ export function activate(context: vscode.ExtensionContext) {
       );
     }
   );
-
   // Register command to add OpenAPI source
   let addSourceDisposable = vscode.commands.registerCommand(
     "openapi-ui.addSource",
@@ -54,28 +53,76 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
 
-      const url = await vscode.window.showInputBox({
-        prompt: "Enter the URL of the OpenAPI specification",
-        placeHolder: "e.g., https://api.example.com/openapi.json",
-        validateInput: (value) => {
-          if (!value) {
-            return "URL is required";
-          }
-          try {
-            new URL(value);
-            return null;
-          } catch {
-            return "Please enter a valid URL";
-          }
-        },
-      });
+      // Ask user to choose between URL and JSON content
+      const sourceType = await vscode.window.showQuickPick(
+        [
+          {
+            label: "URL",
+            description: "Load from a URL endpoint",
+            value: "url",
+          },
+          {
+            label: "JSON Content",
+            description: "Paste JSON content directly",
+            value: "json",
+          },
+        ],
+        {
+          placeHolder: "Choose how to provide the OpenAPI specification",
+        }
+      );
 
-      if (!url) {
+      if (!sourceType) {
         return;
       }
 
-      storage.addSource(name, url);
-      vscode.window.showInformationMessage(`Added OpenAPI source: ${name}`);
+      if (sourceType.value === "url") {
+        const url = await vscode.window.showInputBox({
+          prompt: "Enter the URL of the OpenAPI specification",
+          placeHolder: "e.g., https://api.example.com/openapi.json",
+          validateInput: (value) => {
+            if (!value) {
+              return "URL is required";
+            }
+            try {
+              new URL(value);
+              return null;
+            } catch {
+              return "Please enter a valid URL";
+            }
+          },
+        });
+
+        if (!url) {
+          return;
+        }
+
+        storage.addSource(name, url);
+        vscode.window.showInformationMessage(`Added OpenAPI source: ${name}`);
+      } else {
+        const jsonContent = await vscode.window.showInputBox({
+          prompt: "Paste the OpenAPI JSON specification",
+          placeHolder: "Paste your OpenAPI JSON content here...",
+          validateInput: (value) => {
+            if (!value) {
+              return "JSON content is required";
+            }
+            try {
+              JSON.parse(value);
+              return null;
+            } catch {
+              return "Please enter valid JSON";
+            }
+          },
+        });
+
+        if (!jsonContent) {
+          return;
+        }
+
+        storage.addJsonSource(name, jsonContent);
+        vscode.window.showInformationMessage(`Added OpenAPI source: ${name}`);
+      }
     }
   );
 
@@ -128,13 +175,11 @@ export function activate(context: vscode.ExtensionContext) {
               }
             });
           return;
-        }
-
-        // Create quick pick items
+        } // Create quick pick items
         const quickPickItems = sources.map((source) => ({
           label: source.name,
-          description: source.url,
-          detail: `Created: ${source.createdAt.toLocaleString()}`,
+          description: source.type === "url" ? source.url : "JSON Content",
+          detail: `Type: ${source.type.toUpperCase()} | Created: ${source.createdAt.toLocaleString()}`,
           sourceId: source.id,
         }));
 
@@ -156,12 +201,22 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showErrorMessage("OpenAPI source not found");
         return;
       }
-
-      if (!source.name || !source.url) {
+      if (!source.name) {
         vscode.window.showErrorMessage("Invalid OpenAPI source data");
         return;
       }
 
+      if (source.type === "url" && !source.url) {
+        vscode.window.showErrorMessage("Invalid OpenAPI source: missing URL");
+        return;
+      }
+
+      if (source.type === "json" && !source.content) {
+        vscode.window.showErrorMessage(
+          "Invalid OpenAPI source: missing JSON content"
+        );
+        return;
+      }
       try {
         const panel = vscode.window.createWebviewPanel(
           "openapiSourceUI",
@@ -175,11 +230,21 @@ export function activate(context: vscode.ExtensionContext) {
           }
         );
 
-        panel.webview.html = getWebviewContent(
-          panel.webview,
-          context.extensionPath,
-          source.url
-        );
+        if (source.type === "url") {
+          panel.webview.html = getWebviewContent(
+            panel.webview,
+            context.extensionPath,
+            source.url
+          );
+        } else {
+          // For JSON content, create a blob URL
+          panel.webview.html = getWebviewContent(
+            panel.webview,
+            context.extensionPath,
+            undefined,
+            source.content
+          );
+        }
 
         vscode.window.showInformationMessage(
           `Loaded OpenAPI source: ${source.name}`
@@ -191,12 +256,64 @@ export function activate(context: vscode.ExtensionContext) {
       }
     }
   );
+  // Register command to add JSON OpenAPI source
+  let addJsonSourceDisposable = vscode.commands.registerCommand(
+    "openapi-ui.addJsonSource",
+    async () => {
+      const name = await vscode.window.showInputBox({
+        prompt: "Enter a name for the OpenAPI source",
+        placeHolder: "e.g., My Custom API",
+      });
+
+      if (!name) {
+        return;
+      }
+
+      const jsonContent = await vscode.window.showInputBox({
+        prompt: "Paste the OpenAPI JSON specification",
+        placeHolder: "Paste your OpenAPI JSON content here...",
+        validateInput: (value) => {
+          if (!value) {
+            return "JSON content is required";
+          }
+          try {
+            JSON.parse(value);
+            return null;
+          } catch {
+            return "Please enter valid JSON";
+          }
+        },
+      });
+
+      if (!jsonContent) {
+        return;
+      }
+      try {
+        storage.addJsonSource(name, jsonContent);
+        vscode.window.showInformationMessage(
+          `Added and opened OpenAPI source: ${name}`
+        );
+
+        // Automatically load the source we just added
+        const sources = storage.getSources();
+        const newSource = sources.find((s) => s.name === name);
+        if (newSource) {
+          vscode.commands.executeCommand("openapi-ui.loadSource", newSource.id);
+        }
+      } catch (error) {
+        vscode.window.showErrorMessage(
+          `Failed to add OpenAPI source: ${error}`
+        );
+      }
+    }
+  );
   context.subscriptions.push(
     openViewDisposable,
     addSourceDisposable,
     removeSourceDisposable,
     refreshSourcesDisposable,
-    loadSourceDisposable
+    loadSourceDisposable,
+    addJsonSourceDisposable
   );
 }
 
@@ -205,7 +322,8 @@ export function deactivate() {}
 function getWebviewContent(
   webview: vscode.Webview,
   extensionPath: string,
-  openapiUrl?: string
+  openapiUrl?: string,
+  jsonContent?: string
 ): string {
   // Path to the core/dist directory
   const distPath = path.join(extensionPath, "core-dist");
@@ -233,9 +351,15 @@ function getWebviewContent(
       `src="${imgUri}"`
     );
 
-    // Replace the OpenAPI URL placeholder if provided
+    // Handle OpenAPI source replacement
     if (openapiUrl) {
+      // For URL sources, replace with the provided URL
       htmlContent = htmlContent.replace("#swagger_path#", openapiUrl);
+    } else if (jsonContent) {
+      // For JSON sources, create a blob URL and inject the content
+      const encodedContent = Buffer.from(jsonContent).toString("base64");
+      const dataUrl = `data:application/json;base64,${encodedContent}`;
+      htmlContent = htmlContent.replace("#swagger_path#", dataUrl);
     }
 
     return htmlContent;

@@ -46,14 +46,23 @@ export class OpenAPITreeItem extends vscode.TreeItem {
   ) {
     super(source.name, collapsibleState);
 
-    this.tooltip = `${source.name}\n${
-      source.url
-    }\nCreated: ${source.createdAt.toLocaleString()}`;
-    this.description = undefined;
+    // Set tooltip based on source type
+    if (source.type === "url") {
+      this.tooltip = `${source.name}\nURL: ${
+        source.url
+      }\nCreated: ${source.createdAt.toLocaleString()}`;
+      this.iconPath = new vscode.ThemeIcon("globe");
+    } else {
+      this.tooltip = `${
+        source.name
+      }\nType: JSON Content\nCreated: ${source.createdAt.toLocaleString()}`;
+      this.iconPath = new vscode.ThemeIcon("file-code");
+    }
+
+    this.description = source.type === "url" ? "URL" : "JSON";
     this.contextValue = "openapi-source";
 
-    // Add icons
-    this.iconPath = new vscode.ThemeIcon("globe"); // Add command to load the source when clicked
+    // Add command to load the source when clicked
     this.command = {
       command: "openapi-ui.loadSource",
       title: "Load OpenAPI Source",

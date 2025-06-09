@@ -1,7 +1,9 @@
 export interface OpenAPISource {
   id: string;
   name: string;
-  url: string;
+  type: "url" | "json";
+  url?: string;
+  content?: string;
   createdAt: Date;
 }
 
