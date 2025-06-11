@@ -91,6 +91,23 @@ namespace JakubKozera.OpenApiUi
         }
 
         /// <summary>
+        /// Adds OpenAPI UI middleware to the ASP.NET Core application pipeline with a configuration action.
+        /// This middleware serves an embedded OpenAPI documentation interface.
+        /// </summary>
+        /// <param name="app">The application builder instance.</param>
+        /// <param name="configureOptions">An action to configure the OpenAPI UI options.</param>
+        /// <returns>The application builder instance for method chaining.</returns>
+        public static IApplicationBuilder UseOpenApiUi(this IApplicationBuilder app, Action<OpenApiUiConfiguration> configureOptions)
+        {
+            if (configureOptions == null)
+                throw new ArgumentNullException(nameof(configureOptions));
+
+            var configuration = new OpenApiUiConfiguration();
+            configureOptions(configuration);
+            return UseOpenApiUi(app, configuration);
+        }
+
+        /// <summary>
         /// Adds OpenAPI UI middleware to the ASP.NET Core application pipeline with default configuration.
         /// This middleware serves an embedded OpenAPI documentation interface.
         /// </summary>

@@ -104,16 +104,52 @@ app.Run();
 
 ### 2. Access the OpenAPI UI
 
-Navigate to `/openapi-ui` in your browser to view the API documentation interface.
+Navigate to `/openapi-ui` in your browser to view the API documentation interface (or your custom path if configured).
+
+**Note:** The default UI path is `/openapi-ui` and the default OpenAPI specification path is `/swagger/v1/swagger.json`.
 
 ## Configuration
 
-### Custom OpenAPI Specification Path
+### Basic Configuration Options
 
-You can specify a custom path to your OpenAPI specification:
+The middleware provides several overloads for different configuration needs:
+
+#### Default Configuration
 
 ```csharp
-app.UseOpenApiUi("/api/docs/swagger.json");
+app.UseOpenApiUi(); // Uses default settings
+```
+
+**Default values:**
+
+- `OpenApiSpecPath`: `"/swagger/v1/swagger.json"`
+- `OpenApiUiPath`: `"openapi-ui"`
+
+#### Simple Path Configuration
+
+```csharp
+app.UseOpenApiUi("/api/docs/swagger.json"); // Custom OpenAPI spec path only
+```
+
+#### Fluent Configuration
+
+```csharp
+app.UseOpenApiUi(config =>
+{
+    config.OpenApiSpecPath = "/api/v2/openapi.json";  // Custom spec path
+    config.OpenApiUiPath = "api-docs";                // Custom UI path
+});
+```
+
+#### Configuration Object
+
+```csharp
+var configuration = new OpenApiUiConfiguration
+{
+    OpenApiSpecPath = "/api/docs/swagger.json",
+    OpenApiUiPath = "docs"
+};
+app.UseOpenApiUi(configuration);
 ```
 
 ## Usage Examples
@@ -140,14 +176,44 @@ var app = builder.Build();
 // add OpenUI specification
 app.UseSwagger();
 
-// add OpenAPI UI
-app.UseOpenApiUi();
+// add OpenAPI UI with custom configuration
+app.UseOpenApiUi(config =>
+{
+    config.OpenApiUiPath = "api-docs";  // Access via /api-docs instead of default /openapi-ui
+});
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+```
+
+### Advanced Configuration
+
+```csharp
+// Custom path and specification
+app.UseOpenApiUi(config =>
+{
+    config.OpenApiSpecPath = "/api/v2/openapi.json";  // Different spec location
+    config.OpenApiUiPath = "documentation";           // Custom UI path
+});
+
+// Multiple API versions
+if (app.Environment.IsDevelopment())
+{
+    app.UseOpenApiUi(config =>
+    {
+        config.OpenApiSpecPath = "/swagger/v1/swagger.json";
+        config.OpenApiUiPath = "docs/v1";
+    });
+
+    app.UseOpenApiUi(config =>
+    {
+        config.OpenApiSpecPath = "/swagger/v2/swagger.json";
+        config.OpenApiUiPath = "docs/v2";
+    });
+}
 ```
 
 ## Requirements
