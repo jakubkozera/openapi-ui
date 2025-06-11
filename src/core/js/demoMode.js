@@ -444,7 +444,6 @@ class DemoMode {
       window.utils.showToast("Error applying specification", "error");
     }
   }
-
   clearCurrentState() {
     // Clear main content
     const mainContent = document.getElementById("api-main-content");
@@ -462,6 +461,18 @@ class DemoMode {
     const rightPanel = document.getElementById("api-right-panel");
     if (rightPanel) {
       rightPanel.innerHTML = "";
+    }
+
+    // Clear auth section content
+    const authSectionContent = document.querySelector("#auth-section .p-6");
+    if (authSectionContent) {
+      // Keep the title but remove all dynamically generated content
+      authSectionContent.innerHTML = `
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-semibold text-lg">Authentication</h2>
+        </div>
+        <!-- Security scheme content will be dynamically inserted here -->
+      `;
     }
 
     // Reset any active states
