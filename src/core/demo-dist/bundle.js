@@ -4546,13 +4546,19 @@ function generateValidExampleFromSchema(
   if (resolvedSchema.example !== undefined) {
     return resolvedSchema.example;
   }
-
   // Use default value if available
   if (resolvedSchema.default !== undefined) {
     return resolvedSchema.default;
   }
 
-  if (resolvedSchema.type === "object" && resolvedSchema.properties) {
+  // Handle type as array (OpenAPI 3.1 JSON Schema compatibility)
+  let schemaType = resolvedSchema.type;
+  if (Array.isArray(resolvedSchema.type) && resolvedSchema.type.length > 0) {
+    // Use first non-null type
+    schemaType = resolvedSchema.type.find(type => type !== "null") || resolvedSchema.type[0];
+  }
+
+  if (schemaType === "object" && resolvedSchema.properties) {
     const example = {};
     const required = resolvedSchema.required || [];
 
@@ -4586,10 +4592,8 @@ function generateValidExampleFromSchema(
           example[propName] = value;
         }
       }
-    }
-
-    return example;
-  } else if (resolvedSchema.type === "array" && resolvedSchema.items) {
+    }    return example;
+  } else if (schemaType === "array" && resolvedSchema.items) {
     if (indent < 5) {
       const itemExample = generateValidExampleFromSchema(
         resolvedSchema.items,
@@ -4617,13 +4621,19 @@ function generateValidPrimitiveExample(schema) {
 
   // Use default value if available
   if (schema.default !== undefined) return schema.default;
-
   // Handle enums first
   if (schema.enum && schema.enum.length > 0) {
     return schema.enum[0];
   }
 
-  switch (schema.type) {
+  // Handle type as array (OpenAPI 3.1 JSON Schema compatibility)
+  let schemaType = schema.type;
+  if (Array.isArray(schema.type) && schema.type.length > 0) {
+    // Use first non-null type
+    schemaType = schema.type.find(type => type !== "null") || schema.type[0];
+  }
+
+  switch (schemaType) {
     case "string":
       return generateValidStringExample(schema);
     case "integer":
