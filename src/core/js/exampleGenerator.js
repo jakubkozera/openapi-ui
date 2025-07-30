@@ -293,11 +293,18 @@ function generatePrimitiveExample(propSchema, components, indent) {
 
 // Main function to generate compliant request body examples
 function generateRequestBodyExample(operation, swaggerSpec) {
-  if (!operation.requestBody || !operation.requestBody.content) {
+  if (!operation.requestBody) {
     return null;
   }
 
-  const content = operation.requestBody.content;
+  // Use the utility function to get request body content, handling both direct content and $ref
+  const resolvedRequestBody = window.utils.getRequestBodyContent(operation.requestBody, swaggerSpec);
+  
+  if (!resolvedRequestBody || !resolvedRequestBody.content) {
+    return null;
+  }
+
+  const content = resolvedRequestBody.content;
   const contentTypes = Object.keys(content);
 
   if (contentTypes.length === 0) {

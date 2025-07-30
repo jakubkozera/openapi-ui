@@ -974,6 +974,47 @@ function createCleanPath(path) {
   return path.replace(/[{}]/g, ""); // Remove curly braces, keep slashes for proper path structure
 }
 
+// Function to resolve OpenAPI $ref references
+function resolveRef(ref, swaggerData) {
+  if (!ref || !ref.startsWith("#/")) {
+    return null;
+  }
+
+  const refPath = ref.split("/").slice(1); // Remove the '#' and split by '/'
+  let resolvedData = swaggerData;
+
+  for (const part of refPath) {
+    if (resolvedData && resolvedData[part]) {
+      resolvedData = resolvedData[part];
+    } else {
+      console.warn(`Could not resolve reference: ${ref}`);
+      return null;
+    }
+  }
+
+  return resolvedData;
+}
+
+// Function to get request body content, handling both direct content and $ref
+function getRequestBodyContent(requestBody, swaggerData) {
+  if (!requestBody) {
+    return null;
+  }
+
+  // If requestBody has direct content, return it
+  if (requestBody.content) {
+    return requestBody;
+  }
+
+  // If requestBody has $ref, resolve it
+  if (requestBody.$ref) {
+    const resolved = resolveRef(requestBody.$ref, swaggerData);
+    return resolved;
+  }
+
+  return null;
+}
+
 // Export all utility functions
 window.utils = {
   getMethodClass,
@@ -985,6 +1026,8 @@ window.utils = {
   showToast,
   getStatusText,
   createCleanPath, // Export the new utility function
+  resolveRef, // Export the reference resolution utility
+  getRequestBodyContent, // Export the request body content utility
 
   // Get the base URL for API requests
   getBaseUrl: function () {
@@ -2398,7 +2441,9 @@ class CSharpApiGenerator {
     }
 
     if (operation.requestBody) {
-      const content = operation.requestBody.content;
+      // Use the utility function to get request body content, handling both direct content and $ref
+      const resolvedRequestBody = window.utils.getRequestBodyContent(operation.requestBody, this.swaggerData);
+      const content = resolvedRequestBody ? resolvedRequestBody.content : null;
       if (content && content["application/json"]) {
         const schema = content["application/json"].schema;
         const type = this.mapToCSharpType(schema);
@@ -4808,11 +4853,18 @@ function generatePrimitiveExample(propSchema, components, indent) {
 
 // Main function to generate compliant request body examples
 function generateRequestBodyExample(operation, swaggerSpec) {
-  if (!operation.requestBody || !operation.requestBody.content) {
+  if (!operation.requestBody) {
     return null;
   }
 
-  const content = operation.requestBody.content;
+  // Use the utility function to get request body content, handling both direct content and $ref
+  const resolvedRequestBody = window.utils.getRequestBodyContent(operation.requestBody, swaggerSpec);
+  
+  if (!resolvedRequestBody || !resolvedRequestBody.content) {
+    return null;
+  }
+
+  const content = resolvedRequestBody.content;
   const contentTypes = Object.keys(content);
 
   if (contentTypes.length === 0) {
@@ -6772,10 +6824,10 @@ function buildMainContent() {
         }
       }
 
-      // Add request body section if exists
-      if (operation.requestBody) {
-        sectionHTML += buildRequestBodySection(operation, sectionId);
-      }
+  // Add request body section if exists
+  if (operation.requestBody) {
+    sectionHTML += buildRequestBodySection(operation, sectionId);
+  }
 
       // Add responses section
       sectionHTML += buildResponsesSection(operation, sectionId);
@@ -7026,11 +7078,15 @@ function addMainContentEventListeners(section) {
 
 // Add request body dropdown handling
 function addRequestBodyHandlers(operation, sectionId) {
+  // Use the utility function to get request body content, handling both direct content and $ref
+  const resolvedRequestBody = window.utils.getRequestBodyContent(operation.requestBody, swaggerData);
+  
+  if (!resolvedRequestBody || !resolvedRequestBody.content) {
+    return; // No request body content to handle
+  }
+
   // Add event listener for the request body dropdown after section is added to DOM
-  if (
-    operation.requestBody &&
-    Object.keys(operation.requestBody.content).length > 0
-  ) {
+  if (Object.keys(resolvedRequestBody.content || {}).length > 0) {
     const requestBodyIdBase = `request-body-${sectionId}`;
     const selectElement = document.getElementById(
       `${requestBodyIdBase}-content-type-select`
@@ -7047,7 +7103,7 @@ function addRequestBodyHandlers(operation, sectionId) {
 
       if (isSelectElement) {
         // Set 'application/json' as default if available for select elements
-        const contentTypes = Object.keys(operation.requestBody.content);
+        const contentTypes = Object.keys(resolvedRequestBody.content || {});
         if (contentTypes.includes("application/json")) {
           selectElement.value = "application/json";
         }
@@ -7065,11 +7121,11 @@ function addRequestBodyHandlers(operation, sectionId) {
           selectedContentType?.includes("json");
 
         if (
-          operation.requestBody.content[selectedContentType] &&
-          operation.requestBody.content[selectedContentType].schema
+          resolvedRequestBody.content[selectedContentType] &&
+          resolvedRequestBody.content[selectedContentType].schema
         ) {
           const schema =
-            operation.requestBody.content[selectedContentType].schema;
+            resolvedRequestBody.content[selectedContentType].schema;
 
           // Update schema details
           const schemaDetailsElement = document.getElementById(
@@ -7371,7 +7427,16 @@ function buildRequestBodySection(operation, sectionId) {
         <h3 class="text-gray-700 font-semibold mb-2 text-lg">Request Body</h3>
   `;
 
-  const contentTypes = Object.keys(operation.requestBody.content);
+  // Use the utility function to get request body content, handling both direct content and $ref
+  const resolvedRequestBody = window.utils.getRequestBodyContent(operation.requestBody, swaggerData);
+  
+  if (!resolvedRequestBody || !resolvedRequestBody.content) {
+    sectionHTML += `<p class="text-sm text-gray-500">No request body definition found.</p>`;
+    sectionHTML += `</div>`;
+    return sectionHTML;
+  }
+
+  const contentTypes = Object.keys(resolvedRequestBody.content || {});
   if (contentTypes.length > 0) {
     sectionHTML += `
       <div class="flex items-center mb-4">`;
@@ -7396,7 +7461,7 @@ function buildRequestBodySection(operation, sectionId) {
 
     sectionHTML += `
           ${
-            operation.requestBody.required
+            resolvedRequestBody.required
               ? '<span class="text-xs text-red-500">required</span>'
               : ""
           }
@@ -8022,249 +8087,256 @@ async function updateRightPanelDynamically(path, method) {
   }
 
   // Process request body
-  if (
-    operation.requestBody &&
-    operation.requestBody.content &&
-    requestBodySection &&
-    requestBodyContentTypeSelect &&
-    requestBodyEditorDiv &&
-    requestBodyRequiredSpan
-  ) {
-    requestBodySection.classList.remove("hidden");
-    const contentTypes = Object.keys(operation.requestBody.content);
+  if (operation.requestBody) {
+    // Use the utility function to get request body content, handling both direct content and $ref
+    const resolvedRequestBody = window.utils.getRequestBodyContent(operation.requestBody, swaggerData);
+    
+    if (
+      resolvedRequestBody &&
+      resolvedRequestBody.content &&
+      requestBodySection &&
+      requestBodyContentTypeSelect &&
+      requestBodyEditorDiv &&
+      requestBodyRequiredSpan
+    ) {
+      requestBodySection.classList.remove("hidden");
+      const contentTypes = Object.keys(resolvedRequestBody.content || {});
 
-    contentTypes.forEach((contentType) => {
-      const option = document.createElement("option");
-      option.value = contentType;
-      option.textContent = contentType;
-      requestBodyContentTypeSelect.appendChild(option);
-    });
+      contentTypes.forEach((contentType) => {
+        const option = document.createElement("option");
+        option.value = contentType;
+        option.textContent = contentType;
+        requestBodyContentTypeSelect.appendChild(option);
+      });
 
-    // Set 'application/json' as default if available
-    if (contentTypes.includes("application/json")) {
-      requestBodyContentTypeSelect.value = "application/json";
-    }
+      // Set 'application/json' as default if available
+      if (contentTypes.includes("application/json")) {
+        requestBodyContentTypeSelect.value = "application/json";
+      }
 
-    if (operation.requestBody.required) {
-      requestBodyRequiredSpan.classList.remove("hidden");
-    } else {
-      requestBodyRequiredSpan.classList.add("hidden");
-    }
-    const updateRequestBodyDetails = () => {
-      const selectedContentType = requestBodyContentTypeSelect.value;
-      const schemaInfo = operation.requestBody.content[selectedContentType];
-
-      if (
-        selectedContentType === "application/x-www-form-urlencoded" ||
-        selectedContentType === "multipart/form-data"
-      ) {
-        // Hide Monaco editor and show form fields for form-encoded content
-        if (requestBodyEditorDiv) {
-          requestBodyEditorDiv.style.display = "none";
-        }
-
-        // Create or show form fields container
-        let formFieldsContainer = document.getElementById(
-          "form-fields-container"
-        );
-        if (!formFieldsContainer) {
-          formFieldsContainer = document.createElement("div");
-          formFieldsContainer.id = "form-fields-container";
-          formFieldsContainer.className = "space-y-2";
-          requestBodyEditorDiv.parentNode.insertBefore(
-            formFieldsContainer,
-            requestBodyEditorDiv.nextSibling
-          );
-        }
-
-        // Clear previous form fields
-        formFieldsContainer.innerHTML = "";
-        formFieldsContainer.style.display = "block";
-
-        // Set data attribute to track content type for later use
-        formFieldsContainer.setAttribute(
-          "data-content-type",
-          selectedContentType
-        );
-
-        // Resolve schema reference if needed
-        let resolvedSchema = schemaInfo.schema;
-        if (schemaInfo.schema && schemaInfo.schema.$ref) {
-          const refPath = schemaInfo.schema.$ref.split("/").slice(1); // Remove #
-          resolvedSchema = refPath.reduce(
-            (acc, part) => acc && acc[part],
-            window.swaggerData // Use swaggerData to properly resolve references
-          );
-        }
-
-        if (resolvedSchema && resolvedSchema.properties) {
-          // Create form fields based on schema properties
-          Object.entries(resolvedSchema.properties).forEach(
-            ([fieldName, fieldSchema]) => {
-              const fieldDiv = document.createElement("div");
-              fieldDiv.className = "mb-2 flex items-center gap-2";
-
-              const labelWrapper = document.createElement("div");
-              labelWrapper.className =
-                "w-1/3 text-sm font-medium text-gray-300 pr-1";
-
-              const label = document.createElement("div");
-              label.className = "flex items-center w-full justify-between";
-
-              const isRequired =
-                resolvedSchema.required &&
-                resolvedSchema.required.includes(fieldName);
-              label.className = "flex items-center w-full justify-between";
-              label.innerHTML = `<span class="font-bold">${fieldName}${
-                isRequired ? '<span class="text-red-400 ml-0.5">*</span>' : ""
-              }</span> <code class="text-sm text-blue-800 bg-blue-100 px-1 py-0.5 rounded font-mono">${
-                window.formatTypeDisplay
-                  ? window.formatTypeDisplay(fieldSchema)
-                  : fieldSchema.type
-              }</code>`;
-              labelWrapper.appendChild(label);
-
-              let input;
-              // Check if this is a file field for multipart/form-data
-              const isFileField =
-                selectedContentType === "multipart/form-data" &&
-                fieldSchema.type === "string" &&
-                fieldSchema.format === "binary";
-
-              if (isFileField) {
-                // Create file input for binary fields in multipart forms
-                input = document.createElement("input");
-                input.type = "file";
-                input.className =
-                  "w-2/3 px-2 py-1 border border-gray-600 text-white text-sm rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-700 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-blue-600 file:text-white hover:file:bg-blue-700";
-
-                // Add accept attribute based on description if available
-                if (fieldSchema.description) {
-                  const desc = fieldSchema.description.toLowerCase();
-                  if (desc.includes("pdf")) {
-                    input.accept = input.accept
-                      ? input.accept + ",.pdf"
-                      : ".pdf";
-                  }
-                  if (
-                    desc.includes("image") ||
-                    desc.includes("png") ||
-                    desc.includes("jpeg") ||
-                    desc.includes("jpg")
-                  ) {
-                    input.accept = input.accept
-                      ? input.accept + ",.png,.jpg,.jpeg"
-                      : ".png,.jpg,.jpeg";
-                  }
-                }
-              } else if (fieldSchema.enum) {
-                input = document.createElement("select");
-                input.className =
-                  "w-2/3 px-2 py-1 border border-gray-600 text-white text-sm rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-700";
-                fieldSchema.enum.forEach((enumValue) => {
-                  const option = document.createElement("option");
-                  option.value = enumValue;
-                  option.textContent = enumValue;
-                  input.appendChild(option);
-                });
-                if (fieldSchema.default) {
-                  input.value = fieldSchema.default;
-                }
-              } else if (fieldSchema.type === "boolean") {
-                input = document.createElement("select");
-                input.className =
-                  "w-2/3 px-2 py-1 border border-gray-600 text-white text-sm rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-700";
-                ["true", "false"].forEach((val) => {
-                  const option = document.createElement("option");
-                  option.value = val;
-                  option.textContent = val;
-                  input.appendChild(option);
-                });
-                if (typeof fieldSchema.default === "boolean") {
-                  input.value = fieldSchema.default.toString();
-                } else {
-                  input.value = "false";
-                }
-              } else {
-                input = document.createElement("input");
-                input.type =
-                  fieldSchema.type === "integer"
-                    ? "number"
-                    : fieldSchema.type === "password"
-                    ? "password"
-                    : "text";
-                input.className =
-                  "w-2/3 px-2 py-1 border border-gray-600 text-white text-sm rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-700";
-                if (fieldSchema.default) {
-                  input.value = fieldSchema.default;
-                }
-              }
-
-              input.name = fieldName;
-              if (!isFileField) {
-                input.placeholder =
-                  fieldSchema.description || fieldSchema.example || "";
-              }
-              if (isRequired) {
-                input.required = true;
-              }
-
-              // Add input change listener for variable detection (except for file inputs)
-              if (!isFileField) {
-                input.addEventListener("input", () => {
-                  if (window.highlightVariablePlaceholders) {
-                    window.highlightVariablePlaceholders(input);
-                  }
-                });
-              }
-
-              fieldDiv.appendChild(labelWrapper);
-              fieldDiv.appendChild(input);
-
-              formFieldsContainer.appendChild(fieldDiv);
-            }
-          );
-        }
+      if (resolvedRequestBody.required) {
+        requestBodyRequiredSpan.classList.remove("hidden");
       } else {
-        // Show Monaco editor for JSON and other content types
-        if (requestBodyEditorDiv) {
-          requestBodyEditorDiv.style.display = "block";
-        }
+        requestBodyRequiredSpan.classList.add("hidden");
+      }
+      const updateRequestBodyDetails = () => {
+        const selectedContentType = requestBodyContentTypeSelect.value;
+        const schemaInfo = resolvedRequestBody.content[selectedContentType];
 
-        // Hide form fields container
-        const formFieldsContainer = document.getElementById(
-          "form-fields-container"
-        );
-        if (formFieldsContainer) {
-          formFieldsContainer.style.display = "none";
-        }
+        if (
+          selectedContentType === "application/x-www-form-urlencoded" ||
+          selectedContentType === "multipart/form-data"
+        ) {
+          // Hide Monaco editor and show form fields for form-encoded content
+          if (requestBodyEditorDiv) {
+            requestBodyEditorDiv.style.display = "none";
+          }
 
-        if (schemaInfo && schemaInfo.schema) {
-          // Get the example as a JavaScript object
-          const example = generateExampleFromSchema(
-            schemaInfo.schema,
-            swaggerData.components
+          // Create or show form fields container
+          let formFieldsContainer = document.getElementById(
+            "form-fields-container"
           );
-          if (window.requestBodyEditor) {
-            window.requestBodyEditor.setValue(JSON.stringify(example, null, 2));
+          if (!formFieldsContainer) {
+            formFieldsContainer = document.createElement("div");
+            formFieldsContainer.id = "form-fields-container";
+            formFieldsContainer.className = "space-y-2";
+            requestBodyEditorDiv.parentNode.insertBefore(
+              formFieldsContainer,
+              requestBodyEditorDiv.nextSibling
+            );
+          }
+
+          // Clear previous form fields
+          formFieldsContainer.innerHTML = "";
+          formFieldsContainer.style.display = "block";
+
+          // Set data attribute to track content type for later use
+          formFieldsContainer.setAttribute(
+            "data-content-type",
+            selectedContentType
+          );
+
+          // Resolve schema reference if needed
+          let resolvedSchema = schemaInfo.schema;
+          if (schemaInfo.schema && schemaInfo.schema.$ref) {
+            const refPath = schemaInfo.schema.$ref.split("/").slice(1); // Remove #
+            resolvedSchema = refPath.reduce(
+              (acc, part) => acc && acc[part],
+              window.swaggerData // Use swaggerData to properly resolve references
+            );
+          }
+
+          if (resolvedSchema && resolvedSchema.properties) {
+            // Create form fields based on schema properties
+            Object.entries(resolvedSchema.properties).forEach(
+              ([fieldName, fieldSchema]) => {
+                const fieldDiv = document.createElement("div");
+                fieldDiv.className = "mb-2 flex items-center gap-2";
+
+                const labelWrapper = document.createElement("div");
+                labelWrapper.className =
+                  "w-1/3 text-sm font-medium text-gray-300 pr-1";
+
+                const label = document.createElement("div");
+                label.className = "flex items-center w-full justify-between";
+
+                const isRequired =
+                  resolvedSchema.required &&
+                  resolvedSchema.required.includes(fieldName);
+                label.className = "flex items-center w-full justify-between";
+                label.innerHTML = `<span class="font-bold">${fieldName}${
+                  isRequired ? '<span class="text-red-400 ml-0.5">*</span>' : ""
+                }</span> <code class="text-sm text-blue-800 bg-blue-100 px-1 py-0.5 rounded font-mono">${
+                  window.formatTypeDisplay
+                    ? window.formatTypeDisplay(fieldSchema)
+                    : fieldSchema.type
+                }</code>`;
+                labelWrapper.appendChild(label);
+
+                let input;
+                // Check if this is a file field for multipart/form-data
+                const isFileField =
+                  selectedContentType === "multipart/form-data" &&
+                  fieldSchema.type === "string" &&
+                  fieldSchema.format === "binary";
+
+                if (isFileField) {
+                  // Create file input for binary fields in multipart forms
+                  input = document.createElement("input");
+                  input.type = "file";
+                  input.className =
+                    "w-2/3 px-2 py-1 border border-gray-600 text-white text-sm rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-700 file:mr-2 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-blue-600 file:text-white hover:file:bg-blue-700";
+
+                  // Add accept attribute based on description if available
+                  if (fieldSchema.description) {
+                    const desc = fieldSchema.description.toLowerCase();
+                    if (desc.includes("pdf")) {
+                      input.accept = input.accept
+                        ? input.accept + ",.pdf"
+                        : ".pdf";
+                    }
+                    if (
+                      desc.includes("image") ||
+                      desc.includes("png") ||
+                      desc.includes("jpeg") ||
+                      desc.includes("jpg")
+                    ) {
+                      input.accept = input.accept
+                        ? input.accept + ",.png,.jpg,.jpeg"
+                        : ".png,.jpg,.jpeg";
+                    }
+                  }
+                } else if (fieldSchema.enum) {
+                  input = document.createElement("select");
+                  input.className =
+                    "w-2/3 px-2 py-1 border border-gray-600 text-white text-sm rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-700";
+                  fieldSchema.enum.forEach((enumValue) => {
+                    const option = document.createElement("option");
+                    option.value = enumValue;
+                    option.textContent = enumValue;
+                    input.appendChild(option);
+                  });
+                  if (fieldSchema.default) {
+                    input.value = fieldSchema.default;
+                  }
+                } else if (fieldSchema.type === "boolean") {
+                  input = document.createElement("select");
+                  input.className =
+                    "w-2/3 px-2 py-1 border border-gray-600 text-white text-sm rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-700";
+                  ["true", "false"].forEach((val) => {
+                    const option = document.createElement("option");
+                    option.value = val;
+                    option.textContent = val;
+                    input.appendChild(option);
+                  });
+                  if (typeof fieldSchema.default === "boolean") {
+                    input.value = fieldSchema.default.toString();
+                  } else {
+                    input.value = "false";
+                  }
+                } else {
+                  input = document.createElement("input");
+                  input.type =
+                    fieldSchema.type === "integer"
+                      ? "number"
+                      : fieldSchema.type === "password"
+                      ? "password"
+                      : "text";
+                  input.className =
+                    "w-2/3 px-2 py-1 border border-gray-600 text-white text-sm rounded focus:outline-none focus:ring-1 focus:ring-blue-500 bg-gray-700";
+                  if (fieldSchema.default) {
+                    input.value = fieldSchema.default;
+                  }
+                }
+
+                input.name = fieldName;
+                if (!isFileField) {
+                  input.placeholder =
+                    fieldSchema.description || fieldSchema.example || "";
+                }
+                if (isRequired) {
+                  input.required = true;
+                }
+
+                // Add input change listener for variable detection (except for file inputs)
+                if (!isFileField) {
+                  input.addEventListener("input", () => {
+                    if (window.highlightVariablePlaceholders) {
+                      window.highlightVariablePlaceholders(input);
+                    }
+                  });
+                }
+
+                fieldDiv.appendChild(labelWrapper);
+                fieldDiv.appendChild(input);
+
+                formFieldsContainer.appendChild(fieldDiv);
+              }
+            );
           }
         } else {
-          if (window.requestBodyEditor) {
-            window.requestBodyEditor.setValue("");
+          // Show Monaco editor for JSON and other content types
+          if (requestBodyEditorDiv) {
+            requestBodyEditorDiv.style.display = "block";
           }
-          console.warn(
-            `No schema example available for ${selectedContentType}.`
-          );
-        }
-      }
-    };
 
-    requestBodyContentTypeSelect.addEventListener(
-      "change",
-      updateRequestBodyDetails
-    );
-    if (contentTypes.length > 0) {
-      updateRequestBodyDetails(); // Initial population
+          // Hide form fields container
+          const formFieldsContainer = document.getElementById(
+            "form-fields-container"
+          );
+          if (formFieldsContainer) {
+            formFieldsContainer.style.display = "none";
+          }
+
+          if (schemaInfo && schemaInfo.schema) {
+            // Get the example as a JavaScript object
+            const example = generateExampleFromSchema(
+              schemaInfo.schema,
+              swaggerData.components
+            );
+            if (window.requestBodyEditor) {
+              window.requestBodyEditor.setValue(JSON.stringify(example, null, 2));
+            }
+          } else {
+            if (window.requestBodyEditor) {
+              window.requestBodyEditor.setValue("");
+            }
+            console.warn(
+              `No schema example available for ${selectedContentType}.`
+            );
+          }
+        }
+      };
+
+      requestBodyContentTypeSelect.addEventListener(
+        "change",
+        updateRequestBodyDetails
+      );
+      if (contentTypes.length > 0) {
+        updateRequestBodyDetails(); // Initial population
+      }
+    } else {
+      requestBodySection.classList.add("hidden");
     }
   } else {
     requestBodySection.classList.add("hidden");
@@ -12908,22 +12980,27 @@ window.generateCodeSnippet = function () {
       window.swaggerData.paths[currentPath][currentMethod.toLowerCase()];
 
     // If operation has a request body, generate an example from the schema
-    if (operation.requestBody && operation.requestBody.content) {
-      // Get the first content type as default
-      const contentType = Object.keys(operation.requestBody.content)[0];
-      if (contentType && operation.requestBody.content[contentType].schema) {
-        const schema = operation.requestBody.content[contentType].schema;
-        // Generate example JSON from schema
-        try {
-          // Ensure generateExampleFromSchema is global, e.g., window.generateExampleFromSchema
-          const exampleObj = window.generateExampleFromSchema(
-            schema,
-            window.swaggerData.components
-          );
-          // Always stringify the object
-          requestBody = JSON.stringify(exampleObj, null, 2);
-        } catch (error) {
-          console.error("Error generating example from schema:", error);
+    if (operation.requestBody) {
+      // Use the utility function to get request body content, handling both direct content and $ref
+      const resolvedRequestBody = window.utils.getRequestBodyContent(operation.requestBody, window.swaggerData);
+      
+      if (resolvedRequestBody && resolvedRequestBody.content) {
+        // Get the first content type as default
+        const contentType = Object.keys(resolvedRequestBody.content || {})[0];
+        if (contentType && resolvedRequestBody.content[contentType].schema) {
+          const schema = resolvedRequestBody.content[contentType].schema;
+          // Generate example JSON from schema
+          try {
+            // Ensure generateExampleFromSchema is global, e.g., window.generateExampleFromSchema
+            const exampleObj = window.generateExampleFromSchema(
+              schema,
+              window.swaggerData.components
+            );
+            // Always stringify the object
+            requestBody = JSON.stringify(exampleObj, null, 2);
+          } catch (error) {
+            console.error("Error generating example from schema:", error);
+          }
         }
       }
     }

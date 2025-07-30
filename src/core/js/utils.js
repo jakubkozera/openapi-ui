@@ -456,6 +456,47 @@ function createCleanPath(path) {
   return path.replace(/[{}]/g, ""); // Remove curly braces, keep slashes for proper path structure
 }
 
+// Function to resolve OpenAPI $ref references
+function resolveRef(ref, swaggerData) {
+  if (!ref || !ref.startsWith("#/")) {
+    return null;
+  }
+
+  const refPath = ref.split("/").slice(1); // Remove the '#' and split by '/'
+  let resolvedData = swaggerData;
+
+  for (const part of refPath) {
+    if (resolvedData && resolvedData[part]) {
+      resolvedData = resolvedData[part];
+    } else {
+      console.warn(`Could not resolve reference: ${ref}`);
+      return null;
+    }
+  }
+
+  return resolvedData;
+}
+
+// Function to get request body content, handling both direct content and $ref
+function getRequestBodyContent(requestBody, swaggerData) {
+  if (!requestBody) {
+    return null;
+  }
+
+  // If requestBody has direct content, return it
+  if (requestBody.content) {
+    return requestBody;
+  }
+
+  // If requestBody has $ref, resolve it
+  if (requestBody.$ref) {
+    const resolved = resolveRef(requestBody.$ref, swaggerData);
+    return resolved;
+  }
+
+  return null;
+}
+
 // Export all utility functions
 window.utils = {
   getMethodClass,
@@ -467,6 +508,8 @@ window.utils = {
   showToast,
   getStatusText,
   createCleanPath, // Export the new utility function
+  resolveRef, // Export the reference resolution utility
+  getRequestBodyContent, // Export the request body content utility
 
   // Get the base URL for API requests
   getBaseUrl: function () {

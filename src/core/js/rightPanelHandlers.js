@@ -62,22 +62,27 @@ window.generateCodeSnippet = function () {
       window.swaggerData.paths[currentPath][currentMethod.toLowerCase()];
 
     // If operation has a request body, generate an example from the schema
-    if (operation.requestBody && operation.requestBody.content) {
-      // Get the first content type as default
-      const contentType = Object.keys(operation.requestBody.content)[0];
-      if (contentType && operation.requestBody.content[contentType].schema) {
-        const schema = operation.requestBody.content[contentType].schema;
-        // Generate example JSON from schema
-        try {
-          // Ensure generateExampleFromSchema is global, e.g., window.generateExampleFromSchema
-          const exampleObj = window.generateExampleFromSchema(
-            schema,
-            window.swaggerData.components
-          );
-          // Always stringify the object
-          requestBody = JSON.stringify(exampleObj, null, 2);
-        } catch (error) {
-          console.error("Error generating example from schema:", error);
+    if (operation.requestBody) {
+      // Use the utility function to get request body content, handling both direct content and $ref
+      const resolvedRequestBody = window.utils.getRequestBodyContent(operation.requestBody, window.swaggerData);
+      
+      if (resolvedRequestBody && resolvedRequestBody.content) {
+        // Get the first content type as default
+        const contentType = Object.keys(resolvedRequestBody.content || {})[0];
+        if (contentType && resolvedRequestBody.content[contentType].schema) {
+          const schema = resolvedRequestBody.content[contentType].schema;
+          // Generate example JSON from schema
+          try {
+            // Ensure generateExampleFromSchema is global, e.g., window.generateExampleFromSchema
+            const exampleObj = window.generateExampleFromSchema(
+              schema,
+              window.swaggerData.components
+            );
+            // Always stringify the object
+            requestBody = JSON.stringify(exampleObj, null, 2);
+          } catch (error) {
+            console.error("Error generating example from schema:", error);
+          }
         }
       }
     }

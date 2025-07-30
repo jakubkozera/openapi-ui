@@ -468,10 +468,10 @@ function buildMainContent() {
         }
       }
 
-      // Add request body section if exists
-      if (operation.requestBody) {
-        sectionHTML += buildRequestBodySection(operation, sectionId);
-      }
+  // Add request body section if exists
+  if (operation.requestBody) {
+    sectionHTML += buildRequestBodySection(operation, sectionId);
+  }
 
       // Add responses section
       sectionHTML += buildResponsesSection(operation, sectionId);
@@ -722,11 +722,15 @@ function addMainContentEventListeners(section) {
 
 // Add request body dropdown handling
 function addRequestBodyHandlers(operation, sectionId) {
+  // Use the utility function to get request body content, handling both direct content and $ref
+  const resolvedRequestBody = window.utils.getRequestBodyContent(operation.requestBody, swaggerData);
+  
+  if (!resolvedRequestBody || !resolvedRequestBody.content) {
+    return; // No request body content to handle
+  }
+
   // Add event listener for the request body dropdown after section is added to DOM
-  if (
-    operation.requestBody &&
-    Object.keys(operation.requestBody.content).length > 0
-  ) {
+  if (Object.keys(resolvedRequestBody.content || {}).length > 0) {
     const requestBodyIdBase = `request-body-${sectionId}`;
     const selectElement = document.getElementById(
       `${requestBodyIdBase}-content-type-select`
@@ -743,7 +747,7 @@ function addRequestBodyHandlers(operation, sectionId) {
 
       if (isSelectElement) {
         // Set 'application/json' as default if available for select elements
-        const contentTypes = Object.keys(operation.requestBody.content);
+        const contentTypes = Object.keys(resolvedRequestBody.content || {});
         if (contentTypes.includes("application/json")) {
           selectElement.value = "application/json";
         }
@@ -761,11 +765,11 @@ function addRequestBodyHandlers(operation, sectionId) {
           selectedContentType?.includes("json");
 
         if (
-          operation.requestBody.content[selectedContentType] &&
-          operation.requestBody.content[selectedContentType].schema
+          resolvedRequestBody.content[selectedContentType] &&
+          resolvedRequestBody.content[selectedContentType].schema
         ) {
           const schema =
-            operation.requestBody.content[selectedContentType].schema;
+            resolvedRequestBody.content[selectedContentType].schema;
 
           // Update schema details
           const schemaDetailsElement = document.getElementById(
@@ -1067,7 +1071,16 @@ function buildRequestBodySection(operation, sectionId) {
         <h3 class="text-gray-700 font-semibold mb-2 text-lg">Request Body</h3>
   `;
 
-  const contentTypes = Object.keys(operation.requestBody.content);
+  // Use the utility function to get request body content, handling both direct content and $ref
+  const resolvedRequestBody = window.utils.getRequestBodyContent(operation.requestBody, swaggerData);
+  
+  if (!resolvedRequestBody || !resolvedRequestBody.content) {
+    sectionHTML += `<p class="text-sm text-gray-500">No request body definition found.</p>`;
+    sectionHTML += `</div>`;
+    return sectionHTML;
+  }
+
+  const contentTypes = Object.keys(resolvedRequestBody.content || {});
   if (contentTypes.length > 0) {
     sectionHTML += `
       <div class="flex items-center mb-4">`;
@@ -1092,7 +1105,7 @@ function buildRequestBodySection(operation, sectionId) {
 
     sectionHTML += `
           ${
-            operation.requestBody.required
+            resolvedRequestBody.required
               ? '<span class="text-xs text-red-500">required</span>'
               : ""
           }

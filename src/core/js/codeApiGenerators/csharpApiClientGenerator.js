@@ -475,7 +475,9 @@ class CSharpApiGenerator {
     }
 
     if (operation.requestBody) {
-      const content = operation.requestBody.content;
+      // Use the utility function to get request body content, handling both direct content and $ref
+      const resolvedRequestBody = window.utils.getRequestBodyContent(operation.requestBody, this.swaggerData);
+      const content = resolvedRequestBody ? resolvedRequestBody.content : null;
       if (content && content["application/json"]) {
         const schema = content["application/json"].schema;
         const type = this.mapToCSharpType(schema);
