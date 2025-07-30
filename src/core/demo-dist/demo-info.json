@@ -22,5 +22,9 @@
       "description": "A comprehensive test API demonstrating all supported OpenAPI security schemes"
     }
   ],
+<<<<<<< HEAD
   "buildDate": "2025-07-30T17:21:51.894Z"
+=======
+  "buildDate": "2025-06-24T16:37:09.045Z"
+>>>>>>> 07d45644b435fc4296c20372b982b2ec86229c8a
 }
