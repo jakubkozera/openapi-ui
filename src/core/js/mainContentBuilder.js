@@ -72,7 +72,7 @@ function buildSchemaDetails(schema, components) {
   if (!resolvedSchema.properties && resolvedSchema.type !== "object") {
     // For primitive types, show basic type information
     let typeInfo = `<div class="text-sm text-gray-600">
-      <span class="font-mono bg-blue-100 text-blue-800 px-2 py-1 rounded">${formatTypeDisplay(
+      <span class="font-mono bg-gray-200 text-gray-700 px-2 py-1 rounded">${formatTypeDisplay(
         resolvedSchema
       )}</span>`;
 
@@ -154,7 +154,7 @@ function buildSchemaDetails(schema, components) {
                 ? '<span class="text-xs text-red-500 ml-1">required</span>'
                 : ""
             }          </div>          <div class="w-2/3">
-            <code class="text-sm text-blue-800 bg-blue-100 px-1 py-0.5 rounded font-mono">
+            <code class="text-sm text-gray-700 bg-gray-200 px-1 py-0.5 rounded font-mono">
               ${formatTypeDisplay(resolvedPropSchema)}${
         resolvedPropSchema?.format ? `(${resolvedPropSchema.format})` : ""
       }

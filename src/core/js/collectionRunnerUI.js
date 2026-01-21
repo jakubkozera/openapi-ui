@@ -1889,7 +1889,7 @@ window.CollectionRunnerUI = class CollectionRunnerUI {
       label.className = "flex items-center w-full justify-between";
       label.innerHTML = `<span class="font-bold">${param.name}${
         param.required ? '<span class="text-red-400 ml-0.5">*</span>' : ""
-      }</span> <code class="text-sm text-blue-800 bg-blue-100 px-1 py-0.5 rounded font-mono">${
+      }</span> <code class="text-sm text-gray-700 bg-gray-200 px-1 py-0.5 rounded font-mono">${
         window.formatTypeDisplay
           ? window.formatTypeDisplay(param.schema)
           : param.schema.type
@@ -3488,7 +3488,7 @@ window.CollectionRunnerUI = class CollectionRunnerUI {
           : fieldSchema.type || "string";
         label.innerHTML = `<span class="font-bold">${fieldName}${
           isRequired ? '<span class="text-red-400 ml-0.5">*</span>' : ""
-        }</span> <code class="text-sm text-blue-800 bg-blue-100 px-1 py-0.5 rounded font-mono">${typeDisplay}</code>`;
+        }</span> <code class="text-sm text-gray-700 bg-gray-200 px-1 py-0.5 rounded font-mono">${typeDisplay}</code>`;
 
         // Add description as tooltip if available
         if (fieldSchema.description) {
