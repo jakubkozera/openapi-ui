@@ -1153,7 +1153,7 @@ body[data-theme="dark"] #api-navigation .endpoint-count {
 }
 
 body[data-theme="dark"] .endpoint-count-title {
-  background-color: #1e40af !important; /* blue-800 */
+  background-color: transparent !important; /* blue-800 */
   color: #dbeafe !important; /* blue-100 */
 }
 
