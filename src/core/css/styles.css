@@ -938,9 +938,11 @@ section[class*="method-border-"] {
 /* Sidebar endpoint count badge */
 #api-navigation .endpoint-count {
     font-size: 0.7rem;
-    padding: 0.1rem 0.4rem;
-    background-color: #F3F4F6;
-    color: #6B7280;
+    padding: 0;
+    background-color: transparent;
+    color: #9CA3AF;
+    min-width: auto;
+    height: auto;
 }
 
 /* Right panel parameter count badges - smaller and circular */
@@ -1145,7 +1147,6 @@ body[data-theme="dark"] .endpoint-link.text-blue-800 {
 
 /* Endpoint count badges dark mode */
 body[data-theme="dark"] #api-navigation .endpoint-count {
-  background-color: #4b5563 !important; /* gray-600 */
   color: #d1d5db !important; /* gray-300 */
 }
 
