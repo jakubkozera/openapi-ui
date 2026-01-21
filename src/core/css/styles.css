@@ -918,21 +918,23 @@ section[class*="method-border-"] {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.125rem 0.5rem;
+    padding: 0;
     margin-left: 0.5rem;
     font-size: 0.75rem;
     font-weight: 500;
-    border-radius: 9999px;
-    background-color: #E5E7EB;
-    color: #4B5563;
-    min-width: 1.5rem;
-    height: 1.5rem;
+    border-radius: 0;
+    background-color: transparent;
+    color: #9CA3AF;
+    min-width: auto;
+    height: auto;
     white-space: nowrap;
 }
 
 .endpoint-count-title {
     background-color: #EBF5FF;
     color: #3182CE;
+    padding: 0.125rem 0.5rem;
+    border-radius: 9999px;
 }
 
 /* Sidebar endpoint count badge */

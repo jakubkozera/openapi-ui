@@ -390,7 +390,7 @@ async function updateRightPanelDynamically(path, method) {
       const pathParamHeader = document.querySelector(
         "#right-panel-path-parameters-section h3"
       );
-      pathParamHeader.innerHTML = `Path Parameters <span class="endpoint-count ml-2">${pathParams.length}</span>`;
+      pathParamHeader.innerHTML = `Path Parameters`;
 
       // Add path parameters
       pathParams.forEach((param) => {
@@ -409,7 +409,7 @@ async function updateRightPanelDynamically(path, method) {
       const queryParamHeader = document.querySelector(
         "#right-panel-query-parameters-section h3"
       );
-      queryParamHeader.innerHTML = `Query Parameters <span class="endpoint-count ml-2">${queryParams.length}</span>`;
+      queryParamHeader.innerHTML = `Query Parameters`;
 
       // Add query parameters
       queryParams.forEach((param) => {

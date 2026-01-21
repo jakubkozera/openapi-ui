@@ -975,7 +975,7 @@ function buildParametersSection(title, params) {
   let sectionHTML = `
     <div class="mb-4">
         <h3 class="param-section-header text-gray-700 font-semibold mb-2 text-lg">
-            ${title} <span class="endpoint-count ml-2">${params.length}</span>
+            ${title}
         </h3>
         <div class="bg-gray-50 border border-gray-200 rounded-md param-section-path">
   `;
