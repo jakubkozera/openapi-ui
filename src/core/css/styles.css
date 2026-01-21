@@ -2,7 +2,7 @@
 
 /* Global Inter font application */
 *:not(.monaco-editor div) {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+  /* font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important; */
 }
 
 /* Smooth scrolling for the entire page */

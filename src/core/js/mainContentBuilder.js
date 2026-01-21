@@ -148,17 +148,18 @@ function buildSchemaDetails(schema, components) {
       <div class="p-4 border-b border-gray-200 last:border-b-0">
         <div class="flex items-start">
           <div class="w-1/3">
-            <span class="text-sm font-medium text-gray-700">${propName}</span>
-            ${
+            <span class="text-sm font-medium text-gray-700">${propName}${
               isRequired
-                ? '<span class="text-xs text-red-500 ml-1">required</span>'
+                ? '<span class="text-red-500 ml-0.5">*</span>'
                 : ""
-            }          </div>          <div class="w-2/3">
-            <code class="text-sm text-gray-700 bg-gray-200 px-1 py-0.5 rounded font-mono">
+            }</span>
+            <code class="text-sm text-gray-700 bg-gray-200 px-1 py-0.5 rounded font-mono ml-2">
               ${formatTypeDisplay(resolvedPropSchema)}${
         resolvedPropSchema?.format ? `(${resolvedPropSchema.format})` : ""
       }
-            </code><br>`;
+            </code>
+          </div>
+          <div class="w-2/3">`;
       // Add description
       if (resolvedPropSchema?.description) {
         schemaHTML += `<span class="text-sm text-gray-700">${resolvedPropSchema.description}</span><br>`;
