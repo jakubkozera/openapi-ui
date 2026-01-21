@@ -308,7 +308,7 @@ async function updateRightPanelDynamically(path, method) {
     label.className = "flex items-center w-full justify-between";
     label.innerHTML = `<span class="font-bold">${param.name}${
       param.required ? '<span class="text-red-400 ml-0.5">*</span>' : ""
-    }</span> <code class="text-sm text-blue-800 bg-blue-100 px-1 py-0.5 rounded font-mono">${
+    }</span> <code class="text-sm text-gray-700 bg-gray-200 px-1 py-0.5 rounded font-mono">${
       window.formatTypeDisplay
         ? window.formatTypeDisplay(param.schema)
         : param.schema.type

@@ -1029,7 +1029,7 @@ function buildParametersSection(title, params) {
                       ? '<span class="text-red-500 ml-0.5">*</span>'
                       : ""
                   }</span>
-                  <code class="text-sm text-blue-800 bg-blue-100 px-1 py-0.5 rounded font-mono ml-2">${
+                  <code class="text-sm text-gray-700 bg-gray-200 px-1 py-0.5 rounded font-mono ml-2">${
                     param.schema ? formatTypeDisplay(param.schema) : ""
                   }${
       param.schema && param.schema.format ? "(" + param.schema.format + ")" : ""
