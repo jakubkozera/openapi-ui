@@ -31,6 +31,7 @@ jobs:
             6.0.x
             8.0.x
             9.0.x
+            10.0.x
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -165,7 +166,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
 
       - name: Publish NuGet package to NuGet.org
         run: |
