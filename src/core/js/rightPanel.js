@@ -308,7 +308,7 @@ async function updateRightPanelDynamically(path, method) {
     label.className = "flex items-center w-full justify-between";
     label.innerHTML = `<span class="font-bold">${param.name}${
       param.required ? '<span class="text-red-400 ml-0.5">*</span>' : ""
-    }</span> <code class="text-sm text-blue-800 bg-blue-100 px-1 py-0.5 rounded font-mono">${
+    }</span> <code class="text-sm text-gray-700 bg-gray-200 px-1 py-0.5 rounded font-mono">${
       window.formatTypeDisplay
         ? window.formatTypeDisplay(param.schema)
         : param.schema.type
@@ -390,7 +390,7 @@ async function updateRightPanelDynamically(path, method) {
       const pathParamHeader = document.querySelector(
         "#right-panel-path-parameters-section h3"
       );
-      pathParamHeader.innerHTML = `Path Parameters <span class="endpoint-count ml-2">${pathParams.length}</span>`;
+      pathParamHeader.innerHTML = `Path Parameters`;
 
       // Add path parameters
       pathParams.forEach((param) => {
@@ -409,7 +409,7 @@ async function updateRightPanelDynamically(path, method) {
       const queryParamHeader = document.querySelector(
         "#right-panel-query-parameters-section h3"
       );
-      queryParamHeader.innerHTML = `Query Parameters <span class="endpoint-count ml-2">${queryParams.length}</span>`;
+      queryParamHeader.innerHTML = `Query Parameters`;
 
       // Add query parameters
       queryParams.forEach((param) => {
@@ -531,7 +531,7 @@ async function updateRightPanelDynamically(path, method) {
                 label.className = "flex items-center w-full justify-between";
                 label.innerHTML = `<span class="font-bold">${fieldName}${
                   isRequired ? '<span class="text-red-400 ml-0.5">*</span>' : ""
-                }</span> <code class="text-sm text-blue-800 bg-blue-100 px-1 py-0.5 rounded font-mono">${
+                }</span> <code class="text-sm text-gray-700 bg-gray-200 px-1 py-0.5 rounded font-mono">${
                   window.formatTypeDisplay
                     ? window.formatTypeDisplay(fieldSchema)
                     : fieldSchema.type

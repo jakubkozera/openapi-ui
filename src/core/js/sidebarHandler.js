@@ -163,6 +163,7 @@ function buildSidebar() {
         path,
         method,
         summary: operation.summary || path,
+        deprecated: operation.deprecated || false,
       });
     }
   }
@@ -189,9 +190,9 @@ function buildSidebar() {
     tagHeader.innerHTML = `
             <div class="flex items-center flex-grow">
               <span class="ml-1">${tag}</span>
-              <span class="endpoint-count ml-2">${sectionCount}</span>
             </div>
-            <span class="ml-auto">
+            <span class="ml-auto flex items-center gap-1">
+                <span class="endpoint-count">${sectionCount}</span>
                 <svg class="w-4 h-4 text-gray-400 transform sidebar-arrow" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                 </svg>

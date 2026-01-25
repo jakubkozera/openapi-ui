@@ -72,7 +72,7 @@ function buildSchemaDetails(schema, components) {
   if (!resolvedSchema.properties && resolvedSchema.type !== "object") {
     // For primitive types, show basic type information
     let typeInfo = `<div class="text-sm text-gray-600">
-      <span class="font-mono bg-blue-100 text-blue-800 px-2 py-1 rounded">${formatTypeDisplay(
+      <span class="font-mono bg-gray-200 text-gray-700 px-2 py-1 rounded">${formatTypeDisplay(
         resolvedSchema
       )}</span>`;
 
@@ -148,17 +148,18 @@ function buildSchemaDetails(schema, components) {
       <div class="p-4 border-b border-gray-200 last:border-b-0">
         <div class="flex items-start">
           <div class="w-1/3">
-            <span class="text-sm font-medium text-gray-700">${propName}</span>
-            ${
+            <span class="text-sm font-medium text-gray-700">${propName}${
               isRequired
-                ? '<span class="text-xs text-red-500 ml-1">required</span>'
+                ? '<span class="text-red-500 ml-0.5">*</span>'
                 : ""
-            }          </div>          <div class="w-2/3">
-            <code class="text-sm text-blue-800 bg-blue-100 px-1 py-0.5 rounded font-mono">
+            }</span>
+            <code class="text-sm text-gray-700 bg-gray-200 px-1 py-0.5 rounded font-mono ml-2">
               ${formatTypeDisplay(resolvedPropSchema)}${
         resolvedPropSchema?.format ? `(${resolvedPropSchema.format})` : ""
       }
-            </code><br>`;
+            </code>
+          </div>
+          <div class="w-2/3">`;
       // Add description
       if (resolvedPropSchema?.description) {
         schemaHTML += `<span class="text-sm text-gray-700">${resolvedPropSchema.description}</span><br>`;
@@ -396,7 +397,8 @@ function buildMainContent() {
       section.id = sectionId;
       const methodBorderClass = `method-border-${method.toLowerCase()}`;
       const methodShadowClass = `method-shadow-${method.toLowerCase()}`;
-      section.className = `main-content-section mb-5 p-3 bg-white flex items-start gap-4 border-l-4 ${methodBorderClass} ${methodShadowClass}`;
+      const deprecatedClass = operation.deprecated ? 'deprecated-section' : '';
+      section.className = `main-content-section mb-5 p-3 bg-white flex items-start gap-4 border-l-4 ${methodBorderClass} ${methodShadowClass} ${deprecatedClass}`;
       endpointsContainer.appendChild(section);
 
       const authSchemes =
@@ -425,6 +427,7 @@ function buildMainContent() {
               </button>
 
               <div class="ml-auto flex gap-2 items-center">
+              ${operation.deprecated ? '<span class="deprecated-badge">DEPRECATED</span>' : ''}
               <button class="main-try-it-out-btn ${getMethodButtonClass(
                 method
               )} text-sm flex items-center font-bold py-1 px-3 rounded hover:text-white border shadow transition" data-path="${path}" data-method="${method}">
@@ -975,7 +978,7 @@ function buildParametersSection(title, params) {
   let sectionHTML = `
     <div class="mb-4">
         <h3 class="param-section-header text-gray-700 font-semibold mb-2 text-lg">
-            ${title} <span class="endpoint-count ml-2">${params.length}</span>
+            ${title}
         </h3>
         <div class="bg-gray-50 border border-gray-200 rounded-md param-section-path">
   `;
@@ -1024,17 +1027,18 @@ function buildParametersSection(title, params) {
               <div class="w-1/3">
                   <span class="text-sm font-medium text-gray-700">${
                     param.name
-                  }</span>
-                  ${
+                  }${
                     param.required
-                      ? '<span class="text-xs text-red-500 ml-1">required</span>'
+                      ? '<span class="text-red-500 ml-0.5">*</span>'
                       : ""
-                  }              </div>              <div class="w-2/3">
-                  <code class="text-sm text-blue-800 bg-blue-100 px-1 py-0.5 rounded font-mono">${
+                  }</span>
+                  <code class="text-sm text-gray-700 bg-gray-200 px-1 py-0.5 rounded font-mono ml-2">${
                     param.schema ? formatTypeDisplay(param.schema) : ""
                   }${
       param.schema && param.schema.format ? "(" + param.schema.format + ")" : ""
-    }</code><br>
+    }</code>
+              </div>
+              <div class="w-2/3">
                   <span class="text-sm text-gray-700">${
                     param.description || ""
                   }</span>`;

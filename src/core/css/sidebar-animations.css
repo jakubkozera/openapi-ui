@@ -103,7 +103,7 @@
 }
 
 /* Content shift animations when sidebars open/close */
-@media (max-width: 1279px) {
+@media (max-width: 1023px) {
   /* Ensure smooth content transitions on mobile */
   #api-main-content {
     transition: filter 0.3s ease;
