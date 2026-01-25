@@ -163,6 +163,7 @@ function buildSidebar() {
         path,
         method,
         summary: operation.summary || path,
+        deprecated: operation.deprecated || false,
       });
     }
   }

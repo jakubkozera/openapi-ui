@@ -397,7 +397,8 @@ function buildMainContent() {
       section.id = sectionId;
       const methodBorderClass = `method-border-${method.toLowerCase()}`;
       const methodShadowClass = `method-shadow-${method.toLowerCase()}`;
-      section.className = `main-content-section mb-5 p-3 bg-white flex items-start gap-4 border-l-4 ${methodBorderClass} ${methodShadowClass}`;
+      const deprecatedClass = operation.deprecated ? 'deprecated-section' : '';
+      section.className = `main-content-section mb-5 p-3 bg-white flex items-start gap-4 border-l-4 ${methodBorderClass} ${methodShadowClass} ${deprecatedClass}`;
       endpointsContainer.appendChild(section);
 
       const authSchemes =
@@ -426,6 +427,7 @@ function buildMainContent() {
               </button>
 
               <div class="ml-auto flex gap-2 items-center">
+              ${operation.deprecated ? '<span class="deprecated-badge">DEPRECATED</span>' : ''}
               <button class="main-try-it-out-btn ${getMethodButtonClass(
                 method
               )} text-sm flex items-center font-bold py-1 px-3 rounded hover:text-white border shadow transition" data-path="${path}" data-method="${method}">

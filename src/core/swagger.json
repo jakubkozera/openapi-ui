@@ -32,6 +32,7 @@
   "paths": {
     "/users": {
       "get": {
+        "deprecated": true,
         "tags": ["Users"],
         "summary": "Get a list of users",
         "description": "Retrieves a list of all users, with optional filtering and pagination.",
@@ -331,6 +332,7 @@
         }
       },
       "delete": {
+        "deprecated": true,
         "tags": ["Users"],
         "summary": "Delete a user",
         "description": "Deletes a user from the system by their ID.",
@@ -365,6 +367,7 @@
     },
     "/products": {
       "post": {
+        "deprecated": true,
         "tags": ["Products"],
         "summary": "Add a new product",
         "description": "Adds a new product to the catalog, demonstrating form-urlencoded request body.",

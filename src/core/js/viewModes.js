@@ -79,7 +79,7 @@ function createEndpointElement(op) {
     "endpoint endpoint-link bg-opacity-50 pr-2 pl-0 py-2 text-sm mb-2 cursor-pointer border-l-[3px] border-transparent";
   endpointDiv.dataset.path = op.path;
   endpointDiv.dataset.method = op.method;
-  endpointDiv.dataset.tooltip = `${op.method.toUpperCase()} ${op.path}`;
+  endpointDiv.dataset.tooltip = `${op.method.toUpperCase()} ${op.path}${op.deprecated ? ' [DEPRECATED]' : ''}`;
 
   // Apply the method-specific text color and hover border color
   const methodClass = getMethodClass(op.method);
@@ -96,7 +96,7 @@ function createEndpointElement(op) {
       ? op.method.substring(0, 3).toUpperCase()
       : op.method.toUpperCase()
   }</span>
-        <span class="w-[80%] truncate text-left pl-1">${op.summary}</span>
+        <span class="w-[80%] truncate text-left pl-1 ${op.deprecated ? 'deprecated-endpoint' : ''}">${op.summary}</span>
     </div>
   `;
 
@@ -258,7 +258,7 @@ function renderEndpointTree(tree, container, basePath = "") {
         endpointEl.dataset.path = op.path;
         endpointEl.dataset.method = method;
         // Store tooltip data for custom tooltip
-        endpointEl.dataset.tooltip = `${op.path} ${method.toUpperCase()}`; // Create wrapper div for flexbox layout
+        endpointEl.dataset.tooltip = `${op.path} ${method.toUpperCase()}${op.deprecated ? ' [DEPRECATED]' : ''}`; // Create wrapper div for flexbox layout
         const wrapperDiv = document.createElement("div");
         wrapperDiv.className = "flex items-center w-full";
 
@@ -272,7 +272,7 @@ function renderEndpointTree(tree, container, basePath = "") {
 
         // Add segment name (path) on the right, taking 85% of space
         const pathText = document.createElement("span");
-        pathText.className = "w-[85%] text-left truncate";
+        pathText.className = `w-[85%] text-left truncate ${op.deprecated ? 'deprecated-endpoint' : ''}`;
         pathText.textContent = segment;
         wrapperDiv.appendChild(pathText);
 
@@ -316,7 +316,7 @@ function renderEndpointTree(tree, container, basePath = "") {
           endpointEl.dataset.path = op.path;
           endpointEl.dataset.method = method;
           // Store tooltip data for custom tooltip
-          endpointEl.dataset.tooltip = `${method.toUpperCase()} ${op.path}`; // Create wrapper div for flexbox layout
+          endpointEl.dataset.tooltip = `${method.toUpperCase()} ${op.path}${op.deprecated ? ' [DEPRECATED]' : ''}`; // Create wrapper div for flexbox layout
           const wrapperDiv = document.createElement("div");
           wrapperDiv.className = "flex items-center w-full";
 
@@ -326,7 +326,7 @@ function renderEndpointTree(tree, container, basePath = "") {
 
           // Add segment name (path) on the right, taking 85% of space
           const pathText = document.createElement("span");
-          pathText.className = "w-[85%] text-left truncate";
+          pathText.className = `w-[85%] text-left truncate ${op.deprecated ? 'deprecated-endpoint' : ''}`;
           pathText.textContent = segment;
           wrapperDiv.appendChild(pathText);
 
