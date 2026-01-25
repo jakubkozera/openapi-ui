@@ -1,4 +1,4 @@
-namespace JakubKozera.OpenApiUi
+namespace OpenApiUi
 {
     /// <summary>
     /// Configuration options for OpenAPI UI middleware.

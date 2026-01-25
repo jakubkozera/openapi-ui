@@ -1,7 +1,7 @@
 // This file exists to help with namespace resolution during compilation
-using JakubKozera.OpenApiUi.Sample.Services;
+using OpenApiUi.Sample.Services;
 
-namespace JakubKozera.OpenApiUi.Sample;
+namespace OpenApiUi.Sample;
 
 public static class ServiceRegistration
 {

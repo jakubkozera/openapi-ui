@@ -1,7 +1,7 @@
-# JakubKozera.OpenApiUi
+# OpenApiUi
 
-[![NuGet Version](https://img.shields.io/nuget/v/JakubKozera.OpenApiUi.svg)](https://www.nuget.org/packages/JakubKozera.OpenApiUi/)
-[![NuGet Downloads](https://img.shields.io/nuget/dt/JakubKozera.OpenApiUi.svg)](https://www.nuget.org/packages/JakubKozera.OpenApiUi/)
+[![NuGet Version](https://img.shields.io/nuget/v/OpenApiUi.svg)](https://www.nuget.org/packages/OpenApiUi/)
+[![NuGet Downloads](https://img.shields.io/nuget/dt/OpenApiUi.svg)](https://www.nuget.org/packages/OpenApiUi/)
 
 A .NET library that provides a modern, customizable OpenAPI UI interface for ASP.NET Core applications. This package serves an embedded HTML/CSS/JavaScript-based OpenAPI documentation interface that can be easily integrated into your ASP.NET Core web applications.
 
@@ -9,7 +9,7 @@ A .NET library that provides a modern, customizable OpenAPI UI interface for ASP
 
 Want to try OpenAPI UI before integrating it into your project? Check out our live demo:
 
-**[🚀 Try it yourself at https://jakubkozera.github.io/openapi-ui/](https://jakubkozera.github.io/openapi-ui/)**
+**[🚀 Try it yourself at https://github.io/openapi-ui/](https://github.io/openapi-ui/)**
 
 The demo showcases all the features mentioned above with a sample API specification, so you can:
 
@@ -58,13 +58,13 @@ No installation required - just open the link and start exploring!
 Install the package via NuGet Package Manager:
 
 ```bash
-dotnet add package JakubKozera.OpenApiUi
+dotnet add package OpenApiUi
 ```
 
 Or via Package Manager Console in Visual Studio:
 
 ```powershell
-Install-Package JakubKozera.OpenApiUi
+Install-Package OpenApiUi
 ```
 
 ## Quick Start
@@ -74,7 +74,7 @@ Install-Package JakubKozera.OpenApiUi
 In your `Program.cs` (or `Startup.cs` for older versions):
 
 ```csharp
-using JakubKozera.OpenApiUi;
+using OpenApiUi;
 
 var builder = WebApplication.CreateBuilder(args);
 

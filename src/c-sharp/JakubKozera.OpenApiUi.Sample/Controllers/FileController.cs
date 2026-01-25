@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 
-namespace JakubKozera.OpenApiUi.Sample.Controllers;
+namespace OpenApiUi.Sample.Controllers;
 
 /// <summary>
 /// Controller for file operations

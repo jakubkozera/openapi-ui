@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using JakubKozera.OpenApiUi.Sample.Models;
-using JakubKozera.OpenApiUi.Sample.Services;
+using OpenApiUi.Sample.Models;
+using OpenApiUi.Sample.Services;
 
-namespace JakubKozera.OpenApiUi.Sample.Controllers;
+namespace OpenApiUi.Sample.Controllers;
 
 /// <summary>
 /// Controller for managing articles

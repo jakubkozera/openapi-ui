@@ -1,6 +1,6 @@
-using JakubKozera.OpenApiUi.Sample.Models;
+using OpenApiUi.Sample.Models;
 
-namespace JakubKozera.OpenApiUi.Sample.Services;
+namespace OpenApiUi.Sample.Services;
 
 /// <summary>
 /// In-memory data store for users

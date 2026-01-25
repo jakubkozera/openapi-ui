@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace JakubKozera.OpenApiUi.Sample.Models;
+namespace OpenApiUi.Sample.Models;
 
 /// <summary>
 /// Request model for user login
