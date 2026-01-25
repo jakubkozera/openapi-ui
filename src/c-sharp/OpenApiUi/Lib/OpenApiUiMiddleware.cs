@@ -5,7 +5,7 @@ using System;
 using System.IO;
 using System.Reflection;
 
-namespace JakubKozera.OpenApiUi
+namespace OpenApiUi
 {
     /// <summary>
     /// Extension methods for configuring OpenAPI UI middleware in ASP.NET Core applications.
@@ -25,7 +25,7 @@ namespace JakubKozera.OpenApiUi
                 throw new ArgumentNullException(nameof(configuration));
 
             var assembly = Assembly.GetExecutingAssembly();
-            var embeddedProvider = new EmbeddedFileProvider(assembly, "JakubKozera.OpenApiUi.openapi-ui");
+            var embeddedProvider = new EmbeddedFileProvider(assembly, "OpenApiUi.openapi-ui");
 
             // Use the configurable UI path for serving static files
             var requestPath = $"/{configuration.OpenApiUiPath.TrimStart('/')}";

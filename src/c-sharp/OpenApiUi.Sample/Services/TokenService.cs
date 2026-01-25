@@ -2,9 +2,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using JakubKozera.OpenApiUi.Sample.Models;
+using OpenApiUi.Sample.Models;
 
-namespace JakubKozera.OpenApiUi.Sample.Services;
+namespace OpenApiUi.Sample.Services;
 
 /// <summary>
 /// Service for handling JWT token operations

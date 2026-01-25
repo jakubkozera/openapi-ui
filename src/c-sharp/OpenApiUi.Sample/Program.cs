@@ -1,4 +1,4 @@
-using JakubKozera.OpenApiUi;
+using OpenApiUi;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -54,9 +54,9 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Register custom services - using direct instantiation as workaround
-builder.Services.AddSingleton(new JakubKozera.OpenApiUi.Sample.Services.UserService());
-builder.Services.AddSingleton(new JakubKozera.OpenApiUi.Sample.Services.ArticleService());
-builder.Services.AddSingleton(provider => new JakubKozera.OpenApiUi.Sample.Services.TokenService(provider.GetRequiredService<IConfiguration>()));
+builder.Services.AddSingleton(new OpenApiUi.Sample.Services.UserService());
+builder.Services.AddSingleton(new OpenApiUi.Sample.Services.ArticleService());
+builder.Services.AddSingleton(provider => new OpenApiUi.Sample.Services.TokenService(provider.GetRequiredService<IConfiguration>()));
 
 // Configure JWT Authentication
 var jwtSettings = builder.Configuration.GetSection("Jwt");

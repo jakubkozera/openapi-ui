@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace JakubKozera.OpenApiUi.Sample.Models;
+namespace OpenApiUi.Sample.Models;
 
 /// <summary>
 /// Represents an article in the system

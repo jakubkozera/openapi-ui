@@ -31,6 +31,7 @@ jobs:
             6.0.x
             8.0.x
             9.0.x
+            10.0.x
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -44,7 +45,7 @@ jobs:
 
       - name: Copy assets to Content directory
         run: |
-          $contentDir = "src/c-sharp/JakubKozera.OpenApiUi/Content"
+          $contentDir = "src/c-sharp/OpenApiUi/Content"
           $distDir = "src/core/dist"
 
           # Create Content directory if it doesn't exist
@@ -70,21 +71,21 @@ jobs:
         run: mkdir ${{ env.NuGetDirectory }}
 
       - name: Restore dependencies
-        run: dotnet restore src/c-sharp/JakubKozera.OpenApiUi/JakubKozera.OpenApiUi.csproj
+        run: dotnet restore src/c-sharp/OpenApiUi/OpenApiUi.csproj
 
       - name: Build project
         run: |
-          dotnet build src/c-sharp/JakubKozera.OpenApiUi/JakubKozera.OpenApiUi.csproj --configuration Release --no-restore -p:ContinuousIntegrationBuild=true --verbosity normal
+          dotnet build src/c-sharp/OpenApiUi/OpenApiUi.csproj --configuration Release --no-restore -p:ContinuousIntegrationBuild=true --verbosity normal
 
           # Check if PDB files were generated
           Write-Host "Looking for PDB files:"
-          Get-ChildItem -Path "src/c-sharp/JakubKozera.OpenApiUi/bin/Release" -Recurse -Include "*.pdb" | ForEach-Object { 
+          Get-ChildItem -Path "src/c-sharp/OpenApiUi/bin/Release" -Recurse -Include "*.pdb" | ForEach-Object { 
             Write-Host "Found PDB: $($_.FullName)" 
           }
 
       - name: Create NuGet package
         run: |
-          dotnet pack src/c-sharp/JakubKozera.OpenApiUi/JakubKozera.OpenApiUi.csproj `
+          dotnet pack src/c-sharp/OpenApiUi/OpenApiUi.csproj `
             --configuration Release `
             --no-build `
             --output ${{ env.NuGetDirectory }} `
@@ -165,7 +166,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 9.0.x
+          dotnet-version: 10.0.x
 
       - name: Publish NuGet package to NuGet.org
         run: |
