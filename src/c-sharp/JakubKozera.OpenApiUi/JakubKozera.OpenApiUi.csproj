@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">  <PropertyGroup>
-    <TargetFrameworks>net6.0;net8.0;net9.0</TargetFrameworks>
+    <TargetFrameworks>net6.0;net8.0;net9.0;net10.0</TargetFrameworks>
     <PackageId>OpenApiUi</PackageId>
-    <Version>1.0.19</Version>
+    <Version>1.1.0</Version>
     <Authors>Jakub Kozera</Authors>
     <Description>A .NET library serving OpenAPI UI with HTML/CSS</Description>
     <PackageTags>openapi;ui;html;css;dotnet</PackageTags>
