@@ -5705,6 +5705,7 @@ function buildSidebar() {
         path,
         method,
         summary: operation.summary || path,
+        deprecated: operation.deprecated || false,
       });
     }
   }
@@ -5731,9 +5732,9 @@ function buildSidebar() {
     tagHeader.innerHTML = `
             <div class="flex items-center flex-grow">
               <span class="ml-1">${tag}</span>
-              <span class="endpoint-count ml-2">${sectionCount}</span>
             </div>
-            <span class="ml-auto">
+            <span class="ml-auto flex items-center gap-1">
+                <span class="endpoint-count">${sectionCount}</span>
                 <svg class="w-4 h-4 text-gray-400 transform sidebar-arrow" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                 </svg>
@@ -6438,7 +6439,7 @@ function buildSchemaDetails(schema, components) {
   if (!resolvedSchema.properties && resolvedSchema.type !== "object") {
     // For primitive types, show basic type information
     let typeInfo = `<div class="text-sm text-gray-600">
-      <span class="font-mono bg-blue-100 text-blue-800 px-2 py-1 rounded">${formatTypeDisplay(
+      <span class="font-mono bg-gray-200 text-gray-700 px-2 py-1 rounded">${formatTypeDisplay(
         resolvedSchema
       )}</span>`;
 
@@ -6514,17 +6515,18 @@ function buildSchemaDetails(schema, components) {
       <div class="p-4 border-b border-gray-200 last:border-b-0">
         <div class="flex items-start">
           <div class="w-1/3">
-            <span class="text-sm font-medium text-gray-700">${propName}</span>
-            ${
+            <span class="text-sm font-medium text-gray-700">${propName}${
               isRequired
-                ? '<span class="text-xs text-red-500 ml-1">required</span>'
+                ? '<span class="text-red-500 ml-0.5">*</span>'
                 : ""
-            }          </div>          <div class="w-2/3">
-            <code class="text-sm text-blue-800 bg-blue-100 px-1 py-0.5 rounded font-mono">
+            }</span>
+            <code class="text-sm text-gray-700 bg-gray-200 px-1 py-0.5 rounded font-mono ml-2">
               ${formatTypeDisplay(resolvedPropSchema)}${
         resolvedPropSchema?.format ? `(${resolvedPropSchema.format})` : ""
       }
-            </code><br>`;
+            </code>
+          </div>
+          <div class="w-2/3">`;
       // Add description
       if (resolvedPropSchema?.description) {
         schemaHTML += `<span class="text-sm text-gray-700">${resolvedPropSchema.description}</span><br>`;
@@ -6762,7 +6764,8 @@ function buildMainContent() {
       section.id = sectionId;
       const methodBorderClass = `method-border-${method.toLowerCase()}`;
       const methodShadowClass = `method-shadow-${method.toLowerCase()}`;
-      section.className = `main-content-section mb-5 p-3 bg-white flex items-start gap-4 border-l-4 ${methodBorderClass} ${methodShadowClass}`;
+      const deprecatedClass = operation.deprecated ? 'deprecated-section' : '';
+      section.className = `main-content-section mb-5 p-3 bg-white flex items-start gap-4 border-l-4 ${methodBorderClass} ${methodShadowClass} ${deprecatedClass}`;
       endpointsContainer.appendChild(section);
 
       const authSchemes =
@@ -6791,6 +6794,7 @@ function buildMainContent() {
               </button>
 
               <div class="ml-auto flex gap-2 items-center">
+              ${operation.deprecated ? '<span class="deprecated-badge">DEPRECATED</span>' : ''}
               <button class="main-try-it-out-btn ${getMethodButtonClass(
                 method
               )} text-sm flex items-center font-bold py-1 px-3 rounded hover:text-white border shadow transition" data-path="${path}" data-method="${method}">
@@ -7341,7 +7345,7 @@ function buildParametersSection(title, params) {
   let sectionHTML = `
     <div class="mb-4">
         <h3 class="param-section-header text-gray-700 font-semibold mb-2 text-lg">
-            ${title} <span class="endpoint-count ml-2">${params.length}</span>
+            ${title}
         </h3>
         <div class="bg-gray-50 border border-gray-200 rounded-md param-section-path">
   `;
@@ -7390,17 +7394,18 @@ function buildParametersSection(title, params) {
               <div class="w-1/3">
                   <span class="text-sm font-medium text-gray-700">${
                     param.name
-                  }</span>
-                  ${
+                  }${
                     param.required
-                      ? '<span class="text-xs text-red-500 ml-1">required</span>'
+                      ? '<span class="text-red-500 ml-0.5">*</span>'
                       : ""
-                  }              </div>              <div class="w-2/3">
-                  <code class="text-sm text-blue-800 bg-blue-100 px-1 py-0.5 rounded font-mono">${
+                  }</span>
+                  <code class="text-sm text-gray-700 bg-gray-200 px-1 py-0.5 rounded font-mono ml-2">${
                     param.schema ? formatTypeDisplay(param.schema) : ""
                   }${
       param.schema && param.schema.format ? "(" + param.schema.format + ")" : ""
-    }</code><br>
+    }</code>
+              </div>
+              <div class="w-2/3">
                   <span class="text-sm text-gray-700">${
                     param.description || ""
                   }</span>`;
@@ -7973,7 +7978,7 @@ async function updateRightPanelDynamically(path, method) {
     label.className = "flex items-center w-full justify-between";
     label.innerHTML = `<span class="font-bold">${param.name}${
       param.required ? '<span class="text-red-400 ml-0.5">*</span>' : ""
-    }</span> <code class="text-sm text-blue-800 bg-blue-100 px-1 py-0.5 rounded font-mono">${
+    }</span> <code class="text-sm text-gray-700 bg-gray-200 px-1 py-0.5 rounded font-mono">${
       window.formatTypeDisplay
         ? window.formatTypeDisplay(param.schema)
         : param.schema.type
@@ -8055,7 +8060,7 @@ async function updateRightPanelDynamically(path, method) {
       const pathParamHeader = document.querySelector(
         "#right-panel-path-parameters-section h3"
       );
-      pathParamHeader.innerHTML = `Path Parameters <span class="endpoint-count ml-2">${pathParams.length}</span>`;
+      pathParamHeader.innerHTML = `Path Parameters`;
 
       // Add path parameters
       pathParams.forEach((param) => {
@@ -8074,7 +8079,7 @@ async function updateRightPanelDynamically(path, method) {
       const queryParamHeader = document.querySelector(
         "#right-panel-query-parameters-section h3"
       );
-      queryParamHeader.innerHTML = `Query Parameters <span class="endpoint-count ml-2">${queryParams.length}</span>`;
+      queryParamHeader.innerHTML = `Query Parameters`;
 
       // Add query parameters
       queryParams.forEach((param) => {
@@ -8196,7 +8201,7 @@ async function updateRightPanelDynamically(path, method) {
                 label.className = "flex items-center w-full justify-between";
                 label.innerHTML = `<span class="font-bold">${fieldName}${
                   isRequired ? '<span class="text-red-400 ml-0.5">*</span>' : ""
-                }</span> <code class="text-sm text-blue-800 bg-blue-100 px-1 py-0.5 rounded font-mono">${
+                }</span> <code class="text-sm text-gray-700 bg-gray-200 px-1 py-0.5 rounded font-mono">${
                   window.formatTypeDisplay
                     ? window.formatTypeDisplay(fieldSchema)
                     : fieldSchema.type
@@ -8602,7 +8607,7 @@ function createEndpointElement(op) {
     "endpoint endpoint-link bg-opacity-50 pr-2 pl-0 py-2 text-sm mb-2 cursor-pointer border-l-[3px] border-transparent";
   endpointDiv.dataset.path = op.path;
   endpointDiv.dataset.method = op.method;
-  endpointDiv.dataset.tooltip = `${op.method.toUpperCase()} ${op.path}`;
+  endpointDiv.dataset.tooltip = `${op.method.toUpperCase()} ${op.path}${op.deprecated ? ' [DEPRECATED]' : ''}`;
 
   // Apply the method-specific text color and hover border color
   const methodClass = getMethodClass(op.method);
@@ -8619,7 +8624,7 @@ function createEndpointElement(op) {
       ? op.method.substring(0, 3).toUpperCase()
       : op.method.toUpperCase()
   }</span>
-        <span class="w-[80%] truncate text-left pl-1">${op.summary}</span>
+        <span class="w-[80%] truncate text-left pl-1 ${op.deprecated ? 'deprecated-endpoint' : ''}">${op.summary}</span>
     </div>
   `;
 
@@ -8781,7 +8786,7 @@ function renderEndpointTree(tree, container, basePath = "") {
         endpointEl.dataset.path = op.path;
         endpointEl.dataset.method = method;
         // Store tooltip data for custom tooltip
-        endpointEl.dataset.tooltip = `${op.path} ${method.toUpperCase()}`; // Create wrapper div for flexbox layout
+        endpointEl.dataset.tooltip = `${op.path} ${method.toUpperCase()}${op.deprecated ? ' [DEPRECATED]' : ''}`; // Create wrapper div for flexbox layout
         const wrapperDiv = document.createElement("div");
         wrapperDiv.className = "flex items-center w-full";
 
@@ -8795,7 +8800,7 @@ function renderEndpointTree(tree, container, basePath = "") {
 
         // Add segment name (path) on the right, taking 85% of space
         const pathText = document.createElement("span");
-        pathText.className = "w-[85%] text-left truncate";
+        pathText.className = `w-[85%] text-left truncate ${op.deprecated ? 'deprecated-endpoint' : ''}`;
         pathText.textContent = segment;
         wrapperDiv.appendChild(pathText);
 
@@ -8839,7 +8844,7 @@ function renderEndpointTree(tree, container, basePath = "") {
           endpointEl.dataset.path = op.path;
           endpointEl.dataset.method = method;
           // Store tooltip data for custom tooltip
-          endpointEl.dataset.tooltip = `${method.toUpperCase()} ${op.path}`; // Create wrapper div for flexbox layout
+          endpointEl.dataset.tooltip = `${method.toUpperCase()} ${op.path}${op.deprecated ? ' [DEPRECATED]' : ''}`; // Create wrapper div for flexbox layout
           const wrapperDiv = document.createElement("div");
           wrapperDiv.className = "flex items-center w-full";
 
@@ -8849,7 +8854,7 @@ function renderEndpointTree(tree, container, basePath = "") {
 
           // Add segment name (path) on the right, taking 85% of space
           const pathText = document.createElement("span");
-          pathText.className = "w-[85%] text-left truncate";
+          pathText.className = `w-[85%] text-left truncate ${op.deprecated ? 'deprecated-endpoint' : ''}`;
           pathText.textContent = segment;
           wrapperDiv.appendChild(pathText);
 
@@ -16965,7 +16970,7 @@ window.CollectionRunnerUI = class CollectionRunnerUI {
       label.className = "flex items-center w-full justify-between";
       label.innerHTML = `<span class="font-bold">${param.name}${
         param.required ? '<span class="text-red-400 ml-0.5">*</span>' : ""
-      }</span> <code class="text-sm text-blue-800 bg-blue-100 px-1 py-0.5 rounded font-mono">${
+      }</span> <code class="text-sm text-gray-700 bg-gray-200 px-1 py-0.5 rounded font-mono">${
         window.formatTypeDisplay
           ? window.formatTypeDisplay(param.schema)
           : param.schema.type
@@ -17047,7 +17052,7 @@ window.CollectionRunnerUI = class CollectionRunnerUI {
         // Add count to path parameters header
         const pathParamHeader = pathParametersSection.querySelector("h3");
         if (pathParamHeader) {
-          pathParamHeader.innerHTML = `Path Parameters <span class="endpoint-count ml-2">${pathParams.length}</span>`;
+          pathParamHeader.innerHTML = `Path Parameters`;
         }
 
         // Add each path parameter
@@ -17077,7 +17082,7 @@ window.CollectionRunnerUI = class CollectionRunnerUI {
         // Add count to query parameters header
         const queryParamHeader = queryParametersSection.querySelector("h3");
         if (queryParamHeader) {
-          queryParamHeader.innerHTML = `Query Parameters <span class="endpoint-count ml-2">${queryParams.length}</span>`;
+          queryParamHeader.innerHTML = `Query Parameters`;
         }
 
         // Extract existing query parameters from request
@@ -17122,7 +17127,7 @@ window.CollectionRunnerUI = class CollectionRunnerUI {
         // Add count to headers header
         const headersParamHeader = headersSection.querySelector("h3");
         if (headersParamHeader) {
-          headersParamHeader.innerHTML = `Headers <span class="endpoint-count ml-2">${headerParams.length}</span>`;
+          headersParamHeader.innerHTML = `Headers`;
         }
 
         // Add each header parameter
@@ -18564,7 +18569,7 @@ window.CollectionRunnerUI = class CollectionRunnerUI {
           : fieldSchema.type || "string";
         label.innerHTML = `<span class="font-bold">${fieldName}${
           isRequired ? '<span class="text-red-400 ml-0.5">*</span>' : ""
-        }</span> <code class="text-sm text-blue-800 bg-blue-100 px-1 py-0.5 rounded font-mono">${typeDisplay}</code>`;
+        }</span> <code class="text-sm text-gray-700 bg-gray-200 px-1 py-0.5 rounded font-mono">${typeDisplay}</code>`;
 
         // Add description as tooltip if available
         if (fieldSchema.description) {

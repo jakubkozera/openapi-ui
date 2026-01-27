@@ -4,13 +4,13 @@ on:
   push:
     branches: [master]
     paths:
-      - "src/c-sharp/JakubKozera.OpenApiUi.Sample/**"
+      - "src/c-sharp/OpenApiUi.Sample/**"
   workflow_dispatch:
 
 env:
   AZURE_WEBAPP_NAME: openapi-ui
-  AZURE_WEBAPP_PACKAGE_PATH: "./src/c-sharp/JakubKozera.OpenApiUi.Sample"
-  DOTNET_VERSION: "9.0.x"
+  AZURE_WEBAPP_PACKAGE_PATH: "./src/c-sharp/OpenApiUi.Sample"
+  DOTNET_VERSION: "10.0.x"
 
 jobs:
   build-and-deploy:
@@ -26,13 +26,13 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
       - name: Restore dependencies
-        run: dotnet restore ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/JakubKozera.OpenApiUi.Sample.csproj
+        run: dotnet restore ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/OpenApiUi.Sample.csproj
 
       - name: Build application
-        run: dotnet build ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/JakubKozera.OpenApiUi.Sample.csproj --configuration Release --no-restore
+        run: dotnet build ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/OpenApiUi.Sample.csproj --configuration Release --no-restore
 
       - name: Publish application
-        run: dotnet publish ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/JakubKozera.OpenApiUi.Sample.csproj --configuration Release --no-build --output ./publish
+        run: dotnet publish ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}/OpenApiUi.Sample.csproj --configuration Release --no-build --output ./publish
 
       - name: Login to Azure
         uses: azure/login@v2

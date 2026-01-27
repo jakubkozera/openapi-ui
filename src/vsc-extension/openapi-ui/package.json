@@ -2,7 +2,7 @@
   "name": "openapi-ui",
   "displayName": "OpenAPI UI",
   "description": "OpenAPI UI viewer for VS Code",
-  "version": "1.0.16",
+  "version": "1.1.0",
   "publisher": "JakubKozera",
   "icon": "openapi-ui.png",
   "repository": {
@@ -19,6 +19,16 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "OpenAPI UI",
+      "properties": {
+        "openapi-ui.showSidebar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the OpenAPI UI sidebar in the Activity Bar"
+        }
+      }
+    },
     "viewsContainers": {
       "activitybar": [
         {
@@ -33,7 +43,7 @@
         {
           "id": "openapi-ui-sidebar",
           "name": "OpenAPI Sources",
-          "when": "true"
+          "when": "config.openapi-ui.showSidebar"
         }
       ]
     },
@@ -69,6 +79,11 @@
         "command": "openapi-ui.loadSource",
         "title": "Load OpenAPI Source",
         "icon": "$(play)"
+      },
+      {
+        "command": "openapi-ui.openWithUrl",
+        "title": "Open OpenAPI UI with URL",
+        "icon": "$(link-external)"
       }
     ],
     "menus": {
@@ -95,15 +110,19 @@
         },
         {
           "command": "openapi-ui.loadSource"
+        },
+        {
+          "command": "openapi-ui.openWithUrl"
         }
       ]
     }
   },
   "scripts": {
+    "prebuild": "node scripts/prebuild.js",
     "vscode:prepublish": "npm run package",
-    "compile": "webpack",
-    "watch": "webpack --watch",
-    "package": "webpack --mode production --devtool hidden-source-map",
+    "compile": "npm run prebuild && webpack",
+    "watch": "npm run prebuild && webpack --watch",
+    "package": "npm run prebuild && webpack --mode production --devtool hidden-source-map",
     "compile-tests": "tsc -p . --outDir out",
     "watch-tests": "tsc -p . -w --outDir out",
     "pretest": "npm run compile-tests && npm run compile && npm run lint",
