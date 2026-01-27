@@ -4,6 +4,8 @@ import * as fs from "fs";
 import { OpenAPIStorage } from "./storage";
 import { OpenAPITreeDataProvider, OpenAPITreeItem } from "./treeDataProvider";
 import { OpenAPISource } from "./models";
+import { setupWebviewMessageHandler } from "./webviewMessageHandler";
+import { getFetchInterceptorScript } from "./fetchInterceptor";
 
 export function activate(context: vscode.ExtensionContext) {
   // Initialize storage
@@ -33,6 +35,10 @@ export function activate(context: vscode.ExtensionContext) {
           ],
         }
       );
+
+      // Set up message handling for fetch proxy
+      const messageHandler = setupWebviewMessageHandler(panel);
+      panel.onDidDispose(() => messageHandler.dispose());
 
       panel.webview.html = getWebviewContent(
         panel.webview,
@@ -230,6 +236,10 @@ export function activate(context: vscode.ExtensionContext) {
           }
         );
 
+        // Set up message handling for fetch proxy
+        const messageHandler = setupWebviewMessageHandler(panel);
+        panel.onDidDispose(() => messageHandler.dispose());
+
         if (source.type === "url") {
           panel.webview.html = getWebviewContent(
             panel.webview,
@@ -349,6 +359,24 @@ function getWebviewContent(
     htmlContent = htmlContent.replace(
       'src="openapi-ui.png"',
       `src="${imgUri}"`
+    );
+
+    // Inject Content Security Policy to allow OAuth frames and external resources
+    // CSP must be in a single line to work properly
+    const cspMeta = `<meta http-equiv="Content-Security-Policy" content="default-src 'self' ${webview.cspSource}; script-src 'self' ${webview.cspSource} 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' ${webview.cspSource} 'unsafe-inline' https://fonts.googleapis.com https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; font-src 'self' ${webview.cspSource} https://fonts.gstatic.com data:; img-src 'self' ${webview.cspSource} https: data: blob:; frame-src 'self' https://login.microsoftonline.com https://accounts.google.com https://github.com https://oauth.twitter.com https://www.facebook.com https://appleid.apple.com https://*.okta.com https://*.auth0.com https://*.onelogin.com; connect-src 'self' ${webview.cspSource} https: http: ws: wss:; worker-src 'self' ${webview.cspSource} blob:;">`;
+
+    // Inject CSP right after opening <head> tag for maximum priority
+    htmlContent = htmlContent.replace(
+      /<head>/i,
+      `<head>\n${cspMeta}`
+    );
+
+    // Inject the fetch interceptor script before the closing </head> tag
+    // This ensures fetch is intercepted before any other scripts run
+    const fetchInterceptorScript = `<script>${getFetchInterceptorScript()}</script>`;
+    htmlContent = htmlContent.replace(
+      "</head>",
+      `${fetchInterceptorScript}</head>`
     );
 
     // Handle OpenAPI source replacement
