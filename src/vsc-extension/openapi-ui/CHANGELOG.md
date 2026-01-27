@@ -4,6 +4,16 @@ All notable changes to the "openapi-ui" extension will be documented in this fil
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [1.1.1] - 2026-01-27
+
+### Added
+
+- **Load from Disk**: New command `openapi-ui.loadFromDisk` to load OpenAPI specifications from local files
+  - Supports JSON and YAML files via file picker dialog
+  - Accepts optional file path parameter for programmatic usage
+  - Validates JSON content before loading
+  - Displays file name in webview title
+
 ## [1.1.0] - 2026-01-27
 
 ### Added
@@ -20,6 +30,8 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
   - FetchProxy tests with real HTTP server
   - WebviewMessageHandler tests
   - FetchInterceptor script validation tests
+
+
 
 
 ## [Unreleased]

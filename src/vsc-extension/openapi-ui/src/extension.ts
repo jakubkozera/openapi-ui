@@ -363,7 +363,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         const panel = vscode.window.createWebviewPanel(
           "openapiURLUI",
-          `OpenAPI UI - ${new URL(openapiUrl).hostname}`,
+          `OpenAPI UI`,
           vscode.ViewColumn.One,
           {
             enableScripts: true,
@@ -399,6 +399,79 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
+  // Register command to load OpenAPI UI from local disk file
+  let loadFromDiskDisposable = vscode.commands.registerCommand(
+    "openapi-ui.loadFromDisk",
+    async (filePath?: string) => {
+      let selectedFilePath = filePath;
+
+      // If no file path provided, show file picker
+      if (!selectedFilePath) {
+        const fileUri = await vscode.window.showOpenDialog({
+          canSelectMany: false,
+          openLabel: "Select OpenAPI Specification",
+          filters: {
+            "JSON files": ["json"],
+            "YAML files": ["yaml", "yml"],
+            "All files": ["*"],
+          },
+        });
+
+        if (!fileUri || fileUri.length === 0) {
+          return;
+        }
+
+        selectedFilePath = fileUri[0].fsPath;
+      }
+
+      try {
+        // Read file content
+        const fileContent = fs.readFileSync(selectedFilePath, "utf8");
+
+        // Validate JSON
+        JSON.parse(fileContent);
+
+        const fileName = path.basename(selectedFilePath);
+
+        const panel = vscode.window.createWebviewPanel(
+          "openapiDiskUI",
+          `OpenAPI UI`,
+          vscode.ViewColumn.One,
+          {
+            enableScripts: true,
+            localResourceRoots: [
+              vscode.Uri.file(path.join(context.extensionPath, "core-dist")),
+            ],
+          }
+        );
+
+        // Set webview icon
+        panel.iconPath = vscode.Uri.file(
+          path.join(context.extensionPath, "openapi-ui.png")
+        );
+
+        // Set up message handling for fetch proxy
+        const messageHandler = setupWebviewMessageHandler(panel);
+        panel.onDidDispose(() => messageHandler.dispose());
+
+        panel.webview.html = getWebviewContent(
+          panel.webview,
+          context.extensionPath,
+          undefined,
+          fileContent
+        );
+
+        vscode.window.showInformationMessage(
+          `Opened OpenAPI UI from ${fileName}`
+        );
+      } catch (error) {
+        vscode.window.showErrorMessage(
+          `Failed to load OpenAPI file: ${error}`
+        );
+      }
+    }
+  );
+
   context.subscriptions.push(
     openViewDisposable,
     addSourceDisposable,
@@ -406,7 +479,8 @@ export function activate(context: vscode.ExtensionContext) {
     refreshSourcesDisposable,
     loadSourceDisposable,
     addJsonSourceDisposable,
-    openWithUrlDisposable
+    openWithUrlDisposable,
+    loadFromDiskDisposable
   );
 }
 

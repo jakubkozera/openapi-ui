@@ -2,7 +2,7 @@
   "name": "openapi-ui",
   "displayName": "OpenAPI UI",
   "description": "OpenAPI UI viewer for VS Code",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "publisher": "JakubKozera",
   "icon": "openapi-ui.png",
   "repository": {
@@ -84,6 +84,11 @@
         "command": "openapi-ui.openWithUrl",
         "title": "Open OpenAPI UI with URL",
         "icon": "$(link-external)"
+      },
+      {
+        "command": "openapi-ui.loadFromDisk",
+        "title": "Load OpenAPI UI from Disk",
+        "icon": "$(file)"
       }
     ],
     "menus": {
@@ -113,6 +118,9 @@
         },
         {
           "command": "openapi-ui.openWithUrl"
+        },
+        {
+          "command": "openapi-ui.loadFromDisk"
         }
       ]
     }
