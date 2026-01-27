@@ -36,6 +36,11 @@ export function activate(context: vscode.ExtensionContext) {
         }
       );
 
+      // Set webview icon
+      panel.iconPath = vscode.Uri.file(
+        path.join(context.extensionPath, "openapi-ui.png")
+      );
+
       // Set up message handling for fetch proxy
       const messageHandler = setupWebviewMessageHandler(panel);
       panel.onDidDispose(() => messageHandler.dispose());
@@ -236,6 +241,11 @@ export function activate(context: vscode.ExtensionContext) {
           }
         );
 
+        // Set webview icon
+        panel.iconPath = vscode.Uri.file(
+          path.join(context.extensionPath, "openapi-ui.png")
+        );
+
         // Set up message handling for fetch proxy
         const messageHandler = setupWebviewMessageHandler(panel);
         panel.onDidDispose(() => messageHandler.dispose());
@@ -317,13 +327,86 @@ export function activate(context: vscode.ExtensionContext) {
       }
     }
   );
+  
+  // Register command to open OpenAPI UI with URL parameter (for external API calls)
+  let openWithUrlDisposable = vscode.commands.registerCommand(
+    "openapi-ui.openWithUrl",
+    async (url?: string) => {
+      let openapiUrl = url;
+
+      // If no URL provided, prompt the user
+      if (!openapiUrl) {
+        openapiUrl = await vscode.window.showInputBox({
+          prompt: "Enter the URL of the OpenAPI specification",
+          placeHolder: "e.g., https://api.example.com/swagger/v1/swagger.json",
+          validateInput: (value) => {
+            if (!value) {
+              return "URL is required";
+            }
+            try {
+              new URL(value);
+              return null;
+            } catch {
+              return "Please enter a valid URL";
+            }
+          },
+        });
+
+        if (!openapiUrl) {
+          return;
+        }
+      }
+
+      try {
+        // Validate URL
+        new URL(openapiUrl);
+
+        const panel = vscode.window.createWebviewPanel(
+          "openapiURLUI",
+          `OpenAPI UI - ${new URL(openapiUrl).hostname}`,
+          vscode.ViewColumn.One,
+          {
+            enableScripts: true,
+            localResourceRoots: [
+              vscode.Uri.file(path.join(context.extensionPath, "core-dist")),
+            ],
+          }
+        );
+
+        // Set webview icon
+        panel.iconPath = vscode.Uri.file(
+          path.join(context.extensionPath, "openapi-ui.png")
+        );
+
+        // Set up message handling for fetch proxy
+        const messageHandler = setupWebviewMessageHandler(panel);
+        panel.onDidDispose(() => messageHandler.dispose());
+
+        panel.webview.html = getWebviewContent(
+          panel.webview,
+          context.extensionPath,
+          openapiUrl
+        );
+
+        vscode.window.showInformationMessage(
+          `Opened OpenAPI UI for ${openapiUrl}`
+        );
+      } catch (error) {
+        vscode.window.showErrorMessage(
+          `Invalid URL: ${openapiUrl}. Please provide a valid URL.`
+        );
+      }
+    }
+  );
+
   context.subscriptions.push(
     openViewDisposable,
     addSourceDisposable,
     removeSourceDisposable,
     refreshSourcesDisposable,
     loadSourceDisposable,
-    addJsonSourceDisposable
+    addJsonSourceDisposable,
+    openWithUrlDisposable
   );
 }
 

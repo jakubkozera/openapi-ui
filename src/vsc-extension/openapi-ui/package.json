@@ -19,6 +19,16 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "OpenAPI UI",
+      "properties": {
+        "openapi-ui.showSidebar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the OpenAPI UI sidebar in the Activity Bar"
+        }
+      }
+    },
     "viewsContainers": {
       "activitybar": [
         {
@@ -33,7 +43,7 @@
         {
           "id": "openapi-ui-sidebar",
           "name": "OpenAPI Sources",
-          "when": "true"
+          "when": "config.openapi-ui.showSidebar"
         }
       ]
     },
@@ -69,6 +79,11 @@
         "command": "openapi-ui.loadSource",
         "title": "Load OpenAPI Source",
         "icon": "$(play)"
+      },
+      {
+        "command": "openapi-ui.openWithUrl",
+        "title": "Open OpenAPI UI with URL",
+        "icon": "$(link-external)"
       }
     ],
     "menus": {
@@ -95,6 +110,9 @@
         },
         {
           "command": "openapi-ui.loadSource"
+        },
+        {
+          "command": "openapi-ui.openWithUrl"
         }
       ]
     }
