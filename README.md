@@ -87,7 +87,7 @@ OpenAPI UI is available in multiple formats to suit different integration needs:
 
 ### ASP.NET Core Integration
 
-- 📦 **NuGet package**: `JakubKozera.OpenApiUi`
+- 📦 **NuGet package**: `OpenApiUi`
 - 🚀 **Seamless integration** with ASP.NET Core applications
 - 🔧 **Middleware support** for easy setup
 - ⚙️ **Compatible** with existing Swagger/OpenAPI pipelines
@@ -107,19 +107,19 @@ OpenAPI UI is available in multiple formats to suit different integration needs:
 1. Install the NuGet package:
 
 ```bash
-dotnet add package JakubKozera.OpenApiUi
+dotnet add package OpenApiUi
 ```
 
 Or via Package Manager Console in Visual Studio:
 
 ```powershell
-Install-Package JakubKozera.OpenApiUi
+Install-Package OpenApiUi
 ```
 
 2. Add to your `Program.cs` (or `Startup.cs` for older versions):
 
 ```csharp
-using JakubKozera.OpenApiUi;
+using OpenApiUi;
 
 var builder = WebApplication.CreateBuilder(args);
 
