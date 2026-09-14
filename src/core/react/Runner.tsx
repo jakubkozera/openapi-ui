@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import {
   ArrowDown,
   ArrowUp,
+  ChevronRight,
   Download,
   Play,
   Plus,
@@ -382,6 +383,7 @@ export function Runner({
               {results.map((result, index) => (
                 <details key={`${result.id}:${index}`}>
                   <summary>
+                    <ChevronRight className="expand-chevron" size={14} />
                     <strong className={result.ok ? "success" : "error-text"}>
                       {result.status || "Error"}
                     </strong>

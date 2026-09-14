@@ -8,6 +8,7 @@ import React, {
 import {
   Braces,
   ChevronDown,
+  ChevronRight,
   Code2,
   FolderOpen,
   History as HistoryIcon,
@@ -651,6 +652,7 @@ export function Workspace({
           {groups.map((group) => (
             <details key={`${group}:${query}:${method}:${onlyFavorites}`} open>
               <summary>
+                <ChevronRight className="expand-chevron" size={14} />
                 {group}
                 <span>
                   {

@@ -119,8 +119,10 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; padding: 14px; 
 label { display: flex; flex-direction: column; gap: 7px; }
 details { border-bottom: 1px solid var(--border); }
 summary { display: flex; align-items: center; gap: 10px; padding: 12px 0; cursor: pointer; font-weight: 500; }
-summary::before { content: '+'; display: inline-block; width: 12px; color: var(--muted); font-size: 15px; }
-details[open] > summary::before { content: '-'; }
+summary { list-style: none; }
+summary::-webkit-details-marker { display: none; }
+.expand-chevron { color: var(--muted); transition: transform .15s ease; }
+details[open] > summary .expand-chevron { transform: rotate(90deg); }
 .primary { background: var(--accent); color: var(--accent-text); border-color: transparent; font-weight: 600; }
 .primary:hover { background: var(--accent); filter: brightness(.93); }
 .icon-button { width: 30px; height: 30px; min-height: 30px; padding: 5px; border-color: transparent; background: transparent; flex-shrink: 0; }

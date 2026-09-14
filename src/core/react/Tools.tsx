@@ -1,5 +1,12 @@
 import React, { useState } from "react";
-import { Download, FileCode2, Play, Trash2, Upload } from "lucide-react";
+import {
+  ChevronRight,
+  Download,
+  FileCode2,
+  Play,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import { CSharpApiGenerator } from "../js/codeApiGenerators/csharpApiClientGenerator";
 import { JavaScriptApiGenerator } from "../js/codeApiGenerators/javascriptApiClientGenerator";
 import { CodeSnippetGenerator } from "../js/codeSnippets";
@@ -87,6 +94,7 @@ export function Overview({
         {groups.map((group) => (
           <details key={group} open>
             <summary>
+              <ChevronRight className="expand-chevron" size={14} />
               {group}
               <span className="count">
                 {
@@ -125,6 +133,7 @@ export function Overview({
             ([name, schema]) => (
               <details key={name}>
                 <summary>
+                  <ChevronRight className="expand-chevron" size={14} />
                   <FileCode2 size={16} />
                   {name}
                 </summary>
@@ -502,7 +511,10 @@ export function CodeTools({
       </div>
       {mode === "API client" && (
         <details>
-          <summary>Generator options</summary>
+          <summary>
+            <ChevronRight className="expand-chevron" size={14} />
+            Generator options
+          </summary>
           <div className="generator-options">
             {Object.entries(generator.options).map(([key, value]) => (
               <label className="check-label" key={key}>

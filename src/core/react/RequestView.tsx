@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Download, Play, Plus, Square, Star } from "lucide-react";
+import { ChevronRight, Download, Play, Plus, Square, Star } from "lucide-react";
 import { bodyExample, downloadBlob, exampleFor, resolveRef } from "./api";
 import {
   CodeEditor,
@@ -251,7 +251,10 @@ export function RequestView({
             ))}
             {operation.requestBody && (
               <details>
-                <summary>Request schema</summary>
+                <summary>
+                  <ChevronRight className="expand-chevron" size={14} />
+                  Request schema
+                </summary>
                 <pre>{JSON.stringify(operation.requestBody, null, 2)}</pre>
               </details>
             )}
@@ -262,6 +265,7 @@ export function RequestView({
                 return (
                   <details key={status}>
                     <summary>
+                      <ChevronRight className="expand-chevron" size={14} />
                       <strong>{status}</strong> {responseSpec.description}
                     </summary>
                     <pre>
