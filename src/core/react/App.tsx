@@ -22,6 +22,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
+import { RequestTabContextMenu } from "./RequestTabContextMenu";
 import {
   buildRequest,
   extractOutputs,
@@ -275,6 +276,11 @@ export function Workspace({
     Record<string, Record<string, File | undefined>>
   >({});
   const [savedRequest, setSavedRequest] = useState<SavedRequest | null>(null);
+  const [contextMenu, setContextMenu] = useState<{
+    id: string;
+    x: number;
+    y: number;
+  } | null>(null);
   const [storageFailed, setStorageFailed] = useState(false);
   const controllers = useRef(new Map<string, AbortController>());
   const stateRef = useRef(state);
@@ -313,6 +319,27 @@ export function Workspace({
     ...new Set(filtered.map((item) => item.tags?.[0] || "Requests")),
   ];
   stateRef.current = state;
+
+  const closeTabs = (ids: string[], action: { type: string; id: string }) => {
+    if (!ids.length) return;
+    ids.forEach((id) => controllers.current.get(id)?.abort());
+    dispatch(action);
+    setResponses((previous) => {
+      const next = { ...previous };
+      ids.forEach((id) => delete next[id]);
+      return next;
+    });
+    setPending((previous) => {
+      const next = { ...previous };
+      ids.forEach((id) => delete next[id]);
+      return next;
+    });
+    setFiles((previous) => {
+      const next = { ...previous };
+      ids.forEach((id) => delete next[id]);
+      return next;
+    });
+  };
 
   useEffect(() => {
     setStorageFailed(!persistWorkspace(storage, key, state));
@@ -737,6 +764,14 @@ export function Workspace({
               <div
                 className={`request-tab ${state.active === tab.id && view === "requests" ? "active" : ""}`}
                 key={tab.id}
+                onContextMenu={(event) => {
+                  event.preventDefault();
+                  setContextMenu({
+                    id: tab.id,
+                    x: event.clientX,
+                    y: event.clientY,
+                  });
+                }}
               >
                 <button
                   role="tab"
@@ -750,20 +785,9 @@ export function Workspace({
                 </button>
                 <IconButton
                   label={`Close ${item.summary || item.path}`}
-                  onClick={() => {
-                    controllers.current.get(tab.id)?.abort();
-                    dispatch({ type: "close", id: tab.id });
-                    setResponses((previous) => {
-                      const next = { ...previous };
-                      delete next[tab.id];
-                      return next;
-                    });
-                    setFiles((previous) => {
-                      const next = { ...previous };
-                      delete next[tab.id];
-                      return next;
-                    });
-                  }}
+                  onClick={() =>
+                    closeTabs([tab.id], { type: "close", id: tab.id })
+                  }
                 >
                   <X size={14} />
                 </IconButton>
@@ -771,6 +795,19 @@ export function Workspace({
             );
           })}
         </div>
+        {contextMenu && (
+          <RequestTabContextMenu
+            tabs={state.tabs}
+            tabId={contextMenu.id}
+            x={contextMenu.x}
+            y={contextMenu.y}
+            onClose={() => setContextMenu(null)}
+            onAction={(action, ids) => {
+              closeTabs(ids, { type: action, id: contextMenu.id });
+              setContextMenu(null);
+            }}
+          />
+        )}
         <div className="server-bar">
           <label>
             <span className="status-dot" />

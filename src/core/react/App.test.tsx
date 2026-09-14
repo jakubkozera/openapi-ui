@@ -174,21 +174,51 @@ describe("React workspace", () => {
     }
   });
 
+  it("offers context actions for request tabs but not Overview", () => {
+    render(<App initialSpec={spec} storage={localStorage} />);
+    const tablist = screen.getByRole("tablist", { name: "Open requests" });
+    expect(screen.queryByRole("menu")).toBeNull();
+    openRequest("GET List pets");
+    openRequest("POST Create pet");
+
+    const getTab = screen.getByRole("tab", { name: "GET List pets" });
+    fireEvent.contextMenu(getTab.parentElement!);
+    expect(screen.getByRole("menuitem", { name: /Close$/ })).toBeVisible();
+    expect(
+      screen.getByRole("menuitem", { name: "Close others" }),
+    ).toBeEnabled();
+    expect(
+      screen.getByRole("menuitem", { name: "Close to the right" }),
+    ).toBeEnabled();
+    fireEvent.click(
+      screen.getByRole("menuitem", { name: "Close to the right" }),
+    );
+    expect(screen.queryByRole("tab", { name: "POST Create pet" })).toBeNull();
+
+    openRequest("POST Create pet");
+    const postTab = screen.getByRole("tab", { name: "POST Create pet" });
+    fireEvent.contextMenu(postTab.parentElement!);
+    fireEvent.click(screen.getByRole("menuitem", { name: "Close others" }));
+    expect(screen.queryByRole("tab", { name: "GET List pets" })).toBeNull();
+    expect(screen.getByRole("tab", { name: "POST Create pet" })).toBeVisible();
+    expect(
+      within(tablist).getByRole("tab", { name: "Overview" }),
+    ).toBeVisible();
+  });
+
   it("records history without request secrets or response payloads", async () => {
     vi.stubGlobal(
       "fetch",
-      vi
-        .fn()
-        .mockResolvedValue({
-          status: 200,
-          statusText: "OK",
-          ok: true,
-          headers: new Headers({ "content-type": "application/json" }),
-          blob: async () => ({
-            text: async () => '{"private":"payload"}',
-            size: 21,
-          }),
+      vi.fn().mockResolvedValue({
+        status: 200,
+        statusText: "OK",
+        ok: true,
+        headers: new Headers({ "content-type": "application/json" }),
+        blob: async () => ({
+          text: async () => '{"private":"payload"}',
+          size: 21,
         }),
+      }),
     );
     render(<App initialSpec={spec} storage={localStorage} />);
     openRequest("GET List pets");

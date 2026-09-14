@@ -147,6 +147,27 @@ export function workspaceReducer(state, action) {
             : state.active,
       };
     }
+    case "closeOthers": {
+      if (!state.tabs.some((tab) => tab.id === action.id)) return state;
+      return {
+        ...state,
+        tabs: state.tabs.filter((tab) => tab.id === action.id),
+        active: action.id,
+      };
+    }
+    case "closeToRight": {
+      const index = state.tabs.findIndex((tab) => tab.id === action.id);
+      if (index < 0) return state;
+      const tabs = state.tabs.slice(0, index + 1);
+      return {
+        ...state,
+        tabs,
+        active:
+          state.active === "overview" || state.tabs[index]?.id === state.active
+            ? state.active
+            : action.id,
+      };
+    }
     case "draft":
       return {
         ...state,
