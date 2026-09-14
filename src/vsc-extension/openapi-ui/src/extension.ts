@@ -538,6 +538,10 @@ function renderWebviewContent(
 
     // Inject CSP right after opening <head> tag for maximum priority
     htmlContent = htmlContent.replace(/<head>/i, `<head>\n${cspMeta}`);
+    htmlContent = htmlContent.replace(
+      /<\/head>/i,
+      "<style>html, body { margin: 0 !important; padding: 0 !important; }</style></head>",
+    );
 
     // Inject the fetch interceptor script before the closing </head> tag
     // This ensures fetch is intercepted before any other scripts run

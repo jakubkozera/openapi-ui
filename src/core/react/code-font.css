@@ -1,0 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+code, pre, .code-editor textarea, .method, .server-bar input, .request-url input {
+  font-family: 'JetBrains Mono', Consolas, monospace;
+}

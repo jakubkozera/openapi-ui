@@ -192,6 +192,7 @@ export function CodeEditor({
             automaticLayout: true,
             minimap: { enabled: false },
             fontSize: 13,
+            fontFamily: "JetBrains Mono",
             scrollBeyondLastLine: false,
             wordWrap: "on",
             ariaLabel: label,
