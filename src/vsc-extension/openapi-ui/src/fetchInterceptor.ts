@@ -2,7 +2,7 @@
  * Fetch Interceptor Script
  * This script is injected into the webview to intercept fetch calls
  * and route them through the VS Code extension backend to avoid CORS issues.
- * 
+ *
  * This file is used as a template - the actual script is injected as a string
  * into the webview HTML.
  */
@@ -10,7 +10,10 @@
 /**
  * Generate the fetch interceptor script as a string to be injected into webview
  */
-export function getFetchInterceptorScript(): string {
+export function getFetchInterceptorScript(
+  storage: Record<string, string> = {},
+): string {
+  const serializedStorage = JSON.stringify(storage).replace(/</g, "\\u003c");
   return `
 (function() {
   // Store the original fetch function
@@ -26,6 +29,12 @@ export function getFetchInterceptorScript(): string {
   
   // VS Code API for messaging
   const vscode = acquireVsCodeApi();
+  window.openapiHost = {
+    storage: ${serializedStorage},
+    save: function(key, value) {
+      vscode.postMessage({ type: 'workspaceSave', payload: { key: key, value: value } });
+    }
+  };
   
   // Check if a URL should be proxied through the extension
   function shouldProxy(url) {
@@ -63,6 +72,9 @@ export function getFetchInterceptorScript(): string {
   // Create a Response-like object from proxy response
   function createProxyResponse(proxyResponse) {
     const headers = new Headers(proxyResponse.headers || {});
+    const bytes = proxyResponse.bodyBase64 !== undefined
+      ? Uint8Array.from(atob(proxyResponse.bodyBase64), character => character.charCodeAt(0))
+      : new TextEncoder().encode(proxyResponse.body || '');
     
     const response = {
       ok: proxyResponse.ok,
@@ -99,7 +111,7 @@ export function getFetchInterceptorScript(): string {
       // Blob method
       blob: function() {
         this.bodyUsed = true;
-        const blob = new Blob([this._body || ''], { 
+        const blob = new Blob([bytes], {
           type: headers.get('content-type') || 'application/octet-stream' 
         });
         return Promise.resolve(blob);
@@ -108,8 +120,7 @@ export function getFetchInterceptorScript(): string {
       // ArrayBuffer method
       arrayBuffer: function() {
         this.bodyUsed = true;
-        const encoder = new TextEncoder();
-        return Promise.resolve(encoder.encode(this._body || '').buffer);
+        return Promise.resolve(bytes.slice().buffer);
       },
       
       // FormData method (basic implementation)
@@ -134,6 +145,7 @@ export function getFetchInterceptorScript(): string {
         method: input.method,
         headers: headersToObject(input.headers),
         body: input.body,
+        signal: input.signal,
         ...options
       };
     } else {
@@ -149,12 +161,33 @@ export function getFetchInterceptorScript(): string {
     // Create a promise that will be resolved when we get the response
     return new Promise((resolve, reject) => {
       const requestId = generateRequestId();
+      const abort = () => {
+        pendingRequests.delete(requestId);
+        vscode.postMessage({ type: 'fetchCancel', requestId: requestId });
+        reject(new DOMException('Request cancelled', 'AbortError'));
+      };
+      if (options.signal && options.signal.aborted) { abort(); return; }
+      if (options.signal) options.signal.addEventListener('abort', abort, { once: true });
       
       // Store the promise resolvers
-      pendingRequests.set(requestId, { resolve, reject });
+      pendingRequests.set(requestId, { resolve, reject, cleanup: () => options.signal && options.signal.removeEventListener('abort', abort) });
       
       // Prepare the request body
       let body = options.body;
+      if (body instanceof FormData || body instanceof Blob || body instanceof ArrayBuffer || ArrayBuffer.isView(body)) {
+        const encoded = new Request(url, { method: options.method || 'POST', headers: options.headers, body: body });
+        encoded.arrayBuffer().then(buffer => {
+          if (!pendingRequests.has(requestId)) return;
+          const bytes = new Uint8Array(buffer);
+          let binary = '';
+          for (let offset = 0; offset < bytes.length; offset += 8192) binary += String.fromCharCode(...bytes.subarray(offset, offset + 8192));
+          sendRequest(requestId, url, options.method, headersToObject(encoded.headers), undefined, btoa(binary));
+        }).catch(error => {
+          const pending = pendingRequests.get(requestId);
+          if (pending) { pending.cleanup(); pendingRequests.delete(requestId); pending.reject(error); }
+        });
+        return;
+      }
       if (body && typeof body !== 'string') {
         if (body instanceof FormData) {
           // Convert FormData to JSON if possible (simplified)
@@ -181,7 +214,8 @@ export function getFetchInterceptorScript(): string {
   };
   
   // Send request to extension
-  function sendRequest(requestId, url, method, headers, body) {
+  function sendRequest(requestId, url, method, headers, body, bodyBase64) {
+    if (!pendingRequests.has(requestId)) return;
     vscode.postMessage({
       type: 'fetchRequest',
       requestId: requestId,
@@ -189,7 +223,8 @@ export function getFetchInterceptorScript(): string {
         url: url,
         method: method || 'GET',
         headers: headers || {},
-        body: body
+        body: body,
+        bodyBase64: bodyBase64
       }
     });
   }
@@ -203,6 +238,7 @@ export function getFetchInterceptorScript(): string {
       
       if (pending) {
         pendingRequests.delete(message.requestId);
+        pending.cleanup();
         
         if (message.payload.error) {
           // Handle error response

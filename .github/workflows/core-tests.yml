@@ -1,0 +1,28 @@
+name: React core tests
+
+on:
+  pull_request:
+    paths:
+      - "src/core/**"
+      - ".github/workflows/core-tests.yml"
+  push:
+    branches: [master]
+    paths:
+      - "src/core/**"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: src/core/package-lock.json
+      - run: npm ci --prefix src/core
+      - run: npm test --prefix src/core
+      - run: npm run build --prefix src/core

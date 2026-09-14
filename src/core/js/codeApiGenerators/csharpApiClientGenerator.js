@@ -1,5 +1,7 @@
 // C# API Client Generator for openapi-ui
-class CSharpApiGenerator {
+import { resolveRef } from "../../react/api.js";
+
+export class CSharpApiGenerator {
   constructor(options = {}) {
     this.swagger = null;
     this.options = {
@@ -83,7 +85,7 @@ class CSharpApiGenerator {
 
     if (this.swagger.components && this.swagger.components.schemas) {
       for (const [name, schema] of Object.entries(
-        this.swagger.components.schemas
+        this.swagger.components.schemas,
       )) {
         code += this.generateModelClass(name, schema);
       }
@@ -302,7 +304,7 @@ class CSharpApiGenerator {
             const methodSignature = this.generateMethodSignature(
               operation,
               method,
-              path
+              path,
             );
             code += `${indent}${methodSignature};\n`;
           }
@@ -413,22 +415,22 @@ class CSharpApiGenerator {
     ) {
       if (returnType === "") {
         code += `${bodyIndent}await SendRequestAsync(url, HttpMethod.${this.capitalizeFirst(
-          httpMethod
+          httpMethod,
         )});\n`;
       } else {
         code += `${bodyIndent}return await SendRequestAsync${returnType}(url, HttpMethod.${this.capitalizeFirst(
-          httpMethod
+          httpMethod,
         )});\n`;
       }
     } else {
       const requestBody = this.getRequestBodyParam(operation);
       if (returnType === "") {
         code += `${bodyIndent}await SendRequestAsync(url, HttpMethod.${this.capitalizeFirst(
-          httpMethod
+          httpMethod,
         )}${requestBody ? `, ${requestBody}` : ""});\n`;
       } else {
         code += `${bodyIndent}return await SendRequestAsync${returnType}(url, HttpMethod.${this.capitalizeFirst(
-          httpMethod
+          httpMethod,
         )}${requestBody ? `, ${requestBody}` : ""});\n`;
       }
     }
@@ -468,15 +470,17 @@ class CSharpApiGenerator {
     if (operation.parameters) {
       for (const param of operation.parameters) {
         const csharpType = this.mapToCSharpType(
-          param.schema || { type: "string" }
+          param.schema || { type: "string" },
         );
         params.push(`${csharpType} ${param.name}`);
       }
     }
 
     if (operation.requestBody) {
-      // Use the utility function to get request body content, handling both direct content and $ref
-      const resolvedRequestBody = window.utils.getRequestBodyContent(operation.requestBody, this.swaggerData);
+      const resolvedRequestBody = resolveRef(
+        operation.requestBody,
+        this.swagger,
+      );
       const content = resolvedRequestBody ? resolvedRequestBody.content : null;
       if (content && content["application/json"]) {
         const schema = content["application/json"].schema;
@@ -590,20 +594,3 @@ class CSharpApiGenerator {
     };
   }
 }
-
-// Make the generator available globally
-window.CSharpApiGenerator = CSharpApiGenerator;
-
-// Convenience function to create a generator with window data and options
-window.createCSharpApiGenerator = function (options = {}) {
-  // Get current options from options manager if available
-  if (window.getApiClientOptions && !Object.keys(options).length) {
-    options = window.getApiClientOptions("csharp");
-  }
-
-  const generator = new CSharpApiGenerator(options);
-  if (window.swaggerData) {
-    generator.loadFromWindow();
-  }
-  return generator;
-};

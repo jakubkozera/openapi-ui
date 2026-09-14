@@ -4,6 +4,7 @@ using Microsoft.Extensions.FileProviders;
 using System;
 using System.IO;
 using System.Reflection;
+using System.Text.Encodings.Web;
 
 namespace OpenApiUi
 {
@@ -52,14 +53,14 @@ namespace OpenApiUi
                             using var stream = fileInfo.CreateReadStream();
                             using var reader = new StreamReader(stream);
                             var content = await reader.ReadToEndAsync();                            // Replace the placeholder with the actual OpenAPI spec path
-                            content = content.Replace("#swagger_path#", configuration.OpenApiSpecPath);
+                            content = content.Replace("#swagger_path#", HtmlEncoder.Default.Encode(configuration.OpenApiSpecPath));
 
                             // Replace the base URL placeholder with the current host
                             var baseUrl = $"{context.Request.Scheme}://{context.Request.Host}";
-                            content = content.Replace("#base_url#", baseUrl);
+                            content = content.Replace("#base_url#", HtmlEncoder.Default.Encode(baseUrl));
 
                             // Update resource paths to use the configurable UI path
-                            var uiPath = configuration.OpenApiUiPath.TrimStart('/');
+                            var uiPath = HtmlEncoder.Default.Encode($"{context.Request.PathBase}/{configuration.OpenApiUiPath.Trim('/')}");
                             content = content.Replace("bundle.css", $"{uiPath}/bundle.css");
                             content = content.Replace("bundle.js", $"{uiPath}/bundle.js");
                             content = content.Replace("openapi-ui.png", $"{uiPath}/openapi-ui.png");

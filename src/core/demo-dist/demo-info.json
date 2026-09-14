@@ -1,26 +1,18 @@
 {
   "name": "OpenAPI UI Demo",
-  "version": "1.0.0",
-  "description": "Demo version of OpenAPI UI with predefined specifications and custom JSON loading capability",
-  "features": [
-    "Predefined API specifications",
-    "Custom JSON input support",
-    "Real-time spec switching",
-    "All standard OpenAPI UI features"
-  ],
+  "version": "2.0.0",
   "sampleSpecs": [
     {
       "file": "interactive-api.json",
       "title": "Articles API",
-      "version": "v1",
-      "description": "A sample API for managing articles with JWT authentication"
+      "description": "A sample API for managing articles with JWT authentication",
+      "version": "v1"
     },
     {
       "file": "test-security-swagger.json",
       "title": "Comprehensive Security Test API",
-      "version": "2.0.0",
-      "description": "A comprehensive test API demonstrating all supported OpenAPI security schemes"
+      "description": "A comprehensive test API demonstrating all supported OpenAPI security schemes",
+      "version": "2.0.0"
     }
-  ],
-  "buildDate": "2025-07-30T17:21:51.894Z"
+  ]
 }

@@ -6,7 +6,7 @@ on:
   push:
     branches: ["master"]
     paths:
-      - 'src/core/**'
+      - "src/core/**"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -36,10 +36,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: "22"
       - name: Build demo app
         run: |
           cd src/core
+          npm ci
+          npm test
           node demo-build.js
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -47,7 +49,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload built demo app
-          path: 'src/core/demo-dist'
+          path: "src/core/demo-dist"
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

@@ -1,7 +1,134 @@
 import * as assert from "assert";
+import { runInNewContext } from "node:vm";
 import { getFetchInterceptorScript } from "../fetchInterceptor";
 
+function createBrowserHarness() {
+  const messages: any[] = [];
+  let onMessage: (message: any) => void = () => {};
+  const sent = new Promise<any>((resolve) => {
+    onMessage = resolve;
+  });
+  let listener: (event: any) => void = () => {};
+  const browser: any = {
+    fetch: () => Promise.reject(new Error("Unexpected native fetch")),
+    location: { origin: "http://localhost" },
+    addEventListener: (_name: string, callback: typeof listener) => {
+      listener = callback;
+    },
+  };
+  runInNewContext(getFetchInterceptorScript(), {
+    window: browser,
+    acquireVsCodeApi: () => ({
+      postMessage: (message: any) => {
+        messages.push(message);
+        onMessage(message);
+      },
+    }),
+    URL,
+    URLSearchParams,
+    Request,
+    Headers,
+    FormData,
+    Blob,
+    ArrayBuffer,
+    Uint8Array,
+    TextEncoder,
+    DOMException,
+    btoa,
+    atob,
+    console: { log() {} },
+  });
+  return {
+    browser,
+    messages,
+    sent,
+    respond: (payload: unknown) =>
+      listener({
+        data: {
+          type: "fetchResponse",
+          requestId: messages.find((message) => message.type === "fetchRequest")
+            ?.requestId,
+          payload,
+        },
+      }),
+  };
+}
+
 suite("Fetch Interceptor Test Suite", () => {
+  test("serializes multipart files with a real boundary without altering bytes", async () => {
+    const harness = createBrowserHarness();
+    const form = new FormData();
+    form.append(
+      "file",
+      new Blob([new Uint8Array([0, 255, 128, 42])]),
+      "test.bin",
+    );
+    const pending = harness.browser.fetch("https://example.com/upload", {
+      method: "POST",
+      body: form,
+    });
+    const request = await harness.sent;
+    assert.ok(
+      request.payload.headers["content-type"].startsWith(
+        "multipart/form-data; boundary=",
+      ),
+    );
+    const bytes = Buffer.from(request.payload.bodyBase64, "base64");
+    assert.ok(bytes.includes(Buffer.from([0, 255, 128, 42])));
+    assert.ok(bytes.toString().includes('filename="test.bin"'));
+    harness.respond({ ok: true, status: 200, headers: {}, body: "OK" });
+    await pending;
+  });
+
+  test("returns binary response blobs byte for byte", async () => {
+    const harness = createBrowserHarness();
+    const pending = harness.browser.fetch("https://example.com/download");
+    const bytes = Buffer.from([0, 255, 128, 42]);
+    harness.respond({
+      ok: true,
+      status: 200,
+      headers: { "content-type": "application/octet-stream" },
+      body: "",
+      bodyBase64: bytes.toString("base64"),
+    });
+    const response = await pending;
+    assert.deepStrictEqual(
+      Buffer.from(await (await response.blob()).arrayBuffer()),
+      bytes,
+    );
+  });
+
+  test("rejects cancelled requests and notifies the extension", async () => {
+    const harness = createBrowserHarness();
+    const controller = new AbortController();
+    const pending = harness.browser.fetch("https://example.com/slow", {
+      signal: controller.signal,
+    });
+    controller.abort();
+    await assert.rejects(pending, { name: "AbortError" });
+    assert.ok(
+      harness.messages.some((message) => message.type === "fetchCancel"),
+    );
+  });
+
+  test("shares the existing VS Code API and safely embeds persisted state", () => {
+    const script = getFetchInterceptorScript({
+      "openapi-ui:workspace:pets": "</script><script>alert(1)</script>",
+    });
+    assert.ok(script.includes("window.openapiHost"));
+    assert.ok(script.includes("workspaceSave"));
+    assert.ok(!script.includes("</script>"));
+    assert.strictEqual(script.match(/acquireVsCodeApi\(\)/g)?.length, 1);
+  });
+
+  test("preserves multipart bytes and propagates abort signals", () => {
+    const script = getFetchInterceptorScript();
+    assert.ok(script.includes("new Request(url"));
+    assert.ok(script.includes("bodyBase64"));
+    assert.ok(script.includes("fetchCancel"));
+    assert.ok(script.includes("new Blob([bytes]"));
+  });
+
   test("should return a non-empty script string", () => {
     const script = getFetchInterceptorScript();
 
@@ -21,11 +148,11 @@ suite("Fetch Interceptor Test Suite", () => {
 
     assert.ok(
       script.includes("const originalFetch = window.fetch"),
-      "Should store original fetch"
+      "Should store original fetch",
     );
     assert.ok(
       script.includes("window.fetch = function"),
-      "Should override window.fetch"
+      "Should override window.fetch",
     );
   });
 
@@ -34,7 +161,7 @@ suite("Fetch Interceptor Test Suite", () => {
 
     assert.ok(
       script.includes("acquireVsCodeApi()"),
-      "Should acquire VS Code API"
+      "Should acquire VS Code API",
     );
   });
 
@@ -43,11 +170,11 @@ suite("Fetch Interceptor Test Suite", () => {
 
     assert.ok(
       script.includes("addEventListener('message'"),
-      "Should have message event listener"
+      "Should have message event listener",
     );
     assert.ok(
       script.includes("fetchResponse"),
-      "Should handle fetchResponse messages"
+      "Should handle fetchResponse messages",
     );
   });
 
@@ -56,7 +183,7 @@ suite("Fetch Interceptor Test Suite", () => {
 
     assert.ok(
       script.includes("type: 'fetchRequest'"),
-      "Should send fetchRequest messages"
+      "Should send fetchRequest messages",
     );
     assert.ok(script.includes("postMessage"), "Should use postMessage");
   });
@@ -66,11 +193,11 @@ suite("Fetch Interceptor Test Suite", () => {
 
     assert.ok(
       script.includes("function shouldProxy"),
-      "Should have shouldProxy function"
+      "Should have shouldProxy function",
     );
     assert.ok(
       script.includes("http:") && script.includes("https:"),
-      "Should check for http/https protocols"
+      "Should check for http/https protocols",
     );
   });
 
@@ -79,19 +206,19 @@ suite("Fetch Interceptor Test Suite", () => {
 
     assert.ok(
       script.includes("function createProxyResponse"),
-      "Should have createProxyResponse function"
+      "Should have createProxyResponse function",
     );
     assert.ok(
       script.includes("text: function"),
-      "Response should have text method"
+      "Response should have text method",
     );
     assert.ok(
       script.includes("json: function"),
-      "Response should have json method"
+      "Response should have json method",
     );
     assert.ok(
       script.includes("blob: function"),
-      "Response should have blob method"
+      "Response should have blob method",
     );
   });
 
@@ -100,19 +227,19 @@ suite("Fetch Interceptor Test Suite", () => {
 
     assert.ok(
       script.includes("const pendingRequests = new Map()"),
-      "Should use Map for pending requests"
+      "Should use Map for pending requests",
     );
     assert.ok(
       script.includes("pendingRequests.set"),
-      "Should set pending requests"
+      "Should set pending requests",
     );
     assert.ok(
       script.includes("pendingRequests.get"),
-      "Should get pending requests"
+      "Should get pending requests",
     );
     assert.ok(
       script.includes("pendingRequests.delete"),
-      "Should delete pending requests"
+      "Should delete pending requests",
     );
   });
 
@@ -121,11 +248,11 @@ suite("Fetch Interceptor Test Suite", () => {
 
     assert.ok(
       script.includes("function generateRequestId"),
-      "Should have generateRequestId function"
+      "Should have generateRequestId function",
     );
     assert.ok(
       script.includes("Date.now()") || script.includes("Math.random()"),
-      "Should use timestamp or random for ID generation"
+      "Should use timestamp or random for ID generation",
     );
   });
 
@@ -134,7 +261,7 @@ suite("Fetch Interceptor Test Suite", () => {
 
     assert.ok(
       script.includes("input instanceof Request"),
-      "Should check for Request object"
+      "Should check for Request object",
     );
   });
 
@@ -143,11 +270,11 @@ suite("Fetch Interceptor Test Suite", () => {
 
     assert.ok(
       script.includes("message.payload.error"),
-      "Should check for error in payload"
+      "Should check for error in payload",
     );
     assert.ok(
       script.includes("pending.reject"),
-      "Should reject promise on error"
+      "Should reject promise on error",
     );
   });
 
@@ -157,7 +284,7 @@ suite("Fetch Interceptor Test Suite", () => {
     assert.ok(
       script.includes("console.log") &&
         script.includes("Fetch interceptor active"),
-      "Should log activation message"
+      "Should log activation message",
     );
   });
 
@@ -166,11 +293,11 @@ suite("Fetch Interceptor Test Suite", () => {
 
     assert.ok(
       script.includes("function headersToObject"),
-      "Should have headersToObject function"
+      "Should have headersToObject function",
     );
     assert.ok(
       script.includes("instanceof Headers"),
-      "Should check for Headers instance"
+      "Should check for Headers instance",
     );
   });
 
@@ -179,7 +306,7 @@ suite("Fetch Interceptor Test Suite", () => {
 
     assert.ok(
       script.includes("clone: function"),
-      "Response should have clone method"
+      "Response should have clone method",
     );
   });
 
@@ -188,7 +315,7 @@ suite("Fetch Interceptor Test Suite", () => {
 
     assert.ok(
       script.includes("arrayBuffer: function"),
-      "Response should have arrayBuffer method"
+      "Response should have arrayBuffer method",
     );
     assert.ok(script.includes("TextEncoder"), "Should use TextEncoder");
   });

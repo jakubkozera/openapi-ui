@@ -2,6 +2,12 @@
 
 A modern, feature-rich OpenAPI/Swagger documentation and testing interface with advanced functionality for API development and testing.
 
+The core UI is now a React workspace with a collection overview, persistent request tabs,
+request history, standalone theme presets and native VS Code theme tokens.
+See [React core development and migration](src/core/README.md) for build commands,
+storage behavior, testing and browser limitations. Existing screenshots below show the
+previous interface and have not yet been updated.
+
 ## 🎮 Demo
 
 Want to try OpenAPI UI before integrating it into your project? Check out our live demo:
@@ -80,10 +86,10 @@ OpenAPI UI is available in multiple formats to suit different integration needs:
 
 ### Standalone Core
 
-- Pure HTML/CSS/JavaScript implementation
-- No dependencies on specific frameworks
+- React application bundled into static JavaScript and CSS
+- No React installation required in the hosting application
 - Easy to embed in any web application
-- Self-contained single-file distribution available
+- Stable `index.html`, `bundle.js` and `bundle.css` distribution
 
 ### ASP.NET Core Integration
 
