@@ -41,8 +41,9 @@ jobs:
         run: |
           cd src/core
           npm ci
+          npm run typecheck
           npm test
-          node demo-build.js
+          npm run build:demo
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

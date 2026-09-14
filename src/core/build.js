@@ -6,7 +6,7 @@ async function build({ demo = false, sync = true } = {}) {
   const directory = path.join(__dirname, demo ? "demo-dist" : "dist");
   fs.mkdirSync(directory, { recursive: true });
   await esbuild.build({
-    entryPoints: [path.join(__dirname, "react/main.jsx")],
+    entryPoints: [path.join(__dirname, "react/main.tsx")],
     bundle: true,
     outfile: path.join(directory, "bundle.js"),
     format: "iife",
@@ -22,7 +22,7 @@ async function build({ demo = false, sync = true } = {}) {
   let html = fs
     .readFileSync(path.join(__dirname, "index.html"), "utf8")
     .replace(
-      '<script type="module" src="./react/main.jsx"></script>',
+      '<script type="module" src="./react/main.tsx"></script>',
       '<script src="bundle.js" defer></script>',
     )
     .replace("</head>", '  <link rel="stylesheet" href="bundle.css">\n</head>');

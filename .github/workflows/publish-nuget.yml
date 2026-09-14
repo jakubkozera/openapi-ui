@@ -42,8 +42,9 @@ jobs:
         run: |
           cd src/core
           npm ci
+          npm run typecheck
           npm test
-          node build.js
+          npm run build
 
       - name: Copy assets to Content directory
         run: |

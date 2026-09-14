@@ -30,6 +30,7 @@ jobs:
       - name: Build and test React core
         run: |
           npm ci --prefix ../../core
+          npm run typecheck --prefix ../../core
           npm test --prefix ../../core
           npm run build --prefix ../../core
 

@@ -127,7 +127,16 @@ export function migrateLegacy(storage, spec, operations, makeDraft) {
 
 export function initialTheme(storage) {
   const saved = storage.getItem("openapi-ui:theme");
-  return ["system", "light", "graphite", "contrast"].includes(saved)
+  return [
+    "system",
+    "light",
+    "graphite",
+    "github-light",
+    "github-dark",
+    "visual-studio-light",
+    "visual-studio-dark",
+    "contrast",
+  ].includes(saved)
     ? saved
     : "system";
 }

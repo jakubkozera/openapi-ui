@@ -24,5 +24,6 @@ jobs:
           cache: npm
           cache-dependency-path: src/core/package-lock.json
       - run: npm ci --prefix src/core
+      - run: npm run typecheck --prefix src/core
       - run: npm test --prefix src/core
       - run: npm run build --prefix src/core

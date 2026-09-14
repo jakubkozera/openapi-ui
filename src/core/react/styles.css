@@ -24,12 +24,40 @@
   --delete: #c03944;
   --color-scheme: light;
 }
-body[data-theme='graphite'], body[data-theme='contrast'] {
+body[data-theme='graphite'], body[data-theme='github-dark'], body[data-theme='visual-studio-dark'], body[data-theme='contrast'] {
   --surface: #202124; --surface-alt: #27292c; --surface-hover: #34373b;
   --text: #e5e7e9; --muted: #a0a6ad; --border: #40444a;
   --accent: #eb7958; --accent-text: #151619; --selection: #3b302d; --focus: #70b7ef;
   --success: #74c89b; --error: #ff858d; --get: #75c99c; --post: #e6bc6a;
   --put: #79b8f4; --patch: #c5a3e0; --delete: #ff9199; --color-scheme: dark;
+}
+body[data-theme='github-light'] {
+  --surface: #ffffff; --surface-alt: #f6f8fa; --surface-hover: #eff2f5;
+  --text: #1f2328; --muted: #656d76; --border: #d0d7de;
+  --accent: #0969da; --accent-text: #ffffff; --selection: #ddf4ff; --focus: #0969da;
+  --success: #1a7f37; --error: #cf222e; --get: #1a7f37; --post: #9a6700;
+  --put: #0969da; --patch: #8250df; --delete: #cf222e; --color-scheme: light;
+}
+body[data-theme='github-dark'] {
+  --surface: #0d1117; --surface-alt: #161b22; --surface-hover: #21262d;
+  --text: #e6edf3; --muted: #8b949e; --border: #30363d;
+  --accent: #2f81f7; --accent-text: #ffffff; --selection: #1f3a5f; --focus: #2f81f7;
+  --success: #3fb950; --error: #f85149; --get: #3fb950; --post: #d29922;
+  --put: #58a6ff; --patch: #bc8cff; --delete: #f85149;
+}
+body[data-theme='visual-studio-light'] {
+  --surface: #ffffff; --surface-alt: #f3f3f3; --surface-hover: #e5f1fb;
+  --text: #1e1e1e; --muted: #616161; --border: #cccedb;
+  --accent: #0078d4; --accent-text: #ffffff; --selection: #cce8ff; --focus: #0078d4;
+  --success: #107c10; --error: #a1260d; --get: #107c10; --post: #986f0b;
+  --put: #0066b8; --patch: #8661c5; --delete: #c42b1c; --color-scheme: light;
+}
+body[data-theme='visual-studio-dark'] {
+  --surface: #1e1e1e; --surface-alt: #252526; --surface-hover: #2a2d2e;
+  --text: #d4d4d4; --muted: #a0a0a0; --border: #3f3f46;
+  --accent: #007acc; --accent-text: #ffffff; --selection: #094771; --focus: #007acc;
+  --success: #89d185; --error: #f48771; --get: #89d185; --post: #dcdcaa;
+  --put: #75beff; --patch: #c586c0; --delete: #f48771;
 }
 body[data-theme='contrast'] {
   --surface: #000000; --surface-alt: #101010; --surface-hover: #222222;

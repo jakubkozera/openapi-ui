@@ -12,6 +12,7 @@ Node.js 22.12 or newer is required. From the repository root:
 ```sh
 npm ci --prefix src/core
 npm run dev --prefix src/core
+npm run typecheck --prefix src/core
 npm test --prefix src/core
 npm run build --prefix src/core
 npm run build:demo --prefix src/core

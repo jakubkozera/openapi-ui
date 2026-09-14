@@ -1,0 +1,16 @@
+.kv-row .kv-name {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 6px;
+  min-width: 150px;
+}
+
+.kv-row .kv-name input {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.kv-row .kv-name .required {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
