@@ -425,8 +425,10 @@ export function Workspace({
     setSidebarOpen(false);
   }
 
-  function addToRunner() {
-    if (!operation || !active) return;
+  function addTabToRunner(tabId: string) {
+    const tab = state.tabs.find((item: any) => item.id === tabId);
+    const tabOperation = operations.find((item) => item.id === tabId);
+    if (!tab || !tabOperation) return;
     const collection = state.collections[0] || {
       id: crypto.randomUUID(),
       name: spec.info?.title || "Collection",
@@ -435,8 +437,8 @@ export function Workspace({
     };
     const request = {
       id: crypto.randomUUID(),
-      operationId: operation.id,
-      draft: structuredClone(active.draft),
+      operationId: tabOperation.id,
+      draft: structuredClone(tab.draft),
       enabled: true,
     };
     const updated = {
@@ -454,6 +456,10 @@ export function Workspace({
       },
     });
     notify(`Added to ${collection.name}`);
+  }
+
+  function addToRunner() {
+    if (operation && active) addTabToRunner(operation.id);
   }
 
   async function execute(
@@ -592,6 +598,8 @@ export function Workspace({
             >
               <option value="system">System</option>
               <option value="light">Light</option>
+              <option value="dark-plus">Dark+</option>
+              <option value="dark-modern">Dark Modern</option>
               <option value="graphite">Graphite</option>
               <option value="github-light">GitHub Light</option>
               <option value="github-dark">GitHub Dark</option>
@@ -802,6 +810,15 @@ export function Workspace({
             x={contextMenu.x}
             y={contextMenu.y}
             onClose={() => setContextMenu(null)}
+            isFavorite={state.favorites.includes(contextMenu.id)}
+            onFavorite={() => {
+              dispatch({ type: "favorite", id: contextMenu.id });
+              setContextMenu(null);
+            }}
+            onAddToRunner={() => {
+              addTabToRunner(contextMenu.id);
+              setContextMenu(null);
+            }}
             onAction={(action, ids) => {
               closeTabs(ids, { type: action, id: contextMenu.id });
               setContextMenu(null);

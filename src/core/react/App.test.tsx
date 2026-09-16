@@ -160,9 +160,24 @@ describe("React workspace", () => {
         "GitHub Dark",
         "Visual Studio Light",
         "Visual Studio Dark",
+        "Dark+",
+        "Dark Modern",
       ]),
     );
+    expect(
+      within(themePicker)
+        .getAllByRole("option")
+        .map((option) => option.textContent),
+    ).toEqual(expect.arrayContaining(["Light", "Dark+", "Dark Modern"]));
+    expect(
+      within(themePicker)
+        .getAllByRole("option")
+        .slice(0, 4)
+        .map((option) => option.textContent),
+    ).toEqual(["System", "Light", "Dark+", "Dark Modern"]);
     for (const theme of [
+      "dark-plus",
+      "dark-modern",
       "github-light",
       "github-dark",
       "visual-studio-light",
@@ -183,7 +198,30 @@ describe("React workspace", () => {
 
     const getTab = screen.getByRole("tab", { name: "GET List pets" });
     fireEvent.contextMenu(getTab.parentElement!);
-    expect(screen.getByRole("menuitem", { name: /Close$/ })).toBeVisible();
+    expect(
+      screen.getByRole("menuitem", { name: "Add to favourites" }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("menuitem", { name: "Add to runner" }),
+    ).toBeVisible();
+    fireEvent.click(
+      screen.getByRole("menuitem", { name: "Add to favourites" }),
+    );
+    fireEvent.contextMenu(getTab.parentElement!);
+    fireEvent.click(screen.getByRole("menuitem", { name: "Add to runner" }));
+    fireEvent.click(screen.getByRole("button", { name: "Runner" }));
+    const runner = screen
+      .getByRole("heading", { name: "Collection runner" })
+      .closest("section")!;
+    expect(
+      within(runner).getByRole("button", { name: "GET List pets" }),
+    ).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Collections" }));
+    const refreshedGetTab = screen.getByRole("tab", { name: "GET List pets" });
+    fireEvent.contextMenu(refreshedGetTab.parentElement!);
+    expect(
+      screen.getByRole("menuitem", { name: "Remove from favourites" }),
+    ).toBeVisible();
     expect(
       screen.getByRole("menuitem", { name: "Close others" }),
     ).toBeEnabled();

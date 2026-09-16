@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { ChevronsRight, PanelsTopLeft, X } from "lucide-react";
+import { ChevronsRight, PanelsTopLeft, Play, Star, X } from "lucide-react";
 
 interface RequestTab {
   id: string;
@@ -14,6 +14,9 @@ interface RequestTabContextMenuProps {
   y: number;
   onClose: () => void;
   onAction: (action: CloseAction, ids: string[]) => void;
+  isFavorite: boolean;
+  onFavorite: () => void;
+  onAddToRunner: () => void;
 }
 
 export function RequestTabContextMenu({
@@ -23,6 +26,9 @@ export function RequestTabContextMenu({
   y,
   onClose,
   onAction,
+  isFavorite,
+  onFavorite,
+  onAddToRunner,
 }: RequestTabContextMenuProps) {
   useEffect(() => {
     const dismiss = () => onClose();
@@ -50,6 +56,14 @@ export function RequestTabContextMenu({
       style={{ left: x, top: y }}
       onClick={(event) => event.stopPropagation()}
     >
+      <button type="button" role="menuitem" onClick={onFavorite}>
+        <Star size={14} fill={isFavorite ? "currentColor" : "none"} />
+        {isFavorite ? "Remove from favourites" : "Add to favourites"}
+      </button>
+      <button type="button" role="menuitem" onClick={onAddToRunner}>
+        <Play size={14} />
+        Add to runner
+      </button>
       <button
         type="button"
         role="menuitem"

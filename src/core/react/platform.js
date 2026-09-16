@@ -130,6 +130,8 @@ export function initialTheme(storage) {
   return [
     "system",
     "light",
+    "dark-plus",
+    "dark-modern",
     "graphite",
     "github-light",
     "github-dark",
