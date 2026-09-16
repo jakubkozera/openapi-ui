@@ -80,11 +80,11 @@ body[data-theme='contrast'] {
 }
 @media (prefers-color-scheme: dark) {
   body[data-theme='system'] {
-    --surface: #202124; --surface-alt: #27292c; --surface-hover: #34373b;
-    --text: #e5e7e9; --muted: #a0a6ad; --border: #40444a;
-    --accent: #eb7958; --accent-text: #151619; --selection: #3b302d; --focus: #70b7ef;
-    --success: #74c89b; --error: #ff858d; --get: #75c99c; --post: #e6bc6a;
-    --put: #79b8f4; --patch: #c5a3e0; --delete: #ff9199; --color-scheme: dark;
+    --surface: #1e1e1e; --surface-alt: #252526; --surface-hover: #2a2d2e;
+    --text: #d4d4d4; --muted: #9d9d9d; --border: #3f3f46;
+    --accent: #569cd6; --accent-text: #ffffff; --selection: #264f78; --focus: #007fd4;
+    --success: #b5cea8; --error: #f48771; --get: #4ec9b0; --post: #dcdcaa;
+    --put: #569cd6; --patch: #c586c0; --delete: #f44747; --color-scheme: dark;
   }
 }
 body:is(.vscode-light, .vscode-dark, .vscode-high-contrast, .vscode-high-contrast-light) {
@@ -159,7 +159,9 @@ details[open] > summary .expand-chevron { transform: rotate(90deg); }
 .app-header { grid-column: 1 / -1; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border); padding: 0 18px; background: linear-gradient(110deg, var(--surface-alt), var(--surface)); }
 .app-header > .icon-button { display: none; }
 .brand { display: inline-flex; align-items: center; gap: 9px; text-decoration: none; color: var(--text); font-size: 15px; font-weight: 600; white-space: nowrap; }
-.brand svg { color: var(--accent); }
+.brand-logo { width: 22px; height: 22px; object-fit: contain; }
+.github-link { display: inline-flex; align-items: center; color: var(--muted); text-decoration: none; }
+.github-link:hover, .github-link:focus-visible { color: var(--text); }
 .header-divider { height: 20px; border-left: 1px solid var(--border); }
 .header-title { color: var(--muted); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .import-button { margin-left: auto; }
@@ -279,7 +281,7 @@ details[open] > summary .expand-chevron { transform: rotate(90deg); }
   .workspace-status { gap: 10px; }.workspace-status > span:nth-child(2) { display: none; }.collection-stats { gap: 34px; }
 }
 @media (max-width: 480px) {
-  .app-header .brand span { font-size: 12px; }.app-header .brand svg { display: none; }.app-header { gap: 5px; }.import-button { padding: 4px 6px; font-size: 11px; }.theme-picker select { max-width: 92px; }
+  .app-header .brand span { font-size: 12px; }.brand-logo { width: 18px; height: 18px; }.github-link { display: none; }.app-header { gap: 5px; }.import-button { padding: 4px 6px; font-size: 11px; }.theme-picker select { max-width: 92px; }
   .overview, .tool-view { padding: 18px 14px; }.request-heading { padding: 18px 14px 14px; }.request-heading h1 { font-size: 17px; }
   .request-url { margin: 0 12px 14px; gap: 3px; padding-left: 8px; }.request-url .method { width: 39px; font-size: 10px; }.request-url input { font-size: 11px; padding: 6px; }.request-url .primary { min-width: 62px; padding: 6px 8px; font-size: 11px; gap: 4px; }
   .request-details { padding: 12px; }.request-view > .subtabs, .response-section > .subtabs { padding: 0 12px; }.response-heading { padding: 12px; flex-wrap: wrap; }

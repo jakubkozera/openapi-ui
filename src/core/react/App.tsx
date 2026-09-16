@@ -11,6 +11,7 @@ import {
   ChevronRight,
   Code2,
   FolderOpen,
+  Github,
   History as HistoryIcon,
   House,
   KeyRound,
@@ -579,8 +580,22 @@ export function Workspace({
             activate("overview");
           }}
         >
-          <PanelsTopLeft size={22} />
+          <img
+            className="brand-logo"
+            src="/openapi-ui.png"
+            alt="OpenAPI UI logo"
+          />
           <span>OpenAPI UI</span>
+        </a>
+        <a
+          className="github-link"
+          href="https://github.com/jakubkozera/openapi-ui"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Open OpenAPI UI on GitHub"
+          title="Open OpenAPI UI on GitHub"
+        >
+          <Github size={19} />
         </a>
         <span className="header-divider" />
         <span className="header-title">{spec.info?.title || "Collection"}</span>

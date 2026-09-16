@@ -52,6 +52,16 @@ const openRequest = (name: string) =>
   );
 
 describe("React workspace", () => {
+  it("shows the OpenAPI UI logo and a GitHub repository link", () => {
+    render(<App initialSpec={spec} storage={localStorage} />);
+    expect(
+      screen.getByRole("img", { name: "OpenAPI UI logo" }),
+    ).toHaveAttribute("src", "/openapi-ui.png");
+    expect(
+      screen.getByRole("link", { name: "Open OpenAPI UI on GitHub" }),
+    ).toHaveAttribute("href", "https://github.com/jakubkozera/openapi-ui");
+  });
+
   it.each([false, true])(
     "prefills the legacy OAuth Client ID and authorizes with it (override: %s)",
     async (override) => {
