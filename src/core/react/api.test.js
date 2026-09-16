@@ -7,6 +7,8 @@ import {
   makeDraft,
   parseSpec,
   serverUrl,
+  replaceVariables,
+  variableReferences,
 } from "./api";
 
 const spec = {
@@ -45,6 +47,49 @@ const spec = {
 };
 
 describe("OpenAPI request engine", () => {
+  it("previews variable references using request substitution rules", () => {
+    const variables = [
+      { name: "name", value: "old" },
+      { name: "name", value: "Pet" },
+      { name: "id", value: "0" },
+      { name: "@id", value: "42" },
+      { name: "empty", value: "" },
+      { name: "disabled", value: "secret", enabled: false },
+    ];
+    const text =
+      "{{ name }} {{@id}} {{empty}} {{disabled}} {{@next}} {{unknown}}";
+    const references = variableReferences(text, variables, [
+      { name: "next", path: "$.data.id" },
+    ]);
+    expect(references.map(({ status }) => status)).toEqual([
+      "resolved",
+      "resolved",
+      "resolved",
+      "missing",
+      "pending",
+      "missing",
+    ]);
+    for (const reference of references.filter(
+      ({ status }) => status === "resolved",
+    )) {
+      expect(reference.value).toBe(
+        replaceVariables(text.slice(reference.start, reference.end), variables),
+      );
+    }
+    expect(references[1]).toMatchObject({
+      name: "@id",
+      output: true,
+      value: "42",
+    });
+    expect(references[2].value).toBe("");
+    expect(references[3].value).toBeUndefined();
+    expect(references[4].paths).toEqual(["$.data.id"]);
+    expect(
+      variableReferences("{{@id}}", [{ name: "id", value: "0" }])[0].value,
+    ).toBe("0");
+    expect(variableReferences("{{broken} {} plain text")).toEqual([]);
+  });
+
   it("parses YAML and merges path parameters with operation overrides", () => {
     expect(parseSpec("openapi: 3.1.0\npaths: {}").openapi).toBe("3.1.0");
     expect(() => parseSpec("hello")).toThrow("valid OpenAPI");

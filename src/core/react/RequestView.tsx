@@ -17,6 +17,8 @@ import {
   Markdown,
   Method,
   PlayIcon,
+  VariableHelp,
+  VariableInput,
 } from "./ui";
 import type {
   Draft,
@@ -24,6 +26,8 @@ import type {
   OpenApiDocument,
   Operation,
   ResponseData,
+  Variables,
+  KeyValueRow,
 } from "./types";
 
 interface RequestViewProps {
@@ -44,6 +48,8 @@ interface RequestViewProps {
   onAuth: () => void;
   layout?: "stacked" | "columns";
   split?: number;
+  variables?: Variables;
+  outputDefinitions?: KeyValueRow[];
   onLayoutChange?: (layout: "stacked" | "columns") => void;
   onSplitChange?: (split: number) => void;
 }
@@ -66,6 +72,8 @@ export function RequestView({
   onAuth,
   layout = "stacked",
   split = 58,
+  variables = [],
+  outputDefinitions = [],
   onLayoutChange,
   onSplitChange,
 }: RequestViewProps) {
@@ -134,8 +142,11 @@ export function RequestView({
           }}
         >
           <Method method={operation.method} />
-          <input
+          <VariableHelp />
+          <VariableInput
             aria-label="Request path"
+            variables={variables}
+            outputDefinitions={outputDefinitions}
             value={draft.path || ""}
             onChange={(event) => onChange({ path: event.target.value })}
           />
@@ -179,6 +190,8 @@ export function RequestView({
           {tab === "Parameters" && (
             <KeyValueEditor
               rows={draft.parameters}
+              variables={variables}
+              outputDefinitions={outputDefinitions}
               onChange={(parameters) => onChange({ parameters })}
               locations
               addLabel="Add parameter"
@@ -187,6 +200,8 @@ export function RequestView({
           {tab === "Headers" && (
             <KeyValueEditor
               rows={draft.headers}
+              variables={variables}
+              outputDefinitions={outputDefinitions}
               onChange={(headers) => onChange({ headers })}
               addLabel="Add header"
             />
@@ -236,6 +251,7 @@ export function RequestView({
                     ))}
                   </select>
                 </label>
+                <VariableHelp />
                 <button
                   className="text-button"
                   onClick={() =>
@@ -253,6 +269,8 @@ export function RequestView({
               ].includes(draft.contentType) ? (
                 <KeyValueEditor
                   rows={draft.form}
+                  variables={variables}
+                  outputDefinitions={outputDefinitions}
                   onChange={(form) => onChange({ form })}
                   files={draft.contentType === "multipart/form-data"}
                   onFile={onFile}
@@ -261,6 +279,8 @@ export function RequestView({
               ) : (
                 <CodeEditor
                   label="Request body"
+                  variables={variables}
+                  outputDefinitions={outputDefinitions}
                   value={draft.body}
                   onChange={(body) => onChange({ body })}
                   language={

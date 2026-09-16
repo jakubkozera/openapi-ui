@@ -52,6 +52,11 @@ dotnet run --project src/c-sharp/OpenApiUi.Sample
   VS Code supports completing an external redirect using its callback URL.
 - Response status, timing, size, body, headers, request details and downloads.
 - Variables including legacy `{{@output}}` syntax; JSONPath extraction runs without eval.
+  Request-body Monaco decorations distinguish resolved, missing/disabled and pending
+  output references. Hover shows the current substituted value and output JSONPath;
+  changes to workspace variables refresh the preview. Request fields and the server
+  URL also offer variable previews. Syntax and output-name/JSONPath help icons support
+  hover, keyboard focus and Escape. Values are displayed as untrusted text.
 - Saved collection runner with ordering, enable/disable, delay, cancellation, stop on
   error, output-variable chaining, request editing, collection import/export and result export.
 - Snippets for cURL, JavaScript, Python, C# and Java; configurable C# and JS/TS clients.

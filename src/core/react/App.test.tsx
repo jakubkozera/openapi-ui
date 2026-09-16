@@ -52,6 +52,52 @@ const openRequest = (name: string) =>
   );
 
 describe("React workspace", () => {
+  it("passes restored variables and saved output definitions into request previews", () => {
+    localStorage.setItem(
+      workspaceKey("swagger.json", spec),
+      JSON.stringify({
+        version: 1,
+        tabs: [
+          { id: "get /pets", draft: { path: "/pets/{{name}}/{{@petId}}" } },
+        ],
+        active: "get /pets",
+        variables: [{ name: "name", value: "Ada", enabled: true }],
+        collections: [
+          {
+            id: "collection",
+            name: "Pets",
+            requests: [
+              {
+                id: "saved",
+                operationId: "post /pets",
+                enabled: true,
+                draft: { outputs: [{ name: "petId", path: "$.data.id" }] },
+              },
+            ],
+          },
+        ],
+      }),
+    );
+    render(<App initialSpec={spec} storage={localStorage} />);
+    fireEvent.focus(screen.getByRole("textbox", { name: "Request path" }));
+    expect(screen.getByRole("tooltip")).toHaveTextContent("Value: Ada");
+    expect(screen.getByRole("tooltip")).toHaveTextContent(
+      "Waiting for a response",
+    );
+    expect(screen.getByRole("tooltip")).toHaveTextContent("$.data.id");
+  });
+
+  it("explains how to use variables", () => {
+    render(<App initialSpec={spec} storage={localStorage} />);
+    fireEvent.click(screen.getByRole("button", { name: "Variables" }));
+    expect(
+      screen.getByText(
+        /Variables can be used in path parameters, query parameters, headers, and request bodies/i,
+      ),
+    ).toBeVisible();
+    expect(screen.getByText("{{variableName}}")).toBeVisible();
+  });
+
   it("shows the OpenAPI UI logo and a GitHub repository link", () => {
     render(<App initialSpec={spec} storage={localStorage} />);
     expect(
@@ -211,6 +257,21 @@ describe("React workspace", () => {
     );
   });
 
+  it("toggles all request sections from the collection title", () => {
+    render(<App initialSpec={spec} storage={localStorage} />);
+    const navigation = screen.getByLabelText("Collection navigation");
+    const collection = within(navigation).getByRole("button", {
+      name: "Pet collection 2",
+    });
+    const sections = () => navigation.querySelectorAll("details");
+
+    expect([...sections()].every((section) => section.open)).toBe(true);
+    fireEvent.click(collection);
+    expect([...sections()].every((section) => !section.open)).toBe(true);
+    fireEvent.click(collection);
+    expect([...sections()].every((section) => section.open)).toBe(true);
+  });
+
   it("persists the sidebar size and request layout globally", () => {
     localStorage.setItem("openapi-ui:request-layout", "columns");
     const app = render(<App initialSpec={spec} storage={localStorage} />);
@@ -256,6 +317,13 @@ describe("React workspace", () => {
         { name: "GET List pets" },
       ),
     ).toBeNull();
+    const search = screen.getByRole("textbox", { name: "Search requests" });
+    fireEvent.change(search, { target: { value: "create" } });
+    expect(search).toHaveValue("create");
+    fireEvent.click(
+      screen.getByRole("button", { name: "Clear request search" }),
+    );
+    expect(search).toHaveValue("");
     const themePicker = screen.getByRole("combobox", { name: "Theme" });
     expect(
       within(themePicker)

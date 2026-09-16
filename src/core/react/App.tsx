@@ -49,7 +49,7 @@ import { Authorization } from "./Authorization";
 import { RequestView } from "./RequestView";
 import { Runner } from "./Runner";
 import { CodeTools, History, ImportSpec, Overview, Variables } from "./Tools";
-import { IconButton, Method, PlayIcon } from "./ui";
+import { IconButton, Method, PlayIcon, VariableInput } from "./ui";
 import { completeAuthorization } from "./oauth";
 import type {
   Credentials,
@@ -58,6 +58,7 @@ import type {
   OpenApiDocument,
   Operation,
   ResponseData,
+  RequestCollection,
   SavedRequest,
   StorageLike,
   Variables as VariableList,
@@ -300,6 +301,7 @@ export function Workspace({
     Math.min(80, Math.max(20, storedNumber(storage, REQUEST_SPLIT_KEY, 58))),
   );
   const shellRef = useRef<HTMLDivElement>(null);
+  const requestTreeRef = useRef<HTMLDivElement>(null);
   const [responses, setResponses] = useState<Record<string, ResponseData>>({});
   const [pending, setPending] = useState<Record<string, boolean>>({});
   const [files, setFiles] = useState<
@@ -349,6 +351,16 @@ export function Workspace({
     ...new Set(filtered.map((item) => item.tags?.[0] || "Requests")),
   ];
   stateRef.current = state;
+
+  const toggleCollectionSections = () => {
+    const sections = Array.from(
+      requestTreeRef.current?.querySelectorAll("details") || [],
+    );
+    const shouldExpand = sections.some((section) => !section.open);
+    sections.forEach((section) => {
+      section.open = shouldExpand;
+    });
+  };
 
   const closeTabs = (ids: string[], action: { type: string; id: string }) => {
     if (!ids.length) return;
@@ -707,7 +719,7 @@ export function Workspace({
             <Upload size={16} />
           </IconButton>
         </div>
-        <label className="search-field">
+        <div className="search-field">
           <Search size={16} />
           <input
             aria-label="Search requests"
@@ -715,7 +727,15 @@ export function Workspace({
             onChange={(event) => setSearch(event.target.value)}
             placeholder="Search requests"
           />
-        </label>
+          {search && (
+            <IconButton
+              label="Clear request search"
+              onClick={() => setSearch("")}
+            >
+              <X size={14} />
+            </IconButton>
+          )}
+        </div>
         <div className="sidebar-filters">
           <select
             aria-label="Filter by HTTP method"
@@ -739,14 +759,17 @@ export function Workspace({
         </div>
         <button
           className={`collection-root ${state.active === "overview" && view === "requests" ? "selected" : ""}`}
-          onClick={() => activate("overview")}
+          onClick={() => {
+            activate("overview");
+            toggleCollectionSections();
+          }}
         >
           <ChevronDown size={14} />
           <FolderOpen size={17} />
           <span>{spec.info?.title || "Collection"}</span>
           <span className="count">{operations.length}</span>
         </button>
-        <div className="request-tree">
+        <div className="request-tree" ref={requestTreeRef}>
           {groups.map((group) => (
             <details key={`${group}:${query}:${method}:${onlyFavorites}`} open>
               <summary>
@@ -937,11 +960,12 @@ export function Workspace({
           />
         )}
         <div className="server-bar">
-          <label>
+          <div className="server-label">
             <span className="status-dot" />
             Server
-            <input
+            <VariableInput
               aria-label="Server URL"
+              variables={state.variables}
               list="server-options"
               value={server}
               onChange={(event) =>
@@ -951,7 +975,7 @@ export function Workspace({
                 })
               }
             />
-          </label>
+          </div>
           <datalist id="server-options">
             {(operation?.servers || spec.servers || []).map(
               (item: any, index: number) => (
@@ -1014,6 +1038,18 @@ export function Workspace({
                 operation={operation}
                 spec={spec}
                 draft={active.draft}
+                variables={state.variables}
+                outputDefinitions={[
+                  ...state.tabs.flatMap(
+                    (tab: { draft: Draft }) => tab.draft.outputs || [],
+                  ),
+                  ...state.collections.flatMap(
+                    (collection: RequestCollection) =>
+                      collection.requests.flatMap(
+                        (request) => request.draft.outputs || [],
+                      ),
+                  ),
+                ]}
                 onChange={(patch) =>
                   dispatch({ type: "draft", id: operation.id, patch })
                 }

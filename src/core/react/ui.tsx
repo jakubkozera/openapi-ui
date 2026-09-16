@@ -1,15 +1,24 @@
 import React, {
   useEffect,
+  useId,
   useRef,
   useState,
   type ButtonHTMLAttributes,
+  type InputHTMLAttributes,
   type ReactNode,
 } from "react";
 import Editor, { loader } from "@monaco-editor/react";
+import { createPortal } from "react-dom";
+import type { editor as MonacoEditor } from "monaco-editor";
 import DOMPurify from "dompurify";
 import { marked } from "marked";
-import { Copy, Plus, Trash2, X } from "lucide-react";
-import type { KeyValueRow, Notify } from "./types";
+import { Copy, Info, Plus, Trash2, X } from "lucide-react";
+import type { KeyValueRow, Notify, Variables } from "./types";
+import {
+  bindVariableDecorations,
+  referenceDescription,
+} from "./variableDecorations";
+import { variableReferences } from "./api";
 
 loader.config({
   paths: {
@@ -53,6 +62,140 @@ export function IconButton({ label, children, ...props }: IconButtonProps) {
     >
       {children}
     </button>
+  );
+}
+
+export function InfoTip({
+  label,
+  children,
+  trigger,
+  active = true,
+}: {
+  label: string;
+  children: ReactNode;
+  trigger?: ReactNode;
+  active?: boolean;
+}) {
+  const id = useId();
+  const anchor = useRef<HTMLSpanElement>(null);
+  const [position, setPosition] = useState<{
+    left: number;
+    top: number;
+    above: boolean;
+  } | null>(null);
+  const show = () => {
+    if (!active) return;
+    const rect = anchor.current?.getBoundingClientRect();
+    if (!rect) return;
+    const above = rect.bottom > window.innerHeight / 2;
+    setPosition({
+      left: Math.max(8, Math.min(rect.left, window.innerWidth - 368)),
+      top: above ? rect.top - 6 : rect.bottom + 6,
+      above,
+    });
+  };
+  useEffect(() => {
+    if (!position) return;
+    const close = () => setPosition(null);
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
+    return () => {
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("resize", close);
+    };
+  }, [position]);
+  return (
+    <span
+      ref={anchor}
+      className={`info-tip${trigger ? " variable-input" : ""}`}
+      onMouseEnter={show}
+      onMouseLeave={() => setPosition(null)}
+      onFocus={show}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget))
+          setPosition(null);
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") setPosition(null);
+      }}
+    >
+      {trigger}
+      {active && (
+        <IconButton
+          label={label}
+          title={undefined}
+          aria-describedby={position ? id : undefined}
+          onClick={show}
+        >
+          <Info size={14} />
+        </IconButton>
+      )}
+      {active &&
+        position &&
+        createPortal(
+          <div
+            id={id}
+            role="tooltip"
+            className="info-tooltip"
+            style={{
+              left: position.left,
+              top: position.top,
+              transform: position.above ? "translateY(-100%)" : undefined,
+            }}
+          >
+            {children}
+          </div>,
+          document.body,
+        )}
+    </span>
+  );
+}
+
+export function VariableHelp() {
+  return (
+    <InfoTip label="Variable syntax help">
+      Use <code>{"{{name}}"}</code> for an enabled variable from Variables, or{" "}
+      <code>{"{{@name}}"}</code> for a value extracted from a previous response.
+      Variables are substituted in the server URL, request path, parameters,
+      headers and body when sending. Run the request defining an output first.
+    </InfoTip>
+  );
+}
+
+export function VariableInput({
+  variables,
+  outputDefinitions,
+  ...props
+}: InputHTMLAttributes<HTMLInputElement> & {
+  variables?: Variables;
+  outputDefinitions?: KeyValueRow[];
+}) {
+  const references = variables
+    ? variableReferences(props.value, variables, outputDefinitions)
+    : [];
+  if (!variables) return <input {...props} />;
+  const status = references.some((reference) => reference.status === "missing")
+    ? "missing"
+    : references.some((reference) => reference.status === "pending")
+      ? "pending"
+      : "resolved";
+  return (
+    <InfoTip
+      label={`Variable values for ${props["aria-label"] || "field"}`}
+      active={references.length > 0}
+      trigger={
+        <input
+          {...props}
+          className={`${references.length ? `variable-field-${status}` : ""} ${props.className || ""}`}
+        />
+      }
+    >
+      {references.map((reference) => (
+        <div key={reference.start} className="variable-preview">
+          {referenceDescription(reference)}
+        </div>
+      ))}
+    </InfoTip>
   );
 }
 
@@ -120,6 +263,8 @@ interface CodeEditorProps {
   language?: string;
   readOnly?: boolean;
   label?: string;
+  variables?: Variables;
+  outputDefinitions?: KeyValueRow[];
 }
 
 export function CodeEditor({
@@ -128,7 +273,11 @@ export function CodeEditor({
   language = "json",
   readOnly = false,
   label = "Code editor",
+  variables,
+  outputDefinitions,
 }: CodeEditorProps) {
+  const [editor, setEditor] =
+    useState<MonacoEditor.IStandaloneCodeEditor | null>(null);
   const [ready, setReady] = useState(false);
   const [offline, setOffline] = useState(false);
   const [monaco, setMonaco] = useState<Awaited<
@@ -198,6 +347,15 @@ export function CodeEditor({
     });
     return () => observer.disconnect();
   }, [monaco]);
+  useEffect(() => {
+    if (!editor || !monaco || !variables || readOnly) return;
+    return bindVariableDecorations(
+      editor,
+      monaco,
+      variables,
+      outputDefinitions,
+    );
+  }, [editor, monaco, variables, outputDefinitions, readOnly]);
   return (
     <div className="code-editor" aria-label={label}>
       {ready && !offline ? (
@@ -206,10 +364,14 @@ export function CodeEditor({
           language={language}
           value={value || ""}
           onChange={(next) => onChange?.(next || "")}
-          onMount={(editor, instance) => setMonaco(instance)}
+          onMount={(mountedEditor, instance) => {
+            setEditor(mountedEditor);
+            setMonaco(instance);
+          }}
           options={{
             readOnly,
             automaticLayout: true,
+            fixedOverflowWidgets: true,
             minimap: { enabled: false },
             fontSize: 13,
             fontFamily: "JetBrains Mono",
@@ -267,6 +429,8 @@ interface KeyValueEditorProps {
   outputs?: boolean;
   files?: boolean;
   onFile?: (name: string, file?: File) => void;
+  variables?: Variables;
+  outputDefinitions?: KeyValueRow[];
 }
 
 export function KeyValueEditor({
@@ -279,6 +443,8 @@ export function KeyValueEditor({
   outputs = false,
   files,
   onFile,
+  variables,
+  outputDefinitions,
 }: KeyValueEditorProps) {
   const update = (index: number, patch: Partial<KeyValueRow>) =>
     onChange(
@@ -289,8 +455,28 @@ export function KeyValueEditor({
   return (
     <div className="key-values">
       <div className="kv-heading">
-        <span>{nameLabel}</span>
-        <span>{valueLabel}</span>
+        <span>
+          {nameLabel}
+          {outputs && (
+            <InfoTip label="Output variable name help">
+              Enter a name without braces or @, for example <code>petId</code>.
+              After extracting it from a response, use{" "}
+              <code>{"{{@petId}}"}</code> in a later request.
+            </InfoTip>
+          )}
+        </span>
+        <span>
+          {valueLabel}
+          {outputs && (
+            <InfoTip label="Output variable JSONPath help">
+              Use JSONPath to select a response value, for example{" "}
+              <code>$.data.id</code> or <code>$.items[0].id</code>. The first
+              match is stored after a successful request with a JSON response.
+              Run it before requests that use this output. JSONPath scripts are
+              disabled.
+            </InfoTip>
+          )}
+        </span>
       </div>
       {rows.map((row, index) => (
         <div className="kv-row" key={index}>
@@ -306,8 +492,10 @@ export function KeyValueEditor({
             />
           )}
           <div className="kv-name">
-            <input
+            <VariableInput
               aria-label={`${nameLabel} ${index + 1}`}
+              variables={variables}
+              outputDefinitions={outputDefinitions}
               value={row.name || ""}
               readOnly={row.required}
               onChange={(event) => update(index, { name: event.target.value })}
@@ -336,8 +524,10 @@ export function KeyValueEditor({
               onChange={(event) => onFile?.(row.name, event.target.files?.[0])}
             />
           ) : (
-            <input
+            <VariableInput
               aria-label={`${valueLabel} ${row.name || index + 1}`}
+              variables={variables}
+              outputDefinitions={outputDefinitions}
               value={(outputs ? row.path : row.value) ?? ""}
               onChange={(event) =>
                 update(index, {

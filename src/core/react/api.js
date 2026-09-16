@@ -221,6 +221,44 @@ export function replaceVariables(value, variables) {
   );
 }
 
+export function variableReferences(value, variables = [], outputs = []) {
+  const enabled = new Map(
+    variables
+      .filter((variable) => variable.enabled !== false)
+      .map((variable) => [variable.name, variable]),
+  );
+  return Array.from(
+    String(value ?? "").matchAll(/\{\{\s*([^{}]+?)\s*\}\}/g),
+    (match) => {
+      const name = match[1];
+      const output = name.startsWith("@");
+      const variable =
+        enabled.get(name) ?? (output ? enabled.get(name.slice(1)) : undefined);
+      const paths = output
+        ? [
+            ...new Set(
+              outputs
+                .filter(
+                  (item) =>
+                    item.name?.replace(/^@/, "") === name.slice(1) && item.path,
+                )
+                .map((item) => item.path),
+            ),
+          ]
+        : [];
+      return {
+        start: match.index,
+        end: match.index + match[0].length,
+        name,
+        output,
+        status: variable ? "resolved" : paths.length ? "pending" : "missing",
+        value: variable ? replaceVariables(match[0], variables) : undefined,
+        paths,
+      };
+    },
+  );
+}
+
 export function serverUrl(spec, source, fallback = location.origin) {
   let server = spec.servers?.[0]?.url;
   if (server)

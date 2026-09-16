@@ -19,6 +19,7 @@ import {
   Method,
   Modal,
   PlayIcon,
+  VariableHelp,
 } from "./ui";
 import type {
   Credentials,
@@ -168,8 +169,13 @@ export function Variables({
     <section className="tool-view">
       <header className="section-heading">
         <h1>Variables</h1>
+        <VariableHelp />
         <span className="count">{variables.length}</span>
       </header>
+      <p className="empty">
+        Variables can be used in path parameters, query parameters, headers, and
+        request bodies using the format: <code>{"{{variableName}}"}</code>
+      </p>
       <KeyValueEditor
         rows={variables}
         onChange={onChange}
