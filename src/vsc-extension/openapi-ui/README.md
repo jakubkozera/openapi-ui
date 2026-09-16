@@ -4,12 +4,12 @@ A powerful Visual Studio Code extension that provides an intuitive interface for
 
 ## Features
 
-- 🔍 **OpenAPI Viewer**: Interactive UI for browsing OpenAPI specifications
-- 📁 **Source Management**: Add, remove, and organize multiple OpenAPI sources
-- 🌐 **URL Support**: Load OpenAPI specs from remote URLs or local files
-- 🎯 **Activity Bar Integration**: Dedicated sidebar for quick access to your API sources
-- ⚡ **Real-time Loading**: Dynamic loading of OpenAPI specifications
-- 🔄 **Refresh Support**: Update your API sources on demand
+- **OpenAPI Viewer**: Interactive UI for browsing OpenAPI specifications
+- **Source Management**: Add, remove and organize multiple OpenAPI sources
+- **URL Support**: Load OpenAPI specs from remote URLs or local files
+- **Activity Bar Integration**: Dedicated sidebar for quick access to API sources
+- **Request Proxy**: Send webview requests without browser CORS limitations
+- **Workspace Persistence**: Restore request tabs, drafts, variables and collections
 
 ## Installation
 
@@ -32,12 +32,10 @@ A powerful Visual Studio Code extension that provides an intuitive interface for
 ### Getting Started
 
 1. **Open the OpenAPI UI Panel**
-
    - Click on the OpenAPI UI icon in the Activity Bar
    - Or use Command Palette (Ctrl+Shift+P) and search for "Open OpenAPI UI"
 
 2. **Add an OpenAPI Source**
-
    - Click the "+" button in the OpenAPI Sources panel
    - Enter a name for your API source
    - Provide the URL or file path to your OpenAPI specification
@@ -50,34 +48,28 @@ A powerful Visual Studio Code extension that provides an intuitive interface for
 
 ## Features
 
-- 🚀 **Easy Integration** - Simple one-line setup in your ASP.NET Core application
-- 📱 **Modern UI** - Clean, responsive interface for API documentation
-- 🔍 **Easy Navigation** - Search and filter options for quick endpoint discovery
-- 📋 **Comprehensive Endpoint Documentation** - Detailed API docs with requirements, parameters, and schemas
-- ⚡ **Try It Out Section** - Interactive API testing directly from the documentation
-- 🔐 **Authentication Options** - Built-in support for various authentication schemes (Bearer Token, Basic Auth, API Key, OAuth2, OpenID Connect)
+- **React Workspace** - Searchable collections and persistent request tabs
+- **Request Editing** - Parameters, headers, bodies, forms and file uploads
+- **Authorization** - Bearer, Basic, API Key, OAuth2 and OpenID Connect
+- **Variables** - Monaco highlighting for environment and JSONPath output variables
+- **Native Themes** - VS Code light, dark and high-contrast token support
+- **Collection Runner** - Ordered execution with output chaining
 - **Real-time Response Viewing** - Immediate feedback with formatted response data
 
 ![OpenAI UI overview](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/openapi-ui-overview.png)
 
 ### Advanced Features
 
-#### 🏃‍♂️ Collection Runner (Postman-like)
+#### Collection Runner
 
-- 🏃 **Collection Runner** - Execute multiple API requests in sequence for testing workflows
+- Execute multiple API requests in sequence for testing workflows
 
 ![collection-runner](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/collection-runner.png)
 
 - Variable extraction and chaining between requests
 
-![variable-definition](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/variable-definition.png)
-![variable-usage](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/variable-usage.png)
-![variable-usage-request-body](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/variable-usage-request-body.png)
-
-- **Output Parameters** - Extract values from responses for reuse
-
-![output-parameters-definition](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/output-parameters-definition.png)
-![output-parameters-usage](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/output-parameters-usage.png)
+![Request variables](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/request-editor-variables.png)
+![Output variables](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/output-variables.png)
 
 ## Configuration
 

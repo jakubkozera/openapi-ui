@@ -5,11 +5,11 @@
 
 A .NET library that provides a modern, customizable OpenAPI UI interface for ASP.NET Core applications. This package serves an embedded HTML/CSS/JavaScript-based OpenAPI documentation interface that can be easily integrated into your ASP.NET Core web applications.
 
-## 🎮 Demo
+## Demo
 
 Want to try OpenAPI UI before integrating it into your project? Check out our live demo:
 
-**[🚀 Try it yourself at https://github.io/openapi-ui/](https://github.io/openapi-ui/)**
+Try it at [https://jakubkozera.github.io/openapi-ui/](https://jakubkozera.github.io/openapi-ui/).
 
 The demo showcases all the features mentioned above with a sample API specification, so you can:
 
@@ -24,34 +24,28 @@ No installation required - just open the link and start exploring!
 
 ## Features
 
-- 🚀 **Easy Integration** - Simple one-line setup in your ASP.NET Core application
-- 📱 **Modern UI** - Clean, responsive interface for API documentation
-- 🔍 **Easy Navigation** - Search and filter options for quick endpoint discovery
-- 📋 **Comprehensive Endpoint Documentation** - Detailed API docs with requirements, parameters, and schemas
-- ⚡ **Try It Out Section** - Interactive API testing directly from the documentation
-- 🔐 **Authentication Options** - Built-in support for various authentication schemes (Bearer Token, Basic Auth, API Key, OAuth2, OpenID Connect)
+- **Easy Integration** - Simple middleware setup in an ASP.NET Core application
+- **React Workspace** - Searchable collections and persistent request tabs
+- **Request Editing** - Path, query, headers, bodies, forms and file uploads
+- **Authorization** - Bearer, Basic, API Key, OAuth2 and OpenID Connect
+- **Variables** - Monaco highlighting for environment and JSONPath output variables
+- **Collection Runner** - Ordered execution with output chaining
 - **Real-time Response Viewing** - Immediate feedback with formatted response data
 
 ![OpenAI UI overview](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/openapi-ui-overview.png)
 
 ### Advanced Features
 
-#### 🏃‍♂️ Collection Runner (Postman-like)
+#### Collection Runner
 
-- 🏃 **Collection Runner** - Execute multiple API requests in sequence for testing workflows
+- Execute multiple API requests in sequence for testing workflows
 
 ![collection-runner](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/collection-runner.png)
 
 - Variable extraction and chaining between requests
 
-![variable-definition](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/variable-definition.png)
-![variable-usage](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/variable-usage.png)
-![variable-usage-request-body](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/variable-usage-request-body.png)
-
-- **Output Parameters** - Extract values from responses for reuse
-
-![output-parameters-definition](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/output-parameters-definition.png)
-![output-parameters-usage](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/output-parameters-usage.png)
+![Variables](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/variables.png)
+![Output variables](https://raw.githubusercontent.com/jakubkozera/openapi-ui/refs/heads/master/readme-assets/output-variables.png)
 
 ## Installation
 

@@ -8,6 +8,21 @@ import { setupWebviewMessageHandler } from "./webviewMessageHandler";
 import { getFetchInterceptorScript } from "./fetchInterceptor";
 
 export function activate(context: vscode.ExtensionContext) {
+  const getWebviewContent = (
+    webview: vscode.Webview,
+    extensionPath: string,
+    openapiUrl?: string,
+    jsonContent?: string,
+  ) =>
+    renderWebviewContent(
+      webview,
+      extensionPath,
+      openapiUrl,
+      jsonContent,
+      context.workspaceState,
+    );
+  const setupPersistentWebview = (panel: vscode.WebviewPanel) =>
+    setupWebviewMessageHandler(panel, context.workspaceState);
   // Initialize storage
   const storage = new OpenAPIStorage(context);
 
@@ -33,23 +48,23 @@ export function activate(context: vscode.ExtensionContext) {
           localResourceRoots: [
             vscode.Uri.file(path.join(context.extensionPath, "core-dist")),
           ],
-        }
+        },
       );
 
       // Set webview icon
       panel.iconPath = vscode.Uri.file(
-        path.join(context.extensionPath, "openapi-ui.png")
+        path.join(context.extensionPath, "openapi-ui.png"),
       );
 
       // Set up message handling for fetch proxy
-      const messageHandler = setupWebviewMessageHandler(panel);
+      const messageHandler = setupPersistentWebview(panel);
       panel.onDidDispose(() => messageHandler.dispose());
 
       panel.webview.html = getWebviewContent(
         panel.webview,
-        context.extensionPath
+        context.extensionPath,
       );
-    }
+    },
   );
   // Register command to add OpenAPI source
   let addSourceDisposable = vscode.commands.registerCommand(
@@ -80,7 +95,7 @@ export function activate(context: vscode.ExtensionContext) {
         ],
         {
           placeHolder: "Choose how to provide the OpenAPI specification",
-        }
+        },
       );
 
       if (!sourceType) {
@@ -134,7 +149,7 @@ export function activate(context: vscode.ExtensionContext) {
         storage.addJsonSource(name, jsonContent);
         vscode.window.showInformationMessage(`Added OpenAPI source: ${name}`);
       }
-    }
+    },
   );
 
   // Register command to remove OpenAPI source
@@ -145,16 +160,16 @@ export function activate(context: vscode.ExtensionContext) {
         `Are you sure you want to remove "${item.source.name}"?`,
         { modal: true },
         "Yes",
-        "No"
+        "No",
       );
 
       if (result === "Yes") {
         storage.removeSource(item.source.id);
         vscode.window.showInformationMessage(
-          `Removed OpenAPI source: ${item.source.name}`
+          `Removed OpenAPI source: ${item.source.name}`,
         );
       }
-    }
+    },
   );
 
   // Register command to refresh sources
@@ -163,7 +178,7 @@ export function activate(context: vscode.ExtensionContext) {
     () => {
       treeDataProvider.refresh();
       vscode.window.showInformationMessage("Refreshed OpenAPI sources");
-    }
+    },
   ); // Register command to load source
   let loadSourceDisposable = vscode.commands.registerCommand(
     "openapi-ui.loadSource",
@@ -178,7 +193,7 @@ export function activate(context: vscode.ExtensionContext) {
           vscode.window
             .showInformationMessage(
               "No OpenAPI sources available. Add a source first.",
-              "Add Source"
+              "Add Source",
             )
             .then((selection) => {
               if (selection === "Add Source") {
@@ -224,7 +239,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       if (source.type === "json" && !source.content) {
         vscode.window.showErrorMessage(
-          "Invalid OpenAPI source: missing JSON content"
+          "Invalid OpenAPI source: missing JSON content",
         );
         return;
       }
@@ -238,23 +253,23 @@ export function activate(context: vscode.ExtensionContext) {
             localResourceRoots: [
               vscode.Uri.file(path.join(context.extensionPath, "core-dist")),
             ],
-          }
+          },
         );
 
         // Set webview icon
         panel.iconPath = vscode.Uri.file(
-          path.join(context.extensionPath, "openapi-ui.png")
+          path.join(context.extensionPath, "openapi-ui.png"),
         );
 
         // Set up message handling for fetch proxy
-        const messageHandler = setupWebviewMessageHandler(panel);
+        const messageHandler = setupPersistentWebview(panel);
         panel.onDidDispose(() => messageHandler.dispose());
 
         if (source.type === "url") {
           panel.webview.html = getWebviewContent(
             panel.webview,
             context.extensionPath,
-            source.url
+            source.url,
           );
         } else {
           // For JSON content, create a blob URL
@@ -262,19 +277,19 @@ export function activate(context: vscode.ExtensionContext) {
             panel.webview,
             context.extensionPath,
             undefined,
-            source.content
+            source.content,
           );
         }
 
         vscode.window.showInformationMessage(
-          `Loaded OpenAPI source: ${source.name}`
+          `Loaded OpenAPI source: ${source.name}`,
         );
       } catch (error) {
         vscode.window.showErrorMessage(
-          `Failed to load OpenAPI source: ${error}`
+          `Failed to load OpenAPI source: ${error}`,
         );
       }
-    }
+    },
   );
   // Register command to add JSON OpenAPI source
   let addJsonSourceDisposable = vscode.commands.registerCommand(
@@ -311,7 +326,7 @@ export function activate(context: vscode.ExtensionContext) {
       try {
         storage.addJsonSource(name, jsonContent);
         vscode.window.showInformationMessage(
-          `Added and opened OpenAPI source: ${name}`
+          `Added and opened OpenAPI source: ${name}`,
         );
 
         // Automatically load the source we just added
@@ -322,12 +337,12 @@ export function activate(context: vscode.ExtensionContext) {
         }
       } catch (error) {
         vscode.window.showErrorMessage(
-          `Failed to add OpenAPI source: ${error}`
+          `Failed to add OpenAPI source: ${error}`,
         );
       }
-    }
+    },
   );
-  
+
   // Register command to open OpenAPI UI with URL parameter (for external API calls)
   let openWithUrlDisposable = vscode.commands.registerCommand(
     "openapi-ui.openWithUrl",
@@ -370,33 +385,33 @@ export function activate(context: vscode.ExtensionContext) {
             localResourceRoots: [
               vscode.Uri.file(path.join(context.extensionPath, "core-dist")),
             ],
-          }
+          },
         );
 
         // Set webview icon
         panel.iconPath = vscode.Uri.file(
-          path.join(context.extensionPath, "openapi-ui.png")
+          path.join(context.extensionPath, "openapi-ui.png"),
         );
 
         // Set up message handling for fetch proxy
-        const messageHandler = setupWebviewMessageHandler(panel);
+        const messageHandler = setupPersistentWebview(panel);
         panel.onDidDispose(() => messageHandler.dispose());
 
         panel.webview.html = getWebviewContent(
           panel.webview,
           context.extensionPath,
-          openapiUrl
+          openapiUrl,
         );
 
         vscode.window.showInformationMessage(
-          `Opened OpenAPI UI for ${openapiUrl}`
+          `Opened OpenAPI UI for ${openapiUrl}`,
         );
       } catch (error) {
         vscode.window.showErrorMessage(
-          `Invalid URL: ${openapiUrl}. Please provide a valid URL.`
+          `Invalid URL: ${openapiUrl}. Please provide a valid URL.`,
         );
       }
-    }
+    },
   );
 
   // Register command to load OpenAPI UI from local disk file
@@ -442,34 +457,32 @@ export function activate(context: vscode.ExtensionContext) {
             localResourceRoots: [
               vscode.Uri.file(path.join(context.extensionPath, "core-dist")),
             ],
-          }
+          },
         );
 
         // Set webview icon
         panel.iconPath = vscode.Uri.file(
-          path.join(context.extensionPath, "openapi-ui.png")
+          path.join(context.extensionPath, "openapi-ui.png"),
         );
 
         // Set up message handling for fetch proxy
-        const messageHandler = setupWebviewMessageHandler(panel);
+        const messageHandler = setupPersistentWebview(panel);
         panel.onDidDispose(() => messageHandler.dispose());
 
         panel.webview.html = getWebviewContent(
           panel.webview,
           context.extensionPath,
           undefined,
-          fileContent
+          fileContent,
         );
 
         vscode.window.showInformationMessage(
-          `Opened OpenAPI UI from ${fileName}`
+          `Opened OpenAPI UI from ${fileName}`,
         );
       } catch (error) {
-        vscode.window.showErrorMessage(
-          `Failed to load OpenAPI file: ${error}`
-        );
+        vscode.window.showErrorMessage(`Failed to load OpenAPI file: ${error}`);
       }
-    }
+    },
   );
 
   context.subscriptions.push(
@@ -480,17 +493,18 @@ export function activate(context: vscode.ExtensionContext) {
     loadSourceDisposable,
     addJsonSourceDisposable,
     openWithUrlDisposable,
-    loadFromDiskDisposable
+    loadFromDiskDisposable,
   );
 }
 
 export function deactivate() {}
 
-function getWebviewContent(
+function renderWebviewContent(
   webview: vscode.Webview,
   extensionPath: string,
   openapiUrl?: string,
-  jsonContent?: string
+  jsonContent?: string,
+  workspaceState?: vscode.Memento,
 ): string {
   // Path to the core/dist directory
   const distPath = path.join(extensionPath, "core-dist");
@@ -502,49 +516,71 @@ function getWebviewContent(
 
     // Create URIs for the CSS and JS files
     const cssUri = webview.asWebviewUri(
-      vscode.Uri.file(path.join(distPath, "bundle.css"))
+      vscode.Uri.file(path.join(distPath, "bundle.css")),
     );
     const jsUri = webview.asWebviewUri(
-      vscode.Uri.file(path.join(distPath, "bundle.js"))
+      vscode.Uri.file(path.join(distPath, "bundle.js")),
     );
 
     const imgUri = webview.asWebviewUri(
-      vscode.Uri.file(path.join(distPath, "openapi-ui.png"))
+      vscode.Uri.file(path.join(distPath, "openapi-ui.png")),
     ); // Replace the relative paths with webview URIs
     htmlContent = htmlContent.replace('href="bundle.css"', `href="${cssUri}"`);
     htmlContent = htmlContent.replace('src="bundle.js"', `src="${jsUri}"`);
     htmlContent = htmlContent.replace(
       'src="openapi-ui.png"',
-      `src="${imgUri}"`
+      `src="${imgUri}"`,
     );
 
     // Inject Content Security Policy to allow OAuth frames and external resources
     // CSP must be in a single line to work properly
-    const cspMeta = `<meta http-equiv="Content-Security-Policy" content="default-src 'self' ${webview.cspSource}; script-src 'self' ${webview.cspSource} 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; style-src 'self' ${webview.cspSource} 'unsafe-inline' https://fonts.googleapis.com https://cdn.tailwindcss.com https://cdnjs.cloudflare.com; font-src 'self' ${webview.cspSource} https://fonts.gstatic.com data:; img-src 'self' ${webview.cspSource} https: data: blob:; frame-src 'self' https://login.microsoftonline.com https://accounts.google.com https://github.com https://oauth.twitter.com https://www.facebook.com https://appleid.apple.com https://*.okta.com https://*.auth0.com https://*.onelogin.com; connect-src 'self' ${webview.cspSource} https: http: ws: wss:; worker-src 'self' ${webview.cspSource} blob:;">`;
+    const cspMeta = `<meta http-equiv="Content-Security-Policy" content="default-src 'self' ${webview.cspSource}; script-src 'self' ${webview.cspSource} 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com; style-src 'self' ${webview.cspSource} 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' ${webview.cspSource} https://fonts.gstatic.com data:; img-src 'self' ${webview.cspSource} https: data: blob:; frame-src 'self' https:; connect-src 'self' ${webview.cspSource} https: http: ws: wss: data: blob:; worker-src 'self' ${webview.cspSource} blob:;">`;
 
     // Inject CSP right after opening <head> tag for maximum priority
+    htmlContent = htmlContent.replace(/<head>/i, `<head>\n${cspMeta}`);
     htmlContent = htmlContent.replace(
-      /<head>/i,
-      `<head>\n${cspMeta}`
+      /<\/head>/i,
+      "<style>html, body { margin: 0 !important; padding: 0 !important; }</style></head>",
     );
 
     // Inject the fetch interceptor script before the closing </head> tag
     // This ensures fetch is intercepted before any other scripts run
-    const fetchInterceptorScript = `<script>${getFetchInterceptorScript()}</script>`;
+    const savedStorage: Record<string, string> = {};
+    for (const key of workspaceState?.keys() || []) {
+      if (key.startsWith("openapi-ui:storage:")) {
+        const value = workspaceState?.get<string>(key);
+        if (typeof value === "string") {
+          savedStorage[key.slice("openapi-ui:storage:".length)] = value;
+        }
+      }
+    }
+    const fetchInterceptorScript = `<script>${getFetchInterceptorScript(savedStorage)}</script>`;
     htmlContent = htmlContent.replace(
       "</head>",
-      `${fetchInterceptorScript}</head>`
+      `${fetchInterceptorScript}</head>`,
     );
 
     // Handle OpenAPI source replacement
     if (openapiUrl) {
       // For URL sources, replace with the provided URL
-      htmlContent = htmlContent.replace("#swagger_path#", openapiUrl);
+      const escapedUrl = openapiUrl
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+      htmlContent = htmlContent.replace("#swagger_path#", () => escapedUrl);
     } else if (jsonContent) {
       // For JSON sources, create a blob URL and inject the content
       const encodedContent = Buffer.from(jsonContent).toString("base64");
       const dataUrl = `data:application/json;base64,${encodedContent}`;
       htmlContent = htmlContent.replace("#swagger_path#", dataUrl);
+    } else {
+      const specUri = webview.asWebviewUri(
+        vscode.Uri.file(path.join(distPath, "swagger.json")),
+      );
+      htmlContent = htmlContent.replace("#swagger_path#", () =>
+        specUri.toString(),
+      );
     }
 
     return htmlContent;

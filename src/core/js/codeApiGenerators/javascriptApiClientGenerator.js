@@ -1,5 +1,5 @@
 // JavaScript API Client Generator for openapi-ui
-class JavaScriptApiGenerator {
+export class JavaScriptApiGenerator {
   constructor(options = {}) {
     this.swagger = null;
     this.options = {
@@ -99,7 +99,7 @@ class JavaScriptApiGenerator {
 
     if (this.options.useESModules) {
       const exportNames = Object.keys(schemas).map((name) =>
-        this.toPascalCase(name)
+        this.toPascalCase(name),
       );
       code += `\n\nexport { ${exportNames.join(", ")} };`;
     }
@@ -168,7 +168,7 @@ class JavaScriptApiGenerator {
       code += `/**\n * Creates a ${factoryName} object\n`;
       if (schema.properties) {
         for (const [propName, propSchema] of Object.entries(
-          schema.properties
+          schema.properties,
         )) {
           const jsType = this.mapToJavaScriptType(propSchema);
           code += ` * @param {Object} data - The data object\n`;
@@ -550,7 +550,7 @@ class JavaScriptApiGenerator {
   buildPathWithParameters(path, operation) {
     let result = path;
     const pathParams = this.getMethodParameters(operation).filter(
-      (p) => p.in === "path"
+      (p) => p.in === "path",
     );
     pathParams.forEach((param) => {
       const paramName = this.toCamelCase(param.name);
@@ -641,7 +641,7 @@ class JavaScriptApiGenerator {
 
     if (this.swagger.components && this.swagger.components.schemas) {
       for (const [name, schema] of Object.entries(
-        this.swagger.components.schemas
+        this.swagger.components.schemas,
       )) {
         code += this.generateTypeDefinition(name, schema);
         code += "\n\n";
@@ -744,20 +744,3 @@ class JavaScriptApiGenerator {
     };
   }
 }
-
-// Make the generator available globally
-window.JavaScriptApiGenerator = JavaScriptApiGenerator;
-
-// Convenience function to create a generator with window data and options
-window.createJavaScriptApiGenerator = function (options = {}) {
-  // Get current options from options manager if available
-  if (window.getApiClientOptions && !Object.keys(options).length) {
-    options = window.getApiClientOptions("javascript");
-  }
-
-  const generator = new JavaScriptApiGenerator(options);
-  if (window.swaggerData) {
-    generator.loadFromWindow();
-  }
-  return generator;
-};

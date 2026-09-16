@@ -26,6 +26,39 @@ class MockWebview {
 }
 
 suite("WebviewMessageHandler Test Suite", () => {
+  test("persists only bounded OpenAPI workspace values and supports deletion", async () => {
+    const writes: Array<[string, unknown]> = [];
+    const memento = {
+      update: async (key: string, value: unknown) => {
+        writes.push([key, value]);
+      },
+    };
+    const handler = new WebviewMessageHandler(
+      new MockWebview() as any,
+      memento as any,
+    );
+    await handler.handleMessage({
+      type: "workspaceSave",
+      payload: { key: "openapi-ui:workspace:pets", value: '{"tabs":[]}' },
+    });
+    await handler.handleMessage({
+      type: "workspaceSave",
+      payload: { key: "other-extension", value: "invalid" },
+    });
+    await handler.handleMessage({
+      type: "workspaceSave",
+      payload: { key: "openapi-ui:large", value: "x".repeat(5_000_001) },
+    });
+    await handler.handleMessage({
+      type: "workspaceSave",
+      payload: { key: "openapi-ui:workspace:pets", value: null },
+    });
+    assert.deepStrictEqual(writes, [
+      ["openapi-ui:storage:openapi-ui:workspace:pets", '{"tabs":[]}'],
+      ["openapi-ui:storage:openapi-ui:workspace:pets", undefined],
+    ]);
+  });
+
   let testServer: http.Server;
   let testServerPort: number;
 
@@ -204,7 +237,7 @@ suite("WebviewMessageHandler Test Suite", () => {
     assert.strictEqual(
       mockWebview.messages.length,
       0,
-      "Should not send any response for unknown message types"
+      "Should not send any response for unknown message types",
     );
   });
 
@@ -216,17 +249,26 @@ suite("WebviewMessageHandler Test Suite", () => {
       {
         type: "fetchRequest",
         requestId: "concurrent-1",
-        payload: { url: `http://127.0.0.1:${testServerPort}/test1`, method: "GET" },
+        payload: {
+          url: `http://127.0.0.1:${testServerPort}/test1`,
+          method: "GET",
+        },
       },
       {
         type: "fetchRequest",
         requestId: "concurrent-2",
-        payload: { url: `http://127.0.0.1:${testServerPort}/test2`, method: "GET" },
+        payload: {
+          url: `http://127.0.0.1:${testServerPort}/test2`,
+          method: "GET",
+        },
       },
       {
         type: "fetchRequest",
         requestId: "concurrent-3",
-        payload: { url: `http://127.0.0.1:${testServerPort}/test3`, method: "GET" },
+        payload: {
+          url: `http://127.0.0.1:${testServerPort}/test3`,
+          method: "GET",
+        },
       },
     ];
 
@@ -237,11 +279,11 @@ suite("WebviewMessageHandler Test Suite", () => {
     assert.strictEqual(
       mockWebview.messages.length,
       3,
-      "Should have received 3 responses"
+      "Should have received 3 responses",
     );
 
     const responseIds = mockWebview.messages.map(
-      (m: unknown) => (m as { requestId: string }).requestId
+      (m: unknown) => (m as { requestId: string }).requestId,
     );
     assert.ok(responseIds.includes("concurrent-1"));
     assert.ok(responseIds.includes("concurrent-2"));

@@ -10,6 +10,7 @@ export interface FetchProxyRequest {
   method?: string;
   headers?: Record<string, string>;
   body?: string;
+  bodyBase64?: string;
 }
 
 /**
@@ -21,6 +22,7 @@ export interface FetchProxyResponse {
   statusText: string;
   headers: Record<string, string>;
   body: string;
+  bodyBase64?: string;
   url: string;
 }
 
@@ -87,9 +89,15 @@ export class FetchProxy {
    * @param request - The request to execute
    * @returns Promise resolving to FetchProxyResult
    */
-  async fetch(request: FetchProxyRequest): Promise<FetchProxyResult> {
+  async fetch(
+    request: FetchProxyRequest,
+    signal?: AbortSignal,
+  ): Promise<FetchProxyResult> {
     try {
       const url = new URL(request.url);
+      if (url.protocol !== "http:" && url.protocol !== "https:") {
+        throw new Error("Only HTTP and HTTPS requests are supported");
+      }
       const isHttps = url.protocol === "https:";
 
       const options: https.RequestOptions = {
@@ -111,8 +119,11 @@ export class FetchProxy {
       return await this.executeRequest(
         isHttps ? https : http,
         options,
-        request.body,
-        request.url
+        request.bodyBase64 !== undefined
+          ? Buffer.from(request.bodyBase64, "base64")
+          : request.body,
+        request.url,
+        signal,
       );
     } catch (error) {
       return this.handleError(error);
@@ -122,8 +133,9 @@ export class FetchProxy {
   private executeRequest(
     protocol: typeof https | typeof http,
     options: https.RequestOptions,
-    body: string | undefined,
-    originalUrl: string
+    body: string | Buffer | undefined,
+    originalUrl: string,
+    signal?: AbortSignal,
   ): Promise<FetchProxyResult> {
     return new Promise((resolve) => {
       const req = protocol.request(options, (res) => {
@@ -146,11 +158,15 @@ export class FetchProxy {
           }
 
           const response: FetchProxyResponse = {
-            ok: res.statusCode !== undefined && res.statusCode >= 200 && res.statusCode < 300,
+            ok:
+              res.statusCode !== undefined &&
+              res.statusCode >= 200 &&
+              res.statusCode < 300,
             status: res.statusCode || 0,
             statusText: res.statusMessage || getStatusText(res.statusCode || 0),
             headers,
             body: responseBody,
+            bodyBase64: bodyBuffer.toString("base64"),
             url: originalUrl,
           };
 
@@ -165,6 +181,17 @@ export class FetchProxy {
       req.on("error", (error) => {
         resolve(this.handleError(error));
       });
+
+      const abort = () =>
+        req.destroy(
+          Object.assign(new Error("Request cancelled"), { code: "ABORT_ERR" }),
+        );
+      if (signal?.aborted) {
+        abort();
+      } else {
+        signal?.addEventListener("abort", abort, { once: true });
+      }
+      req.on("close", () => signal?.removeEventListener("abort", abort));
 
       req.on("timeout", () => {
         req.destroy();
@@ -233,7 +260,7 @@ export const fetchProxy = new FetchProxy();
  * Helper function to check if a result is an error
  */
 export function isFetchProxyError(
-  result: FetchProxyResult
+  result: FetchProxyResult,
 ): result is FetchProxyError {
   return "error" in result && result.error === true;
 }

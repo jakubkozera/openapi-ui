@@ -4,7 +4,7 @@
 /**
  * Generates code snippets for API requests in different programming languages
  */
-class CodeSnippetGenerator {
+export class CodeSnippetGenerator {
   constructor() {
     this.supportedLanguages = {
       curl: {
@@ -62,7 +62,9 @@ class CodeSnippetGenerator {
 
     const requestDetails = {
       method: method,
-      url: `${window.location.origin}${path}`,
+      url: /^https?:\/\//i.test(path)
+        ? path
+        : `${window.location.origin}${path}`,
       headers: headers,
       body: requestBody,
     };
@@ -239,7 +241,7 @@ MediaType mediaType = MediaType.parse("application/json");`;
 
     if (body) {
       code += `\nRequestBody body = RequestBody.create(mediaType, ${JSON.stringify(
-        body
+        body,
       )});`;
     }
 
@@ -265,12 +267,3 @@ System.out.println(response.body().string());`;
     return code;
   }
 }
-
-// Initialize everything properly at the end of the file
-document.addEventListener("DOMContentLoaded", () => {
-  // Initialize code snippet generator
-  window.codeSnippetGenerator = new CodeSnippetGenerator();
-
-  // Initialize code snippet functionality
-  initCodeSnippetFunctionality();
-});
