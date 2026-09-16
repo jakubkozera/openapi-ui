@@ -93,7 +93,7 @@ describe("OpenAPI request engine", () => {
     const operation = getOperations(spec)[0];
     const draft = makeDraft(operation, spec);
     draft.parameters[0].value = "1";
-    expect(() =>
+    expect(
       buildRequest(
         operation,
         draft,
@@ -101,8 +101,8 @@ describe("OpenAPI request engine", () => {
         [],
         { bearer: { token: "abc" } },
         spec,
-      ),
-    ).toThrow("Authentication");
+      ).options.headers.has("Authorization"),
+    ).toBe(false);
     const request = buildRequest(
       operation,
       draft,
@@ -122,6 +122,52 @@ describe("OpenAPI request engine", () => {
         [],
         {},
         spec,
+      ).options.headers.has("Authorization"),
+    ).toBe(false);
+  });
+
+  it("allows anonymous requests with inherited security and ignores expired credentials", () => {
+    const securedSpec = {
+      ...spec,
+      security: [{ bearer: [] }],
+      paths: { "/health": { get: {} } },
+    };
+    const operation = getOperations(securedSpec)[0];
+    const draft = makeDraft(operation, securedSpec);
+    expect(operation.security).toEqual([{ bearer: [] }]);
+    for (const credentials of [
+      {},
+      { bearer: { token: "expired", expiresAt: 1 } },
+    ]) {
+      const request = buildRequest(
+        operation,
+        draft,
+        "https://example.com",
+        [],
+        credentials,
+        securedSpec,
+      );
+      expect(request.url).toBe("https://example.com/health");
+      expect(request.options.headers.has("Authorization")).toBe(false);
+    }
+    expect(
+      buildRequest(
+        operation,
+        draft,
+        "https://example.com",
+        [],
+        { bearer: { token: "valid" } },
+        securedSpec,
+      ).options.headers.get("Authorization"),
+    ).toBe("Bearer valid");
+    expect(
+      buildRequest(
+        operation,
+        { ...draft, authEnabled: false },
+        "https://example.com",
+        [],
+        { bearer: { token: "valid" } },
+        securedSpec,
       ).options.headers.has("Authorization"),
     ).toBe(false);
   });

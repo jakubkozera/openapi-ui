@@ -41,8 +41,15 @@ dotnet run --project src/c-sharp/OpenApiUi.Sample
 - Server selection, path/query/header parameters, JSON/text/XML bodies, URL-encoded
   forms and multipart file uploads. Required path parameters and JSON syntax are checked.
 - Bearer, Basic, API key, OAuth2 and OIDC. Operation security overrides global security;
-  alternative requirements and combined schemes are respected. OAuth authorization code
-  uses S256 PKCE. VS Code supports completing an external redirect using its callback URL.
+  alternative requirements and combined schemes are respected. Without a complete set
+  of valid credentials, requests are sent without generated authorization and the API
+  decides whether anonymous access is allowed (including public endpoints under global
+  security declarations). Explicit request headers are preserved.
+  OAuth authorization code uses S256 PKCE. For compatibility with v1, OAuth2 implicit
+  flows default Client ID to the first scope's prefix before its final `/`, unless the
+  scheme provides `clientId`. This is a legacy convention, not general OAuth discovery;
+  the Client ID remains editable for providers using a separate client registration.
+  VS Code supports completing an external redirect using its callback URL.
 - Response status, timing, size, body, headers, request details and downloads.
 - Variables including legacy `{{@output}}` syntax; JSONPath extraction runs without eval.
 - Saved collection runner with ordering, enable/disable, delay, cancellation, stop on

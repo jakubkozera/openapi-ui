@@ -333,11 +333,7 @@ export function buildRequest(
         credentialPresent(resolveRef(schemes[name], spec), credentials[name]),
       ),
     );
-    if (!requirement)
-      throw new Error(
-        "Authentication required. Configure a security scheme in Authorization.",
-      );
-    for (const name of Object.keys(requirement)) {
+    for (const name of Object.keys(requirement || {})) {
       const scheme = resolveRef(schemes[name], spec);
       const credential = credentials[name];
       if (scheme.type === "apiKey") {

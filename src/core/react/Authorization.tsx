@@ -4,6 +4,7 @@ import { credentialPresent, resolveRef, securitySchemes } from "./api";
 import {
   authorizationUrl,
   completeAuthorization,
+  defaultClientId,
   discoverOidc,
   requestToken,
 } from "./oauth";
@@ -44,7 +45,10 @@ export function Authorization({
   const [callback, setCallback] = useState("");
   const scheme = resolveRef(securitySchemes(spec)[selected], spec);
   const credential = credentials[selected] || {};
-  const config = configs[selected] || {};
+  const config: Record<string, any> = {
+    clientId: defaultClientId(scheme),
+    ...configs[selected],
+  };
   const flowName =
     config.flow || Object.keys(scheme.flows || {})[0] || "authorizationCode";
   const flow = scheme.flows?.[flowName];

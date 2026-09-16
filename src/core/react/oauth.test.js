@@ -1,5 +1,10 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { authorizationUrl, completeAuthorization, requestToken } from "./oauth";
+import {
+  authorizationUrl,
+  completeAuthorization,
+  defaultClientId,
+  requestToken,
+} from "./oauth";
 
 afterEach(() => vi.unstubAllGlobals());
 const memory = () => {
@@ -12,6 +17,28 @@ const memory = () => {
 };
 
 describe("OAuth", () => {
+  it("restores the legacy implicit scope Client ID without overriding explicit configuration", () => {
+    const scheme = {
+      type: "oauth2",
+      flows: {
+        implicit: { scopes: { "api://example-client/User.Read": "Read" } },
+      },
+    };
+    expect(defaultClientId(scheme)).toBe("api://example-client");
+    expect(defaultClientId({ ...scheme, clientId: "explicit-client" })).toBe(
+      "explicit-client",
+    );
+    expect(defaultClientId({ ...scheme, clientId: "" })).toBe("");
+    expect(
+      defaultClientId({
+        type: "oauth2",
+        flows: { implicit: { scopes: { openid: "Login" } } },
+      }),
+    ).toBe("");
+    expect(defaultClientId({ type: "oauth2", flows: {} })).toBe("");
+    expect(defaultClientId({ type: "openIdConnect" })).toBe("");
+  });
+
   it("uses cryptographic state and S256 PKCE, then exchanges the matching callback once", async () => {
     const storage = memory();
     const url = new URL(
@@ -32,12 +59,10 @@ describe("OAuth", () => {
     );
     expect(url.searchParams.get("code_challenge_method")).toBe("S256");
     expect(url.searchParams.get("code_challenge")).toHaveLength(43);
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: async () => ({ access_token: "token", expires_in: 3600 }),
-      });
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ access_token: "token", expires_in: 3600 }),
+    });
     vi.stubGlobal("fetch", fetchMock);
     const callback = `https://app.example/?code=code&state=${url.searchParams.get("state")}`;
     expect(await completeAuthorization(callback, storage)).toMatchObject({
@@ -75,12 +100,10 @@ describe("OAuth", () => {
   });
 
   it("sends client credentials with the correct grant", async () => {
-    const fetchMock = vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: async () => ({ access_token: "token" }),
-      });
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ access_token: "token" }),
+    });
     vi.stubGlobal("fetch", fetchMock);
     await requestToken(
       { tokenUrl: "https://identity.example/token" },

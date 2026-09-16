@@ -6,10 +6,12 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
   within,
 } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
 import { App } from "./App";
+import { Authorization } from "./Authorization";
 import { workspaceKey } from "./workspace";
 
 const spec = {
@@ -50,6 +52,60 @@ const openRequest = (name: string) =>
   );
 
 describe("React workspace", () => {
+  it.each([false, true])(
+    "prefills the legacy OAuth Client ID and authorizes with it (override: %s)",
+    async (override) => {
+      const open = vi.fn();
+      vi.stubGlobal("openapiHost", {});
+      vi.stubGlobal("open", open);
+      render(
+        <Authorization
+          spec={{
+            ...spec,
+            components: {
+              securitySchemes: {
+                oauth2: {
+                  type: "oauth2",
+                  flows: {
+                    implicit: {
+                      authorizationUrl: "https://identity.example/auth",
+                      scopes: { "api://example-client/User.Read": "Read" },
+                    },
+                  },
+                },
+              },
+            },
+          }}
+          credentials={{}}
+          onChange={vi.fn()}
+          workspace="oauth-test"
+          remember={false}
+          onRemember={vi.fn()}
+          notify={vi.fn()}
+          onEnabled={vi.fn()}
+        />,
+      );
+      const input = screen.getByRole("textbox", { name: "Client ID" });
+      expect(input).toHaveValue("api://example-client");
+      if (override) {
+        fireEvent.change(input, { target: { value: "" } });
+        expect(input).toHaveValue("");
+        fireEvent.change(input, { target: { value: "custom-client" } });
+      }
+      fireEvent.click(screen.getByRole("button", { name: "Authorize" }));
+      await waitFor(() => expect(open).toHaveBeenCalledOnce());
+      const url = new URL(open.mock.calls[0][0]);
+      expect(url.searchParams.get("client_id")).toBe(
+        override ? "custom-client" : "api://example-client",
+      );
+      expect(url.searchParams.get("scope")).toBe(
+        "api://example-client/User.Read",
+      );
+      expect(url.searchParams.get("response_type")).toBe("token");
+      sessionStorage.clear();
+    },
+  );
+
   it("exposes configurable client generation and generated model files", () => {
     render(<App initialSpec={spec} storage={localStorage} />);
     fireEvent.click(screen.getByRole("button", { name: "Code" }));
@@ -243,6 +299,51 @@ describe("React workspace", () => {
       within(tablist).getByRole("tab", { name: "Overview" }),
     ).toBeVisible();
   });
+
+  it.each([200, 401])(
+    "sends without OAuth credentials and displays the server's %s response",
+    async (status) => {
+      const fetchMock = vi.fn().mockResolvedValue({
+        status,
+        statusText: status === 200 ? "OK" : "Unauthorized",
+        ok: status === 200,
+        headers: new Headers({ "content-type": "application/json" }),
+        blob: async () => ({ text: async () => "{}", size: 2 }),
+      });
+      vi.stubGlobal("fetch", fetchMock);
+      render(
+        <App
+          initialSpec={{
+            ...spec,
+            security: [{ oauth2: [] }],
+            components: {
+              securitySchemes: {
+                oauth2: {
+                  type: "oauth2",
+                  flows: {
+                    implicit: {
+                      authorizationUrl: "https://identity.example/auth",
+                      scopes: { "api://example-client/User.Read": "Read" },
+                    },
+                  },
+                },
+              },
+            },
+          }}
+          storage={localStorage}
+        />,
+      );
+      openRequest("GET List pets");
+      fireEvent.click(screen.getByRole("button", { name: "Send" }));
+      expect(
+        await screen.findByText(status === 200 ? "200 OK" : "401 Unauthorized"),
+      ).toBeVisible();
+      expect(fetchMock).toHaveBeenCalledOnce();
+      expect(fetchMock.mock.calls[0][1].headers.has("Authorization")).toBe(
+        false,
+      );
+    },
+  );
 
   it("records history without request secrets or response payloads", async () => {
     vi.stubGlobal(

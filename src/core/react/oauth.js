@@ -1,5 +1,13 @@
 const PENDING_KEY = "openapi-ui:oauth:pending";
 
+export function defaultClientId(scheme) {
+  if (scheme.clientId != null) return scheme.clientId;
+  if (scheme.type !== "oauth2") return "";
+  const scope = Object.keys(scheme.flows?.implicit?.scopes || {})[0] || "";
+  const separator = scope.lastIndexOf("/");
+  return separator > 0 ? scope.slice(0, separator) : "";
+}
+
 function base64url(bytes) {
   return btoa(String.fromCharCode(...bytes))
     .replace(/\+/g, "-")
