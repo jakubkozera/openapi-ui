@@ -3,6 +3,7 @@ import {
   ChevronRight,
   Columns2,
   Download,
+  KeyRound,
   Plus,
   Rows2,
   Square,
@@ -126,6 +127,11 @@ export function RequestView({
             >
               <Star size={18} fill={favorite ? "currentColor" : "none"} />
             </IconButton>
+            {operation.security.length > 0 && (
+              <IconButton label="Configure authorization" onClick={onAuth}>
+                <KeyRound size={18} />
+              </IconButton>
+            )}
             <IconButton
               label="Add request to runner"
               onClick={onAddToCollection}
@@ -182,9 +188,6 @@ export function RequestView({
               )}
             </button>
           ))}
-          <button className="auth-link" onClick={onAuth}>
-            Authorization{operation.security.length ? " *" : ""}
-          </button>
         </div>
         <section className="request-details" role="tabpanel" aria-label={tab}>
           {tab === "Parameters" && (

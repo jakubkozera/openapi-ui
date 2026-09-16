@@ -41,6 +41,24 @@ const props = () => ({
 });
 
 describe("React request editor", () => {
+  it("opens authorization from the header only when security is required", () => {
+    const publicHandlers = props();
+    const view = render(<RequestView {...publicHandlers} />);
+    expect(
+      screen.queryByRole("button", { name: "Configure authorization" }),
+    ).toBeNull();
+    expect(screen.queryByRole("tab", { name: /Authorization/i })).toBeNull();
+
+    const securedOperation = { ...operation, security: [{ bearer: [] }] };
+    view.rerender(
+      <RequestView {...publicHandlers} operation={securedOperation} />,
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: "Configure authorization" }),
+    );
+    expect(publicHandlers.onAuth).toHaveBeenCalledOnce();
+  });
+
   it("explains variable syntax and output extraction on hover and keyboard focus", () => {
     render(<RequestView {...props()} />);
     fireEvent.focus(

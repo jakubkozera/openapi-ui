@@ -170,7 +170,7 @@ details[open] > summary .expand-chevron { transform: rotate(90deg); }
 .method-get { color: var(--get); }.method-post { color: var(--post); }.method-put { color: var(--put); }.method-patch { color: var(--patch); }.method-delete { color: var(--delete); }
 .empty { color: var(--muted); text-align: center; padding: 36px 16px; }
 .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
-.app-shell { display: grid; grid-template-columns: 70px var(--sidebar-width, 258px) 5px minmax(0, 1fr); grid-template-rows: 52px minmax(0, 1fr); height: 100dvh; overflow: hidden; }
+.app-shell { display: grid; grid-template-columns: 70px var(--sidebar-width, 258px) 3px minmax(0, 1fr); grid-template-rows: 52px minmax(0, 1fr); height: 100dvh; overflow: hidden; }
 .app-header { grid-column: 1 / -1; display: flex; align-items: center; gap: 15px; border-bottom: 1px solid var(--border); padding: 0 18px; background: linear-gradient(110deg, var(--surface-alt), var(--surface)); }
 .app-header > .icon-button { display: none; }
 .brand { display: inline-flex; align-items: center; gap: 9px; text-decoration: none; color: var(--text); font-size: 15px; font-weight: 600; white-space: nowrap; }
@@ -186,10 +186,10 @@ details[open] > summary .expand-chevron { transform: rotate(90deg); }
 .activity-bar button { border: 0; border-radius: 0; min-height: 62px; padding: 8px 2px; display: flex; flex-direction: column; gap: 6px; background: transparent; color: var(--muted); font-size: 10px; position: relative; }
 .activity-bar button[aria-current='page'] { color: var(--text); background: var(--surface-hover); }
 .activity-bar button[aria-current='page']::before { content: ''; position: absolute; top: 10px; bottom: 10px; left: 0; width: 2px; background: var(--accent); }
-.collection-sidebar { background: var(--surface-alt); border-right: 1px solid var(--border); display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
-.sidebar-resizer { position: relative; min-width: 5px; cursor: col-resize; touch-action: none; background: var(--surface-alt); }
-.sidebar-resizer::after { content: ''; position: absolute; inset: 0 1px; background: transparent; }
-.sidebar-resizer:hover::after, .sidebar-resizer:focus-visible::after { background: var(--focus); }
+.collection-sidebar { background: var(--surface-alt); display: flex; flex-direction: column; min-height: 0; overflow: hidden; }
+.sidebar-resizer { position: relative; min-width: 3px; cursor: col-resize; touch-action: none; background: transparent; }
+.sidebar-resizer::after { content: ''; position: absolute; top: 0; bottom: 0; left: 1px; width: 1px; background: var(--border); opacity: .55; }
+.sidebar-resizer:hover::after, .sidebar-resizer:focus-visible::after { background: var(--focus); opacity: 1; }
 .sidebar-heading { display: flex; justify-content: space-between; align-items: center; padding: 14px 14px 7px; }
 .search-field { flex-direction: row; align-items: center; margin: 4px 12px 10px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); padding-left: 8px; color: var(--muted); }
 .search-field input { width: 100%; border: none; background: transparent; font-size: 12px; }
@@ -265,7 +265,7 @@ details[open] > summary .expand-chevron { transform: rotate(90deg); }
 .subtabs { display: flex; align-items: center; gap: 18px; border-bottom: 1px solid var(--border); min-height: 42px; overflow: auto; white-space: nowrap; scrollbar-width: thin; }
 .subtabs button { background: transparent; border: 0; border-radius: 0; border-bottom: 2px solid transparent; color: var(--muted); padding: 12px 0 10px; font-size: 12px; flex-shrink: 0; }
 .subtabs button[aria-selected='true'] { color: var(--text); border-bottom-color: var(--accent); }
-.request-view > .subtabs { padding: 0 28px; }.subtabs .auth-link { margin-left: auto; }
+.request-view > .subtabs { padding: 0 28px; }
 .request-details { min-height: 220px; padding: 18px 28px 24px; }
 .key-values { width: 100%; }.kv-heading { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 8px 30px 12px; color: var(--muted); font-size: 11px; border-bottom: 1px solid var(--border); }
 .kv-row { display: flex; align-items: center; gap: 8px; padding: 7px 0; border-bottom: 1px solid var(--border); }
@@ -300,7 +300,7 @@ details[open] > summary .expand-chevron { transform: rotate(90deg); }
 .toast { position: fixed; right: 18px; bottom: 42px; z-index: 100; display: flex; align-items: center; gap: 15px; max-width: min(500px, calc(100vw - 36px)); background: var(--surface); color: var(--text); border: 1px solid var(--success); border-radius: 5px; padding: 10px 12px; box-shadow: 0 4px 20px #00000020; overflow-wrap: anywhere; }.toast-error { border-color: var(--error); }.error-banner { background: var(--surface-alt); color: var(--error); padding: 12px 18px; border-bottom: 1px solid var(--border); }
 .startup { min-height: 100dvh; padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; }
 @keyframes pulse { 50% { opacity: .3; } }
-@media (max-width: 1100px) { .app-shell { grid-template-columns: 62px var(--sidebar-width, 226px) 5px minmax(0, 1fr); }.overview, .tool-view { padding: 24px; }.subtabs { gap: 14px; }.subtabs .auth-link { margin-left: 0; }.request-heading, .response-heading { padding-left: 20px; padding-right: 20px; }.request-details { padding: 16px 20px; }.request-view > .subtabs { padding: 0 20px; }.request-url { margin-left: 20px; margin-right: 20px; } }
+@media (max-width: 1100px) { .app-shell { grid-template-columns: 62px var(--sidebar-width, 226px) 3px minmax(0, 1fr); }.overview, .tool-view { padding: 24px; }.subtabs { gap: 14px; }.request-heading, .response-heading { padding-left: 20px; padding-right: 20px; }.request-details { padding: 16px 20px; }.request-view > .subtabs { padding: 0 20px; }.request-url { margin-left: 20px; margin-right: 20px; } }
 @media (max-width: 820px) {
   .app-shell { grid-template-columns: 50px minmax(0, 1fr); grid-template-rows: 48px minmax(0, 1fr); }
   .app-header { padding: 0 10px; gap: 9px; }.app-header > .icon-button { display: inline-flex; }.header-title, .header-divider { display: none; }.brand { font-size: 14px; }.theme-picker > span { display: none; }.theme-picker select { max-width: 110px; font-size: 11px; }
