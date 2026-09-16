@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
-import { ChevronsRight, PanelsTopLeft, Play, Star, X } from "lucide-react";
+import { ChevronsRight, PanelsTopLeft, Star, X } from "lucide-react";
+import { PlayIcon } from "./ui";
 
 interface RequestTab {
   id: string;
@@ -61,7 +62,7 @@ export function RequestTabContextMenu({
         {isFavorite ? "Remove from favourites" : "Add to favourites"}
       </button>
       <button type="button" role="menuitem" onClick={onAddToRunner}>
-        <Play size={14} />
+        <PlayIcon size={14} />
         Add to runner
       </button>
       <button

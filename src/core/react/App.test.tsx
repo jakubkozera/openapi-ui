@@ -60,6 +60,11 @@ describe("React workspace", () => {
     expect(
       screen.getByRole("link", { name: "Open OpenAPI UI on GitHub" }),
     ).toHaveAttribute("href", "https://github.com/jakubkozera/openapi-ui");
+    expect(
+      screen
+        .getByRole("button", { name: "Runner" })
+        .querySelector('[data-icon="codicon-play"]'),
+    ).not.toBeNull();
   });
 
   it("resolves UI assets below the configured UI path", () => {
@@ -204,6 +209,34 @@ describe("React workspace", () => {
     expect(screen.getByRole("textbox", { name: "Request body" })).toHaveValue(
       '{"name":"Saved pet"}',
     );
+  });
+
+  it("persists the sidebar size and request layout globally", () => {
+    localStorage.setItem("openapi-ui:request-layout", "columns");
+    const app = render(<App initialSpec={spec} storage={localStorage} />);
+
+    const sidebarSeparator = screen.getByRole("separator", {
+      name: "Resize collection sidebar",
+    });
+    expect(sidebarSeparator).toHaveAttribute("aria-valuenow", "280");
+    for (let index = 0; index < 6; index += 1) {
+      fireEvent.keyDown(sidebarSeparator, { key: "ArrowLeft" });
+    }
+    expect(sidebarSeparator).toHaveAttribute("aria-valuenow", "0");
+    expect(localStorage.getItem("openapi-ui:sidebar-width")).toBe("0");
+
+    openRequest("GET List pets");
+    expect(document.querySelector(".request-layout-columns")).not.toBeNull();
+    fireEvent.click(
+      screen.getByRole("button", { name: "Stack panels vertically" }),
+    );
+    expect(localStorage.getItem("openapi-ui:request-layout")).toBe("stacked");
+
+    app.unmount();
+    render(<App initialSpec={spec} storage={localStorage} />);
+    expect(
+      screen.getByRole("separator", { name: "Resize collection sidebar" }),
+    ).toHaveAttribute("aria-valuenow", "0");
   });
 
   it("closes tabs, filters requests and persists standalone theme choice", () => {

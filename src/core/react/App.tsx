@@ -17,7 +17,6 @@ import {
   KeyRound,
   Menu,
   PanelsTopLeft,
-  Play,
   Search,
   Star,
   Upload,
@@ -50,7 +49,7 @@ import { Authorization } from "./Authorization";
 import { RequestView } from "./RequestView";
 import { Runner } from "./Runner";
 import { CodeTools, History, ImportSpec, Overview, Variables } from "./Tools";
-import { IconButton, Method } from "./ui";
+import { IconButton, Method, PlayIcon } from "./ui";
 import { completeAuthorization } from "./oauth";
 import type {
   Credentials,
@@ -69,9 +68,23 @@ const tools = [
   { id: "history", label: "History", icon: HistoryIcon },
   { id: "variables", label: "Variables", icon: Braces },
   { id: "auth", label: "Authorization", icon: KeyRound },
-  { id: "runner", label: "Runner", icon: Play },
+  { id: "runner", label: "Runner", icon: PlayIcon },
   { id: "code", label: "Code", icon: Code2 },
 ];
+
+const SIDEBAR_WIDTH_KEY = "openapi-ui:sidebar-width";
+const REQUEST_LAYOUT_KEY = "openapi-ui:request-layout";
+const REQUEST_SPLIT_KEY = "openapi-ui:request-split";
+const DEFAULT_SIDEBAR_WIDTH = 280;
+const MIN_SIDEBAR_WIDTH = 180;
+const MAX_SIDEBAR_WIDTH = 520;
+
+function storedNumber(storage: StorageLike, key: string, fallback: number) {
+  const stored = storage.getItem(key);
+  if (stored === null) return fallback;
+  const value = Number(stored);
+  return Number.isFinite(value) && value >= 0 ? value : fallback;
+}
 
 export function uiAssetUrl(asset: string) {
   const uiPath = location.pathname.replace(/\/+$/, "");
@@ -276,6 +289,17 @@ export function Workspace({
   const [method, setMethod] = useState("");
   const [onlyFavorites, setOnlyFavorites] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarWidth, setSidebarWidth] = useState(() =>
+    storedNumber(storage, SIDEBAR_WIDTH_KEY, DEFAULT_SIDEBAR_WIDTH),
+  );
+  const [requestLayout, setRequestLayout] = useState<"stacked" | "columns">(
+    () =>
+      storage.getItem(REQUEST_LAYOUT_KEY) === "columns" ? "columns" : "stacked",
+  );
+  const [requestSplit, setRequestSplit] = useState(() =>
+    Math.min(80, Math.max(20, storedNumber(storage, REQUEST_SPLIT_KEY, 58))),
+  );
+  const shellRef = useRef<HTMLDivElement>(null);
   const [responses, setResponses] = useState<Record<string, ResponseData>>({});
   const [pending, setPending] = useState<Record<string, boolean>>({});
   const [files, setFiles] = useState<
@@ -350,6 +374,21 @@ export function Workspace({
   useEffect(() => {
     setStorageFailed(!persistWorkspace(storage, key, state));
   }, [state]);
+  useEffect(() => {
+    try {
+      storage.setItem(SIDEBAR_WIDTH_KEY, String(sidebarWidth));
+    } catch {
+      /* Resizing remains available when storage is unavailable. */
+    }
+  }, [sidebarWidth, storage]);
+  useEffect(() => {
+    try {
+      storage.setItem(REQUEST_LAYOUT_KEY, requestLayout);
+      storage.setItem(REQUEST_SPLIT_KEY, String(requestSplit));
+    } catch {
+      /* Layout remains usable when storage is unavailable. */
+    }
+  }, [requestLayout, requestSplit, storage]);
   useEffect(() => {
     const onMessage = (event: MessageEvent) => {
       if (event.data?.type === "workspaceSaveError") setStorageFailed(true);
@@ -569,7 +608,11 @@ export function Workspace({
   const host =
     !!window.openapiHost || document.body.className.includes("vscode-");
   return (
-    <div className="app-shell">
+    <div
+      ref={shellRef}
+      className="app-shell"
+      style={{ "--sidebar-width": `${sidebarWidth}px` } as React.CSSProperties}
+    >
       <header className="app-header">
         <IconButton
           label="Toggle collections"
@@ -743,6 +786,54 @@ export function Workspace({
           <span>v{spec.info?.version || "1.0"}</span>
         </footer>
       </aside>
+      <div
+        className="sidebar-resizer"
+        role="separator"
+        aria-label="Resize collection sidebar"
+        aria-orientation="vertical"
+        aria-valuemin={0}
+        aria-valuemax={MAX_SIDEBAR_WIDTH}
+        aria-valuenow={sidebarWidth}
+        tabIndex={0}
+        onDoubleClick={() =>
+          setSidebarWidth((width) => (width === 0 ? DEFAULT_SIDEBAR_WIDTH : 0))
+        }
+        onKeyDown={(event) => {
+          if (!["ArrowLeft", "ArrowRight", "Home"].includes(event.key)) return;
+          event.preventDefault();
+          if (event.key === "Home") setSidebarWidth(DEFAULT_SIDEBAR_WIDTH);
+          else
+            setSidebarWidth((width) => {
+              const next = width + (event.key === "ArrowRight" ? 20 : -20);
+              return next < MIN_SIDEBAR_WIDTH
+                ? 0
+                : Math.min(MAX_SIDEBAR_WIDTH, next);
+            });
+        }}
+        onPointerDown={(event) => {
+          event.preventDefault();
+          const resize = (moveEvent: PointerEvent) => {
+            const shellLeft =
+              shellRef.current?.getBoundingClientRect().left || 0;
+            const activityWidth = window.innerWidth <= 1100 ? 62 : 70;
+            const next = moveEvent.clientX - shellLeft - activityWidth;
+            setSidebarWidth(
+              next < 140
+                ? 0
+                : Math.min(
+                    MAX_SIDEBAR_WIDTH,
+                    Math.max(MIN_SIDEBAR_WIDTH, next),
+                  ),
+            );
+          };
+          const stop = () => {
+            window.removeEventListener("pointermove", resize);
+            window.removeEventListener("pointerup", stop);
+          };
+          window.addEventListener("pointermove", resize);
+          window.addEventListener("pointerup", stop);
+        }}
+      />
       <main className="workspace-main">
         <div
           className="request-tabs"
@@ -944,6 +1035,10 @@ export function Workspace({
                   }))
                 }
                 onAuth={() => setView("auth")}
+                layout={requestLayout}
+                split={requestSplit}
+                onLayoutChange={setRequestLayout}
+                onSplitChange={setRequestSplit}
               />
             ) : (
               <Overview

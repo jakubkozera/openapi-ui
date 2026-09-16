@@ -3,7 +3,6 @@ import {
   ChevronRight,
   Download,
   FileCode2,
-  Play,
   Trash2,
   Upload,
 } from "lucide-react";
@@ -19,6 +18,7 @@ import {
   Markdown,
   Method,
   Modal,
+  PlayIcon,
 } from "./ui";
 import type {
   Credentials,
@@ -62,7 +62,7 @@ export function Overview({
           </div>
         </div>
         <button className="primary" onClick={onRunner}>
-          <Play size={16} />
+          <PlayIcon size={16} />
           Run collection
         </button>
       </header>
