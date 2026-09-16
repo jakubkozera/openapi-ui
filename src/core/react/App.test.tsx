@@ -10,7 +10,7 @@ import {
   within,
 } from "@testing-library/react";
 import "@testing-library/jest-dom/vitest";
-import { App } from "./App";
+import { App, uiAssetUrl } from "./App";
 import { Authorization } from "./Authorization";
 import { workspaceKey } from "./workspace";
 
@@ -60,6 +60,14 @@ describe("React workspace", () => {
     expect(
       screen.getByRole("link", { name: "Open OpenAPI UI on GitHub" }),
     ).toHaveAttribute("href", "https://github.com/jakubkozera/openapi-ui");
+  });
+
+  it("resolves UI assets below the configured UI path", () => {
+    expect(uiAssetUrl("openapi-ui.png")).toBe("/openapi-ui.png");
+    history.replaceState({}, "", "/custom-openapi-ui/");
+    expect(uiAssetUrl("openapi-ui.png")).toBe(
+      "/custom-openapi-ui/openapi-ui.png",
+    );
   });
 
   it.each([false, true])(

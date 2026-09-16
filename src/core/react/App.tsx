@@ -73,6 +73,11 @@ const tools = [
   { id: "code", label: "Code", icon: Code2 },
 ];
 
+export function uiAssetUrl(asset: string) {
+  const uiPath = location.pathname.replace(/\/+$/, "");
+  return `${uiPath}/${asset}`;
+}
+
 interface AppProps {
   initialSpec?: OpenApiDocument;
   initialSource?: string;
@@ -582,7 +587,7 @@ export function Workspace({
         >
           <img
             className="brand-logo"
-            src="/openapi-ui.png"
+            src={uiAssetUrl("openapi-ui.png")}
             alt="OpenAPI UI logo"
           />
           <span>OpenAPI UI</span>
