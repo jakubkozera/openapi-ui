@@ -1,150 +1,78 @@
 # OpenAPI UI
 
-A modern, feature-rich OpenAPI/Swagger documentation and testing interface with advanced functionality for API development and testing.
+OpenAPI UI is an interactive workspace for exploring, testing and automating OpenAPI APIs. It runs as a standalone web application, ASP.NET Core middleware and a VS Code extension.
 
-The core UI is now a React workspace with a collection overview, persistent request tabs,
-request history, standalone theme presets and native VS Code theme tokens.
-See [React core development and migration](src/core/README.md) for build commands,
-storage behavior, testing and browser limitations. Existing screenshots below show the
-previous interface and have not yet been updated.
+[Live demo](https://jakubkozera.github.io/openapi-ui/)
 
-## 🎮 Demo
+![OpenAPI UI collection overview](readme-assets/openapi-ui-overview.png)
 
-Want to try OpenAPI UI before integrating it into your project? Check out our live demo:
+## Highlights
 
-**[🚀 Try it yourself at https://jakubkozera.github.io/openapi-ui/](https://jakubkozera.github.io/openapi-ui/)**
+- React workspace with searchable collections, HTTP method filters and favorites
+- Persistent request tabs with independent drafts and session restoration
+- OpenAPI 3.x and Swagger 2.0 import from URL, file or pasted JSON/YAML
+- Request editing for path, query, header, cookie, JSON, XML, text and multipart data
+- Response status, timing, size, headers, body preview and file download
+- Bearer, Basic, API key, OAuth2 and OpenID Connect authorization
+- Environment variables and response output variables with JSONPath extraction
+- Monaco variable highlighting and hover previews for `{{variable}}` and `{{@output}}`
+- Collection runner with ordering, delay, cancellation, stop-on-error and variable chaining
+- Request snippets and configurable C# and JavaScript/TypeScript client generation
+- Standalone themes and native VS Code light, dark and high-contrast theme support
 
-The demo showcases all the features mentioned above with a sample API specification, so you can:
+## Request Workspace
 
-- Explore the modern UI and navigation
-- Test the interactive API functionality
-- Try out the Collection Runner
-- Experience the authentication features
-- Generate code snippets and API clients
-- See the variable management in action
+Every operation opens in a persistent tab. Secured operations show a key action in the request header that opens the shared Authorization view. Public operations do not display it.
 
-No installation required - just open the link and start exploring!
+Variables can be used in the server URL, request path, parameters, headers, forms and request body. Monaco distinguishes resolved variables, pending outputs and missing values. Hovering a reference shows the value that will be substituted.
 
-## 🚀 Features
+![Request body with variable highlighting](readme-assets/request-editor-variables.png)
 
-### Core Features
+## Variables
 
-- 🚀 **Easy Integration** - Simple one-line setup in your ASP.NET Core application
-- 📱 **Modern UI** - Clean, responsive interface for API documentation
-- 🔍 **Easy Navigation** - Search and filter options for quick endpoint discovery
-- 📋 **Comprehensive Endpoint Documentation** - Detailed API docs with requirements, parameters, and schemas
-- ⚡ **Try It Out Section** - Interactive API testing directly from the documentation
-- 🔐 **Authentication Options** - Built-in support for various authentication schemes (Bearer Token, Basic Auth, API Key, OAuth2, OpenID Connect)
-- **Real-time Response Viewing** - Immediate feedback with formatted response data
+Create reusable values in the Variables view and reference them with `{{variableName}}`. Disabled or undefined variables remain unresolved when a request is sent.
 
-![OpenAI UI overview](readme-assets/openapi-ui-overview.png)
+![Variables workspace](readme-assets/variables.png)
 
-### Advanced Features
+To extract a value from a JSON response, define an output name and JSONPath on the source request. A later request can reference it with `{{@outputName}}`. JSONPath scripts are disabled, and the first match is stored after a successful response.
 
-#### 🏃‍♂️ Collection Runner (Postman-like)
+![Output variable definition](readme-assets/output-variables.png)
 
-- 🏃 **Collection Runner** - Execute multiple API requests in sequence for testing workflows
+## Collection Runner
 
-![collection-runner](readme-assets/collection-runner.png)
+The runner executes saved requests in order and carries extracted output values into later requests. Collections support request enablement, reordering, delay, cancellation, stop-on-error, import and export.
 
-- Variable extraction and chaining between requests
+![Collection runner](readme-assets/collection-runner.png)
 
-![variable-definition](readme-assets/variable-definition.png)
-![variable-usage](readme-assets/variable-usage.png)
-![variable-usage-request-body](readme-assets/variable-usage-request-body.png)
+## Authorization
 
-- **Output Parameters** - Extract values from responses for reuse
+Authorization follows OpenAPI operation-level overrides and AND/OR security requirements. Credentials are kept in memory unless persistence is explicitly enabled. Request history never stores response bodies or credentials.
 
-![output-parameters-definition](readme-assets/output-parameters-definition.png)
-![output-parameters-usage](readme-assets/output-parameters-usage.png)
+![Authorization workspace](readme-assets/authorization.png)
 
-#### 🔧 Developer Tools
+## ASP.NET Core Integration
 
-- 📝 **Code Snippets Generation** - Auto-generate code examples in multiple programming languages
-- 🛠️ **API Client Generation** - Generate complete API client libraries for different platforms (C#, JavaScript/TypeScript)
-- **Monaco Editor Integration** - Advanced code editing with syntax highlighting
-- **Variables Management** - Define and manage environment variables
-
-#### 🎯 User Experience
-
-- **Favorites System** - Bookmark frequently used endpoints
-- 🔍 **Search & Filtering** - Quickly find endpoints and operations
-- 🎨 **Theme Support** - Light and dark themes
-- 📱 **Responsive Design** - Works seamlessly on desktop and mobile devices
-- 🔧 **Customizable** - Embedded CSS and JavaScript that can be themed
-
-#### 📊 Navigation & Organization
-
-- **Smart Sidebar** - Collapsible navigation with search functionality
-- **Endpoint Grouping** - Organized by tags and paths
-- **Quick Access** - Jump to specific operations instantly
-- **Breadcrumb Navigation** - Always know where you are in the API
-
-## 🛠 Distribution Formats
-
-OpenAPI UI is available in multiple formats to suit different integration needs:
-
-### Standalone Core
-
-- React application bundled into static JavaScript and CSS
-- No React installation required in the hosting application
-- Easy to embed in any web application
-- Stable `index.html`, `bundle.js` and `bundle.css` distribution
-
-### ASP.NET Core Integration
-
-- 📦 **NuGet package**: `OpenApiUi`
-- 🚀 **Seamless integration** with ASP.NET Core applications
-- 🔧 **Middleware support** for easy setup
-- ⚙️ **Compatible** with existing Swagger/OpenAPI pipelines
-- 📦 **Self-Contained** - All assets embedded in the NuGet package
-- 🌐 **Multi-Framework Support** - Compatible with .NET 6.0, 8.0, and 9.0
-
-### Demo Mode
-
-- Standalone demo with sample API specifications
-- Perfect for testing and evaluation
-- No backend required
-
-## 🚀 Quick Start
-
-### ASP.NET Core Integration
-
-1. Install the NuGet package:
+Install the NuGet package:
 
 ```bash
 dotnet add package OpenApiUi
 ```
 
-Or via Package Manager Console in Visual Studio:
-
-```powershell
-Install-Package OpenApiUi
-```
-
-2. Add to your `Program.cs` (or `Startup.cs` for older versions):
+Register the middleware after the OpenAPI document endpoint:
 
 ```csharp
 using OpenApiUi;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-// Add OpenAPI UI middleware
-app.UseOpenApiUi(); // Uses default path "/swagger/v1/swagger.json"
+app.UseSwagger();
+app.UseOpenApiUi();
 
 app.UseHttpsRedirection();
 app.UseAuthorization();
@@ -153,57 +81,76 @@ app.MapControllers();
 app.Run();
 ```
 
-3. Access the OpenAPI UI
-
-Navigate to `/openapi-ui` in your browser to view the API documentation interface.
-
-### Custom OpenAPI Specification Path
-
-You can specify a custom path to your OpenAPI specification:
+Open `/openapi-ui` in the browser. The default specification path is `/swagger/v1/swagger.json`; pass a custom path when needed:
 
 ```csharp
 app.UseOpenApiUi("/api/docs/swagger.json");
 ```
 
-## Requirements
+The middleware targets .NET 6, 8, 9 and 10.
 
-- .NET 6.0, 8.0, or 9.0
-- ASP.NET Core application
-- OpenAPI/Swagger specification endpoint
+## Distribution
+
+### Standalone Core
+
+The core build emits static `index.html`, `bundle.js` and `bundle.css` assets. It can be hosted without a React runtime in the consuming application.
+
+### ASP.NET Core
+
+The `OpenApiUi` NuGet package embeds the built UI and serves it through ASP.NET Core middleware.
+
+### VS Code
+
+The extension runs the same UI in a webview, maps VS Code theme tokens, persists workspace state and proxies HTTP requests to avoid browser CORS restrictions.
+
+## Development
+
+Node.js 22.12 or newer is required.
+
+```bash
+npm ci --prefix src/core
+npm test --prefix src/core
+npm run typecheck --prefix src/core
+npm run build --prefix src/core
+npm run build:demo --prefix src/core
+```
+
+Start the React development server:
+
+```bash
+npm run dev --prefix src/core
+```
+
+Run the local ASP.NET Core sample:
+
+```bash
+dotnet run --project src/c-sharp/OpenApiUi.Sample
+```
+
+Build and validate the VS Code extension:
+
+```bash
+npm run compile-tests --prefix src/vsc-extension/openapi-ui
+npm run lint --prefix src/vsc-extension/openapi-ui
+npm run compile --prefix src/vsc-extension/openapi-ui
+```
+
+See [React core development](src/core/README.md) for persistence contracts, security details, build synchronization and test coverage.
 
 ## Troubleshooting
 
-### OpenAPI UI not loading
+### UI does not load
 
-1. Ensure the middleware is added after `UseSwagger()` if you're using Swashbuckle
-2. Check that your OpenAPI specification path is correct and accessible
-3. Verify the middleware is registered in the request pipeline
+- Confirm that the OpenAPI document endpoint is available before `UseOpenApiUi` runs.
+- Check the configured specification path in the browser network panel.
+- Verify that the application URL works both with and without a trailing slash.
 
-### Custom OpenAPI path not working
+### Static assets return 404
 
-Make sure the path you specify in `UseOpenApiUi()` matches your actual OpenAPI specification endpoint.
+- Confirm that the middleware is registered in the request pipeline.
+- Rebuild the core to synchronize generated assets into the NuGet and VS Code hosts.
+- Do not edit generated bundles directly.
 
-### Static assets not loading
+## License
 
-The static assets are served from embedded resources. If they're not loading, check the browser's developer tools for 404 errors and verify the middleware is properly configured.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🆘 Support
-
-- 📖 [Documentation](https://github.com/your-repo/openapi-ui/wiki)
-- 🐛 [Issue Tracker](https://github.com/your-repo/openapi-ui/issues)
-- 💬 [Discussions](https://github.com/your-repo/openapi-ui/discussions)
-
-## 🌟 Why Choose OpenAPI UI?
-
-- **Modern Architecture** - Built with modern web standards
-- **Rich Feature Set** - Goes beyond basic documentation
-- **Developer Focused** - Tools that developers actually need
-- **Easy Integration** - Multiple distribution formats
-- **Active Development** - Continuously improved and updated
-- **Performance Optimized** - Fast loading and smooth interactions
-
-Transform your API documentation from static pages into a powerful development tool with OpenAPI UI!
+This project is licensed under the MIT License.
